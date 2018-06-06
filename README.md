@@ -58,7 +58,7 @@ where:
     confcpe.xml    output, CPE Data configuration file decrypted
 
 The output files written by the tool (conf.xml and confcpe.xml) are
-text file in "unix format" (lf as line separator) so notped has
+text file in "unix format" (lf as line separator) so notepad has
 difficulties in displaying them correctly, you can use another editor
 or convert them to "dos format" with a command similar to the
 following:
