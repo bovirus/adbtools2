@@ -2,30 +2,27 @@
 
 Tools for hacking ADB Epicentro routers, including the D-Link DVA-5592
 distributed by Wind in Italy to his FTTC Home Fiber subscribers.
-Python dependencies can be installed using `pip3 install -r
-requirements.txt`.
+
+These tools are python3 scripts available in python source and in .exe
+compiled version for Windows. The .exe doesn't require Python and
+related additional modules, but please note that I use mainly Linux,
+so the .exe version can be older than the python version.
+
+Python dependencies can be installed using
+
+    pip3 install -r requirements.txt
 
 Based on adbtools by Gabriel Huber (https://github.com/Yepoleb/adbtools)
 
-## pkcrypt
-
-Tool used for encrypting/decrypting the config backups from the
-webinterface. Uses an RSA public key for AES encryption. Only works
-with configs created with version E_3.4.0 or later (May 2017) as older
-ones tried to use asymmetric encryption without a private key, which
-makes the configs impossible to decrypt, even for the devices
-themselves. Key can be found at `/etc/certs/download.pem` in the
-firmware image.
-
-Usage example:
-
-    python3 pkcrypt.py sym_decrypt download.pem config.bin config.xml
-
 ## confbin2xml
 
-Tool used for decrypting the config backup file from the
-webinterface. The config backup file is a binary encrypted xml file
-with a trailing segment of base64 encrypted CPE DATA as in the following excerpt:
+It is an improved version of the pkcrypt tool (see below) used for
+decrypting the config backup file saved from the router
+webinterface.
+
+The config backup file is a binary encrypted xml file
+with a trailing segment of base64 encrypted CPE DATA as in the
+following excerpt:
 
 ````
 
@@ -44,9 +41,11 @@ The confbin2xml.py tool extract and decrypt both files, they have
 similar, but not identical, content. I suppose that the two contents
 have to be consistent.
 
-Usage example:
-
+Python Usage example:
     python3 confbin2xml.py download.pem upload.pem config_full_DVA-5592_2018-06-04T222624.bin conf.xml confcpe.xml
+
+Windows Usage example:
+    d:\adbtools2> confbin2xml.exe download.pem upload.pem config_full_DVA-5592_2018-06-04T222624.bin conf.xml confcpe.xml
 
 where:
 
@@ -64,6 +63,22 @@ fragment:
                 <AuthPassword>1234XABC</AuthPassword>
                 <AuthUserName>39099123456</AuthUserName>
           </SIP>
+
+## pkcrypt
+
+Tool used for encrypting/decrypting the config backups from the
+webinterface. Uses an RSA public key for AES encryption. Only works
+with configs created with version E_3.4.0 or later (May 2017) as older
+ones tried to use asymmetric encryption without a private key, which
+makes the configs impossible to decrypt, even for the devices
+themselves. Key can be found at `/etc/certs/download.pem` in the
+firmware image.
+
+Python usage example:
+    python3 pkcrypt.py sym_decrypt download.pem config.bin config.xml
+
+Windows usage example:
+    d:\adbtools2> pkcrypt.exe sym_decrypt download.pem config.bin config.xml
 
 ## Information source to develop these tools
 
