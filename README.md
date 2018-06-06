@@ -57,6 +57,16 @@ where:
     conf.xml       output, main configuration file decrypted
     confcpe.xml    output, CPE Data configuration file decrypted
 
+The output files written by the tool (conf.xml and confcpe.xml) are
+text file in "unix format" (lf as line separator) so notped has
+difficulties in displaying them correctly, you can use another editor
+or convert them to "dos format" with a command similar to the
+following:
+
+    d:\adbtools2> cat conf.xml | more /P > conf2.xml
+
+now conf2.xml can be correctly viewed with notepad.
+
 One intersting piece of information is the SIP username and password
 in plaintext in both configuration file as in the following conf.xml
 fragment:
