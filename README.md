@@ -29,14 +29,14 @@ with a trailing segment of base64 encrypted CPE DATA as in the following excerpt
 
 ````
 
-  \<\!-- CPE Data: DVA-5592/DVA-5592 system type    : 963138_VD5920 -->
-  \<\!-- DATA
+  <!-- CPE Data: DVA-5592/DVA-5592 system type    : 963138_VD5920 -->
+  <!-- DATA
   9V/jO+TpbscUypF/41d3Ej15nwHuUp+c4wBWV4uFWb1Zb/nS6QuDiLUoZeJ2s0mksjXrARR2
   6+4XkU8c2Dt+0svzS01nAOYY6hEhWkiQhUUROsUg69qK88UvBHAiDXW0koIkZ2aOva4bci+U
   ....
   24g6a+nGht0O4xs99XXewI5uq0i/7+sf1Ic7CkscNfrS7k0n07MFPLWSV97kkmU1/+GfGwrd
   e1ICfokPdjY=
-  \-\-\>
+  -->
 
 ````
 
