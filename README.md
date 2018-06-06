@@ -21,7 +21,7 @@ Usage example:
 
     python3 pkcrypt.py sym_decrypt download.pem config.bin config.xml
 
-## confbin2xml.py
+## confbin2xml
 
 Tool used for decrypting the config backup file from the
 webinterface. The config backup file is a binary encrypted xml file
@@ -88,3 +88,15 @@ didn't know where else to put.
     0x0C - 0x0F: Padding
     0x10 - ....: Zero separated strings
     .... - ....: Instructions that somehow reference the strings
+
+## Author
+I am happy to be contacted about this project, my contact details are:
+
+|Item             |Content                                          |
+|-----------------|-------------------------------------------------|
+|Author's name    |Valerio Di Giampietro                            |
+|Email            |v@ler.io (yes it's a valid email address!)       |
+|Personal web site|http://va.ler.io (aka http://digiampietro.com)   |
+|LinkedIn         |http://it.linkedin.com/in/digiampietro           |
+|Twitter          |http://twitter.com/valerio                       |
+|Facebook         |http://facebook.com/digiampietro                 |
