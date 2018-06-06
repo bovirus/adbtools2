@@ -76,8 +76,9 @@ else:
     exit(1)
     
 cpedata_bin = base64.b64decode(cpedata_hex)
-with open("cpe.bin", "wb") as f:
-    f.write(cpedata_bin)
+
+#with open("cpe.bin", "wb") as f:
+#    f.write(cpedata_bin)
 
 #-----
 key = pemcpe_data[0x20:0x30]
