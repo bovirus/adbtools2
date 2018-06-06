@@ -42,9 +42,11 @@ similar, but not identical, content. I suppose that the two contents
 have to be consistent.
 
 Python Usage example:
+
     python3 confbin2xml.py download.pem upload.pem config_full_DVA-5592_2018-06-04T222624.bin conf.xml confcpe.xml
 
 Windows Usage example:
+
     d:\adbtools2> confbin2xml.exe download.pem upload.pem config_full_DVA-5592_2018-06-04T222624.bin conf.xml confcpe.xml
 
 where:
@@ -75,9 +77,11 @@ themselves. Key can be found at `/etc/certs/download.pem` in the
 firmware image.
 
 Python usage example:
+
     python3 pkcrypt.py sym_decrypt download.pem config.bin config.xml
 
 Windows usage example:
+
     d:\adbtools2> pkcrypt.exe sym_decrypt download.pem config.bin config.xml
 
 ## Information source to develop these tools
