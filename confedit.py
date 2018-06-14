@@ -8,10 +8,15 @@ import sys
 import base64
 import os.path
 import io
+import queue
+import logging
+import signal
+import tkinter as tk
 
 from pathlib import Path
 from tkinter import *
-from tkinter import ttk
+from tkinter.scrolledtext import ScrolledText
+from tkinter import ttk , VERTICAL, HORIZONTAL, N, S, E, W
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from Crypto.Cipher import AES # requires pycrypto
 from lxml import etree as ET
@@ -44,13 +49,15 @@ loaded_bin = 0                   # binary config loaded
 loaded_xml = 0                   # xml config loaded
 loaded_cpe = 0                   # cpe xml config loaded
 
-print("mydir:      ",mydir)
-print("down_pem:   ",down_pem)
-print("up_pem:     ",up_pem)
-print("tmpradix:   ",tmpradix)
-print("tmpconf:    ",tmpconf)
-print("tmpconfcpe: ",tmpconfcpe)
-print("homedir:    ",homedir)
+rtr_hwversion    = '                   '
+rtr_manufacturer = '                   '
+rtr_modelname    = '                   '
+rtr_serial       = '                   '
+rtr_fwupgrade    = '                   '
+rtr_customerid   = '                   '
+rtr_bsdgui       = '                   '
+rtr_fwdowngrade  = '                   '
+
 
 load_pems_done = 0
 
@@ -72,7 +79,6 @@ def get_passwords (xml_str):
             try: granpa2s = granpa.getparent().tag
             except: granpa2s=''
             if ((granpa2s != 'X_ADB_MobileModem') and i.text is not None):
-                #print(granpa2s + '/' + granpa.tag + '/' + parent.tag)
                 sout = sout + granpa2s + '/' + granpa.tag + '/' + parent.tag + "\n"
                 for child in parent:
                     if (child.tag in ['Name', 'AuthUserName', 'Password', 'AuthPassword', 'Username',
@@ -96,15 +102,15 @@ def check_enable_menu ():
         filem.entryconfig(4, state = NORMAL)
         filem.entryconfig(5, state = NORMAL)
         filem.entryconfig(6, state = NORMAL)
-        print("enabling menu")
+        logger.log(level,"enabling menu")
     else:
         filem.entryconfig(4, state = DISABLED)
         filem.entryconfig(5, state = DISABLED)
         filem.entryconfig(6, state = DISABLED)
-        print("disabling menu")
+        logger.log(level,"disabling menu")
         
 
-    print("check_enable_menu - done")
+    logger.log(level,"check_enable_menu - done")
 
 #------------------------------------------------------------------------------
 # load_pems - load pem files
@@ -115,7 +121,7 @@ def load_pems():
         with open(down_pem, "rb") as f:
             pemconf_data = f.read()
     except:
-        print("Error opening: ",down_pem)
+        print("Error opening: ", down_pem)
         exit(1)
 
     try:
@@ -126,9 +132,9 @@ def load_pems():
         exit(1)
         
     load_pems_done = 1
-    print("load pems done")
-    print("len 1: ", len(pemconf_data))
-    print("len 2: ", len(pemcpe_data))
+    logger.log(ldebug,"load pems done")
+    logger.log(ldebug,"len 1: " + str(len(pemconf_data)))
+    logger.log(ldebug,"len 2: " + str(len(pemcpe_data)))
     
     
 #------------------------------------------------------------------------------
@@ -141,11 +147,16 @@ def load_config(*args):
     global loaded_bin
     global pemcpe_data
     global pem_data
+    global xml_src
+    global cpexml_src
     name = askopenfilename(initialdir=defaultdir,
                            filetypes =(("Configuration file", "*.bin"),("All Files","*.*")),
                            title = "Choose a file."
                            )
-    print (name)
+    logger.log(ldebug,"loading: " + name)
+    xml_src.set(name)
+    cpexml_src.set(name)
+    
     #Using try in case user types in unknown file or closes without choosing a file.
     try:
         with open(name,'rb') as f:
@@ -155,11 +166,11 @@ def load_config(*args):
         exit(1)
 
     defaultdir=os.path.dirname(name)
-    print("defaultdir: ",defaultdir)
+    logger.log(ldebug,"defaultdir: " + defaultdir)
     if (not load_pems_done):
         load_pems()
 
-    print("len data_in: ",len(data_in))
+    logger.log(ldebug,"len data_in: " + str(len(data_in)))
     # decrypt config
 
     # Going for the popular choice...
@@ -179,7 +190,6 @@ def load_config(*args):
             else:
                 data_out = data_out[:-padding_length]
 
-                
     #-------------------------------------------------------------------------
     # extract the cpe xml data
     #-------------------------------------------------------------------------
@@ -213,13 +223,10 @@ def load_config(*args):
                 break
             else:
                 cpedata_out = cpedata_out[:-padding_length]
-    print("load_config legth cpedata_out", len(cpedata_out))
+    logger.log(ldebug,"load_config legth cpedata_out" + str(len(cpedata_out)))
     loaded_bin = 1
     check_enable_menu()
-    print("---- passwords from data_out ----")
-    print(get_passwords(data_out))
-    print("---- passwords from cpedata_out ----")
-    print(get_passwords(cpedata_out))
+    print_passwords()
     
 #------------------------------------------------------------------------------
 # load_xmlconfig - load xml router configuration file - ok
@@ -247,6 +254,8 @@ def load_xmlconfig(*args):
     check_enable_menu()
     if (not load_pems_done):
         load_pems()
+    xml_src.set(name)
+    print_passwords()
 
     
 #------------------------------------------------------------------------------
@@ -274,6 +283,8 @@ def load_cpexmlconfig(*args):
     check_enable_menu()
     if (not load_pems_done):
         load_pems()
+    cpexml_src.set(name)
+    print_passwords()
                                     
 #------------------------------------------------------------------------------
 # save_config - save router binary configuration file - ok
@@ -397,55 +408,303 @@ def confquit(*args):
     exit()
 
 
-root = Tk()
-root.title("ADB Configuration Editor")
+#------------------------------------------------------------------------------
+# Main program start - set TK GUI based on
+# https://github.com/beenje/tkinter-logging-text-widget
+# Copyright (c) 2017, Benjamin Bertrand
+#------------------------------------------------------------------------------
 
-# menu bar
-menubar = Menu(root)
-root.config(menu=menubar)
+logger = logging.getLogger(__name__)
 
-filem = Menu(menubar)
-filem.add_command(label = 'Open bin config',        command = load_config)
-filem.add_command(label = 'Open xml config',        command = load_xmlconfig)
-filem.add_command(label = 'Open CPE xml config',    command = load_cpexmlconfig)
-filem.add_command(label = 'Save as bin config',     command = save_config, state = DISABLED)
-filem.add_command(label = 'Save as xml config',     command = save_xmlconfig, state = DISABLED)
-filem.add_command(label = 'Save as CPE xml config', command = save_cpexmlconfig, state = DISABLED)
-filem.add_command(label = 'Exit',                   command = confquit)
+class QueueHandler(logging.Handler):
+    """Class to send logging records to a queue
 
-menubar.add_cascade(label = 'File', menu = filem)
+    It can be used from different threads
+    The ConsoleUi class polls this queue to display records in a ScrolledText widget
+    """
+    # Example from Moshe Kaplan: https://gist.github.com/moshekaplan/c425f861de7bbf28ef06
+    # (https://stackoverflow.com/questions/13318742/python-logging-to-tkinter-text-widget) is not thread safe!
+    # See https://stackoverflow.com/questions/43909849/tkinter-python-crashes-on-new-thread-trying-to-log-on-main-thread
 
-mainframe = ttk.Frame(root, padding="3 3 12 12")
-mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
-mainframe.columnconfigure(0, weight=1)
-mainframe.rowconfigure(0, weight=1)
+    def __init__(self, log_queue):
+        super().__init__()
+        self.log_queue = log_queue
 
-voip_user = StringVar()
-voip_pass = StringVar()
-
-voip_user.set("user")
-voip_pass.set("pass")
-
-voip_user_entry = ttk.Entry(mainframe, width=7, textvariable=voip_user)
-voip_user_entry.grid(column=2, row=1, sticky=(W, E))
-
-voip_pass_entry = ttk.Entry(mainframe, width=7, textvariable=voip_pass)
-voip_pass_entry.grid(column=2, row=2, sticky=(W, E))
-
-#ttk.Label(mainframe, textvariable=meters).grid(column=2, row=2, sticky=(W, E))
-
-ttk.Label(mainframe, text="Voip username:").grid(column=1, row=1, sticky=W)
-ttk.Label(mainframe, text="Voip password:").grid(column=1, row=2, sticky=W)
-#ttk.Label(mainframe, text="meters").grid(column=3, row=2, sticky=W)
-
-#ttk.Button(mainframe, text="Load Config", command=load_config).grid(column=1, row=3, sticky=W)
-#ttk.Button(mainframe, text="Save Config", command=save_config).grid(column=2, row=3, sticky=W)
-#ttk.Button(mainframe, text="Quit",        command=confquit).grid(column=3, row=3, sticky=W)
+    def emit(self, record):
+        self.log_queue.put(record)
 
 
-for child in mainframe.winfo_children(): child.grid_configure(padx=5, pady=5)
+class ConsoleUi:
+    """Poll messages from a logging queue and display them in a scrolled text widget"""
 
-voip_user_entry.focus()
-root.bind('<Return>', confquit)
+    def __init__(self, frame):
+        self.frame = frame
+        # Create a ScrolledText wdiget
+        self.scrolled_text = ScrolledText(frame, state='disabled', height=12)
+        self.scrolled_text.grid(row=0, column=0, sticky=(N, S, W, E))
+        self.scrolled_text.configure(font='TkFixedFont')
+        self.scrolled_text.tag_config('INFO', foreground='black')
+        self.scrolled_text.tag_config('DEBUG', foreground='gray')
+        self.scrolled_text.tag_config('WARNING', foreground='orange')
+        self.scrolled_text.tag_config('ERROR', foreground='red')
+        self.scrolled_text.tag_config('CRITICAL', foreground='red', underline=1)
+        # Create a logging handler using a queue
+        self.log_queue = queue.Queue()
+        self.queue_handler = QueueHandler(self.log_queue)
+        #formatter = logging.Formatter('%(asctime)s: %(message)s')
+        formatter = logging.Formatter('%(message)s')
+        self.queue_handler.setFormatter(formatter)
+        logger.addHandler(self.queue_handler)
+        # Start polling messages from the queue
+        self.frame.after(100, self.poll_log_queue)
 
-root.mainloop()
+    def display(self, record):
+        msg = self.queue_handler.format(record)
+        self.scrolled_text.configure(state='normal')
+        self.scrolled_text.insert(tk.END, msg + '\n', record.levelname)
+        self.scrolled_text.configure(state='disabled')
+        # Autoscroll to the bottom
+        self.scrolled_text.yview(tk.END)
+
+    def poll_log_queue(self):
+        # Check every 100ms if there is a new message in the queue to display
+        while True:
+            try:
+                record = self.log_queue.get(block=False)
+            except queue.Empty:
+                break
+            else:
+                self.display(record)
+        self.frame.after(100, self.poll_log_queue)
+
+
+class FormUi:
+
+    def __init__(self, frame):
+        self.frame = frame
+        # Create a combobbox to select the logging level
+        values = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+        self.level = tk.StringVar()
+        ttk.Label(self.frame, text='Level:').grid(column=0, row=0, sticky=W)
+        self.combobox = ttk.Combobox(
+            self.frame,
+            textvariable=self.level,
+            width=25,
+            state='readonly',
+            values=values
+        )
+        self.combobox.current(0)
+        self.combobox.grid(column=1, row=0, sticky=(W, E))
+        # Create a text field to enter a message
+        self.message = tk.StringVar()
+        ttk.Label(self.frame, text='Message:').grid(column=0, row=1, sticky=W)
+        ttk.Entry(self.frame, textvariable=self.message, width=25).grid(column=1, row=1, sticky=(W, E))
+        # Add a button to log the message
+        self.button = ttk.Button(self.frame, text='Submit', command=self.submit_message)
+        self.button.grid(column=1, row=2, sticky=W)
+
+    def submit_message(self):
+        # Get the logging level numeric value
+        lvl = getattr(logging, self.level.get())
+        logger.log(lvl, self.message.get())
+
+
+class RouterInfo:
+    def __init__(self, frame):
+        global rtr_hwversion
+        global rtr_manufacturer
+        global rtr_modelname
+        global rtr_serial
+        global rtr_fwupgrade
+        global rtr_customerid
+        global rtr_bsdgui
+        global rtr_fwdowngrade
+        
+        self.frame = frame
+        ttk.Label(self.frame, text='Hardware Version: ').grid(column=0, row=1, sticky=W)
+        ttk.Label(self.frame, text=rtr_hwversion).grid(column=1, row=1, sticky=W)
+
+        ttk.Label(self.frame, text='Manufacturer: ').grid(column=0, row=2, sticky=W)
+        ttk.Label(self.frame, text=rtr_hwversion).grid(column=1, row=2, sticky=W)
+        
+        ttk.Label(self.frame, text='Model Name: ').grid(column=0, row=3, sticky=W)
+        ttk.Label(self.frame, text=rtr_modelname).grid(column=1, row=3, sticky=W)
+
+        ttk.Label(self.frame, text='Serial Number: ').grid(column=0, row=4, sticky=W)
+        ttk.Label(self.frame, text=rtr_serial).grid(column=1, row=4, sticky=W)
+
+        ttk.Label(self.frame, text='Fw upgrade permitted: ').grid(column=0, row=4, sticky=W)
+        ttk.Label(self.frame, text=rtr_fwupgrade).grid(column=1, row=4, sticky=W)
+        
+        ttk.Label(self.frame, text='Router customer ID: ').grid(column=0, row=5, sticky=W)
+        ttk.Label(self.frame, text=rtr_customerid).grid(column=1, row=5, sticky=W)
+        
+        ttk.Label(self.frame, text='BSD GUI visible: ').grid(column=0, row=6, sticky=W)
+        ttk.Label(self.frame, text=rtr_bsdgui).grid(column=1, row=6, sticky=W)
+        
+        ttk.Label(self.frame, text='Fw downgrade permitted: ').grid(column=0, row=7, sticky=W)
+        ttk.Label(self.frame, text=rtr_fwdowngrade).grid(column=1, row=7, sticky=W)
+        
+        
+class ThirdUi:
+
+    def __init__(self, frame):
+        global xml_src_lbl
+        global cpexml_src_lbl
+        self.frame = frame
+        ttk.Label(self.frame, text='Main XML config file source: ').grid(column=0, row=1, sticky=W)
+        ttk.Label(self.frame, textvariable=xml_src).grid(column=1, row=1, sticky=W)
+
+        ttk.Label(self.frame, text='CPE XML config file source: ').grid(column=0, row=2, sticky=W)
+        ttk.Label(self.frame, textvariable=cpexml_src).grid(column=1, row=2, sticky=W)
+
+
+class App:
+
+    def __init__(self, root):
+        global filem
+        self.root = root
+        root.title('ADB Config Editor')
+        root.columnconfigure(0, weight=1)
+        root.rowconfigure(0, weight=1)
+        # Create the panes and frames
+        vertical_pane = ttk.PanedWindow(self.root, orient=VERTICAL)
+        vertical_pane.grid(row=0, column=0, sticky="nsew")
+        horizontal_pane = ttk.PanedWindow(vertical_pane, orient=HORIZONTAL)
+        vertical_pane.add(horizontal_pane)
+        form_frame = ttk.Labelframe(horizontal_pane, text="Router Info")
+        form_frame.columnconfigure(1, weight=1)
+        horizontal_pane.add(form_frame, weight=1)
+        console_frame = ttk.Labelframe(horizontal_pane, text="Console")
+        console_frame.columnconfigure(0, weight=1)
+        console_frame.rowconfigure(0, weight=1)
+        horizontal_pane.add(console_frame, weight=1)
+        third_frame = ttk.Labelframe(vertical_pane, text="Configuration loading status")
+        vertical_pane.add(third_frame, weight=1)
+        # Initialize all frames
+        self.form = RouterInfo(form_frame)
+        self.console = ConsoleUi(console_frame)
+        self.third = ThirdUi(third_frame)
+        #self.clock = Clock()
+        #self.clock.start()
+        self.root.protocol('WM_DELETE_WINDOW', self.quit)
+        self.root.bind('<Control-q>', self.quit)
+        signal.signal(signal.SIGINT, self.quit)
+
+        menubar = Menu(root)
+        root.config(menu=menubar)
+
+        filem = Menu(menubar)
+        filem.add_command(label = 'Open bin config',        command = load_config)
+        filem.add_command(label = 'Open xml config',        command = load_xmlconfig)
+        filem.add_command(label = 'Open CPE xml config',    command = load_cpexmlconfig)
+        filem.add_command(label = 'Save as bin config',     command = save_config, state = DISABLED)
+        filem.add_command(label = 'Save as xml config',     command = save_xmlconfig, state = DISABLED)
+        filem.add_command(label = 'Save as CPE xml config', command = save_cpexmlconfig, state = DISABLED)
+        filem.add_command(label = 'Exit',                   command = confquit)
+        
+        menubar.add_cascade(label = 'File', menu = filem)
+
+
+
+    def quit(self, *args):
+        #self.clock.stop()
+        self.root.destroy()
+
+def print_passwords():
+    global data_out
+    global cpedata_out
+    if ('data_out' in globals()):
+        logger.log(lerr,"\n---- passwords from main configuration file ----\n")
+        logger.log(lwarn,get_passwords(data_out))
+    if ('cpedata_out' in globals()):
+        logger.log(lerr,"---- passwords from CPE configuration file ----\n")
+        logger.log(lwarn,get_passwords(cpedata_out))
+
+        
+logging.basicConfig(level=logging.DEBUG)
+root = tk.Tk()
+xml_src    = tk.StringVar()     # file loaded with main xml configuration
+cpexml_src = tk.StringVar()     # file loaded with cpe xml configuration
+xml_src.set('Not loaded')
+cpexml_src.set('Not loaded')
+
+
+app = App(root)
+
+ldebug = logging.DEBUG
+linfo  = logging.INFO
+lwarn  = logging.WARNING
+lerr   = logging.ERROR
+lcri   = logging.CRITICAL
+
+level=ldebug
+logger.log(ldebug,"mydir:      " + mydir)
+logger.log(ldebug,"down_pem:   " + down_pem)
+logger.log(ldebug,"up_pem:     " + up_pem)
+logger.log(ldebug,"tmpradix:   " + tmpradix)
+logger.log(ldebug,"tmpconf:    " + tmpconf)
+logger.log(ldebug,"tmpconfcpe: " + tmpconfcpe)
+logger.log(ldebug,"homedir:    " + homedir)
+
+
+app.root.mainloop()
+
+
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+
+
+
+# root = Tk()
+# root.title("ADB Configuration Editor")
+
+# # menu bar
+# menubar = Menu(root)
+# root.config(menu=menubar)
+
+# filem = Menu(menubar)
+# filem.add_command(label = 'Open bin config',        command = load_config)
+# filem.add_command(label = 'Open xml config',        command = load_xmlconfig)
+# filem.add_command(label = 'Open CPE xml config',    command = load_cpexmlconfig)
+# filem.add_command(label = 'Save as bin config',     command = save_config, state = DISABLED)
+# filem.add_command(label = 'Save as xml config',     command = save_xmlconfig, state = DISABLED)
+# filem.add_command(label = 'Save as CPE xml config', command = save_cpexmlconfig, state = DISABLED)
+# filem.add_command(label = 'Exit',                   command = confquit)
+
+# menubar.add_cascade(label = 'File', menu = filem)
+
+# mainframe = ttk.Frame(root, padding="3 3 12 12")
+# mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
+# mainframe.columnconfigure(0, weight=1)
+# mainframe.rowconfigure(0, weight=1)
+
+# voip_user = StringVar()
+# voip_pass = StringVar()
+
+# voip_user.set("user")
+# voip_pass.set("pass")
+
+# voip_user_entry = ttk.Entry(mainframe, width=7, textvariable=voip_user)
+# voip_user_entry.grid(column=2, row=1, sticky=(W, E))
+
+# voip_pass_entry = ttk.Entry(mainframe, width=7, textvariable=voip_pass)
+# voip_pass_entry.grid(column=2, row=2, sticky=(W, E))
+
+# #ttk.Label(mainframe, textvariable=meters).grid(column=2, row=2, sticky=(W, E))
+
+# ttk.Label(mainframe, text="Voip username:").grid(column=1, row=1, sticky=W)
+# ttk.Label(mainframe, text="Voip password:").grid(column=1, row=2, sticky=W)
+# #ttk.Label(mainframe, text="meters").grid(column=3, row=2, sticky=W)
+
+# #ttk.Button(mainframe, text="Load Config", command=load_config).grid(column=1, row=3, sticky=W)
+# #ttk.Button(mainframe, text="Save Config", command=save_config).grid(column=2, row=3, sticky=W)
+# #ttk.Button(mainframe, text="Quit",        command=confquit).grid(column=3, row=3, sticky=W)
+
+
+# for child in mainframe.winfo_children(): child.grid_configure(padx=5, pady=5)
+
+# voip_user_entry.focus()
+# root.bind('<Return>', confquit)
+
+# root.mainloop()
