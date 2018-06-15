@@ -35,6 +35,7 @@ from io import StringIO
 # global variables pointing to default file names
 #------------------------------------------------------------------------------
 mydir    = sys.path[0]
+mydir    = os.path.dirname(os.path.realpath(__file__))
 down_pem = mydir + '/download.pem'
 up_pem   = mydir + '/upload.pem'
 
@@ -67,7 +68,8 @@ load_pems_done = 0
 #     rturn    text string 
 #------------------------------------------------------------------------------
 def get_passwords (xml_str):
-    xmltree = ET.parse(io.BytesIO(xml_str))
+    mystr   = re.sub(b'<!-- DATA.*', b'', xml_str, 0, re.DOTALL)
+    xmltree = ET.parse(io.BytesIO(mystr))
     xmlroot = xmltree.getroot()
 
     sout = '';
@@ -122,14 +124,14 @@ def load_pems():
             pemconf_data = f.read()
     except:
         print("Error opening: ", down_pem)
-        exit(1)
+        sys.exit(1)
 
     try:
         with open(up_pem, "rb") as f:
             pemcpe_data = f.read()
     except:
         print("Error opening: ",up_pem)
-        exit(1)
+        sys.exit(1)
         
     load_pems_done = 1
     logger.log(ldebug,"load pems done")
@@ -163,7 +165,7 @@ def load_config(*args):
             data_in = f.read()
     except:
         print("Error opening: ",name)
-        exit(1)
+        sys.exit(1)
 
     defaultdir=os.path.dirname(name)
     logger.log(ldebug,"defaultdir: " + defaultdir)
@@ -207,7 +209,7 @@ def load_config(*args):
         cpedata_hex = match.group(1)
     else:
         print ("Error in finding hex data\n")
-        exit(1)
+        sys.exit(1)
     
     cpedata_bin = base64.b64decode(cpedata_hex)
     
@@ -247,7 +249,7 @@ def load_xmlconfig(*args):
             data_out = f.read()
     except:
         print("Error opening: ",name)
-        exit(1)
+        sys.exit(1)
 
     defaultdir=os.path.dirname(name)
     loaded_xml = 1
@@ -276,7 +278,7 @@ def load_cpexmlconfig(*args):
             cpedata_out = f.read()
     except:
         print("Error opening ", name)
-        exit(1)
+        sys.exit(1)
 
     defaultdir=os.path.dirname(name)
     loaded_cpe = 1
@@ -354,7 +356,7 @@ def save_config(*args):
             f.write(data_in)
     except:
         print("Error writing: ",name)
-        exit(1)
+        sys.exit(1)
 
     defaultdir=os.path.dirname(name)
 
@@ -374,7 +376,7 @@ def save_xmlconfig(*args):
             f.write(data_out)
     except:
         print("Error writing: ",name)
-        exit(1)
+        sys.exit(1)
 
     defaultdir=os.path.dirname(name)
 
@@ -405,7 +407,7 @@ def save_cpexmlconfig(*args):
 #------------------------------------------------------------------------------
 def confquit(*args):
     print("Conf quit")
-    exit()
+    sys.exit(0)
 
 
 #------------------------------------------------------------------------------
