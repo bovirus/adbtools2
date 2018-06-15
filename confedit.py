@@ -34,7 +34,7 @@ from io import StringIO
 #------------------------------------------------------------------------------
 # global variables pointing to default file names
 #------------------------------------------------------------------------------
-mydir    = sys.path[0]
+mydir    = sys.path[0]              # not correct on exe file from pyinstaller
 mydir    = os.path.dirname(os.path.realpath(__file__))
 down_pem = mydir + '/download.pem'
 up_pem   = mydir + '/upload.pem'
@@ -50,17 +50,60 @@ loaded_bin = 0                   # binary config loaded
 loaded_xml = 0                   # xml config loaded
 loaded_cpe = 0                   # cpe xml config loaded
 
-rtr_hwversion    = '                   '
-rtr_manufacturer = '                   '
-rtr_modelname    = '                   '
-rtr_serial       = '                   '
-rtr_fwupgrade    = '                   '
-rtr_customerid   = '                   '
-rtr_bsdgui       = '                   '
-rtr_fwdowngrade  = '                   '
 
 
 load_pems_done = 0
+
+#------------------------------------------------------------------------------
+# get_info     setup router info textvariables
+#     input    xml_str   binary string, xml or cpe xml conf file
+#------------------------------------------------------------------------------
+def get_info (xml_str):
+    global  rtr_hwversion
+    mystr   = re.sub(b'<!-- DATA.*', b'', xml_str, 0, re.DOTALL)
+    xmltree = ET.parse(io.BytesIO(mystr))
+    xmlroot = xmltree.getroot()
+
+    sout = '';
+
+    for i in xmlroot.findall(".//DeviceInfo/HardwareVersion"):
+        rtr_hwversion.set(i.text)
+
+    for i in xmlroot.findall(".//DeviceInfo/Manufacturer"):
+        rtr_manufacturer.set(i.text)
+
+    for i in xmlroot.findall(".//DeviceInfo/ModelName"):
+        rtr_modelname.set(i.text)
+
+    for i in xmlroot.findall(".//DeviceInfo/SerialNumber"):
+        rtr_serial.set(i.text)
+
+    for i in xmlroot.findall(".//DeviceInfo/X_DLINK_fw_upgr_permitted"):
+        rtr_fwupgrade.set(i.text)
+
+    for i in xmlroot.findall(".//DeviceInfo/X_DLINK_customer_ID"):
+        rtr_customerid.set(i.text)
+
+    for i in xmlroot.findall(".//DeviceInfo/X_DLINK_BsdGuiVisible"):
+        rtr_bsdgui.set(i.text)
+
+    for i in xmlroot.findall(".//DeviceInfo/X_DLINK_AllowFirmwareDowngrade"):
+        rtr_fwdowngrade.set(i.text)
+
+    for i in xmlroot.findall(".//IP/Interface/IPv4Address/IPAddress"):
+        parent = i.getparent()
+        granpa = parent.getparent()
+        for child in granpa:
+            if (child.tag == 'Alias') and (child.text == 'Bridge'):
+                rtr_ip.set(i.text)
+
+    for i in xmlroot.findall(".//IP/Interface/IPv4Address/SubnetMask"):
+        parent = i.getparent()
+        granpa = parent.getparent()
+        for child in granpa:
+            if (child.tag == 'Alias') and (child.text == 'Bridge'):
+                rtr_mask.set(i.text)
+
 
 #------------------------------------------------------------------------------
 # get_passwords return a string text file with passwords xml string
@@ -99,8 +142,20 @@ def check_enable_menu ():
     global loaded_cpe
     global filem
     global menubar
+    global rtr_hwversion
+    global rtr_manufacturer
+    global rtr_modelname
+    global rtr_serial
+    global rtr_fwupgrade
+    global rtr_customerid
+    global rtr_bsdgui
+    global rtr_fwdowngrade
+    global rtr_ip
+    global rtr_mask
 
-    if ((loaded_bin > 0 ) or ((loaded_xml + loaded_cpe) > 1)):
+    print("check_enable_menu - loaded_bin, loaded_xml, loaded_cpe",loaded_bin,loaded_xml,loaded_cpe)
+    
+    if ((loaded_bin == 1 ) or ((loaded_xml == 1) and (loaded_cpe == 1))):
         filem.entryconfig(4, state = NORMAL)
         filem.entryconfig(5, state = NORMAL)
         filem.entryconfig(6, state = NORMAL)
@@ -111,7 +166,18 @@ def check_enable_menu ():
         filem.entryconfig(6, state = DISABLED)
         logger.log(level,"disabling menu")
         
-
+    if ((loaded_bin == 0) and (loaded_cpe == 0)):
+        rtr_hwversion.set('                   ')
+        rtr_manufacturer.set('                   ')
+        rtr_modelname.set('                   ')
+        rtr_serial.set('                   ')
+        rtr_fwupgrade.set('                   ')
+        rtr_customerid.set('                   ')
+        rtr_bsdgui.set('                   ')
+        rtr_fwdowngrade.set('                   ')
+        rtr_ip.set('                   ')
+        rtr_mask.set('                   ')
+        
     logger.log(level,"check_enable_menu - done")
 
 #------------------------------------------------------------------------------
@@ -147,6 +213,8 @@ def load_config(*args):
     global cpedata_out
     global defaultdir
     global loaded_bin
+    global loaded_xml
+    global loaded_cpe
     global pemcpe_data
     global pem_data
     global xml_src
@@ -227,15 +295,20 @@ def load_config(*args):
                 cpedata_out = cpedata_out[:-padding_length]
     logger.log(ldebug,"load_config legth cpedata_out" + str(len(cpedata_out)))
     loaded_bin = 1
+    loaded_xml = 0
+    loaded_cpe = 0
     check_enable_menu()
     print_passwords()
+    get_info(cpedata_out)
     
 #------------------------------------------------------------------------------
 # load_xmlconfig - load xml router configuration file - ok
 #------------------------------------------------------------------------------
 def load_xmlconfig(*args):
     global defaultdir
+    global loaded_bin
     global loaded_xml
+    global loaded_cpe
     global data_out
     global defaultdir
     name = askopenfilename(initialdir=defaultdir,
@@ -253,11 +326,15 @@ def load_xmlconfig(*args):
 
     defaultdir=os.path.dirname(name)
     loaded_xml = 1
+    loaded_bin = 0
     check_enable_menu()
     if (not load_pems_done):
         load_pems()
     xml_src.set(name)
+    if (loaded_cpe == 0):
+        cpexml_src.set('')
     print_passwords()
+    check_enable_menu()
 
     
 #------------------------------------------------------------------------------
@@ -267,6 +344,8 @@ def load_cpexmlconfig(*args):
     global defaultdir
     global cpedata_out
     global loaded_cpe
+    global loaded_xml
+    global loaded_bin
     name = askopenfilename(initialdir=defaultdir,
                            filetypes =(("CPE Configuration file", "*.xml"),("All Files","*.*")),
                            title = "Choose a file."
@@ -282,11 +361,16 @@ def load_cpexmlconfig(*args):
 
     defaultdir=os.path.dirname(name)
     loaded_cpe = 1
+    loaded_bin = 0
+    if (loaded_xml == 0):
+        xml_src.set('')
     check_enable_menu()
     if (not load_pems_done):
         load_pems()
     cpexml_src.set(name)
     print_passwords()
+    get_info(cpedata_out)
+    check_enable_menu()
                                     
 #------------------------------------------------------------------------------
 # save_config - save router binary configuration file - ok
@@ -521,32 +605,39 @@ class RouterInfo:
         global rtr_customerid
         global rtr_bsdgui
         global rtr_fwdowngrade
+        global rtr_ip
+        global rtr_mask
         
         self.frame = frame
         ttk.Label(self.frame, text='Hardware Version: ').grid(column=0, row=1, sticky=W)
-        ttk.Label(self.frame, text=rtr_hwversion).grid(column=1, row=1, sticky=W)
+        ttk.Label(self.frame, textvariable=rtr_hwversion).grid(column=1, row=1, sticky=W)
 
         ttk.Label(self.frame, text='Manufacturer: ').grid(column=0, row=2, sticky=W)
-        ttk.Label(self.frame, text=rtr_hwversion).grid(column=1, row=2, sticky=W)
+        ttk.Label(self.frame, textvariable=rtr_manufacturer).grid(column=1, row=2, sticky=W)
         
         ttk.Label(self.frame, text='Model Name: ').grid(column=0, row=3, sticky=W)
-        ttk.Label(self.frame, text=rtr_modelname).grid(column=1, row=3, sticky=W)
+        ttk.Label(self.frame, textvariable=rtr_modelname).grid(column=1, row=3, sticky=W)
 
         ttk.Label(self.frame, text='Serial Number: ').grid(column=0, row=4, sticky=W)
-        ttk.Label(self.frame, text=rtr_serial).grid(column=1, row=4, sticky=W)
+        ttk.Label(self.frame, textvariable=rtr_serial).grid(column=1, row=4, sticky=W)
 
-        ttk.Label(self.frame, text='Fw upgrade permitted: ').grid(column=0, row=4, sticky=W)
-        ttk.Label(self.frame, text=rtr_fwupgrade).grid(column=1, row=4, sticky=W)
+        ttk.Label(self.frame, text='Fw upgrade permitted: ').grid(column=0, row=5, sticky=W)
+        ttk.Label(self.frame, textvariable=rtr_fwupgrade).grid(column=1, row=5, sticky=W)
         
-        ttk.Label(self.frame, text='Router customer ID: ').grid(column=0, row=5, sticky=W)
-        ttk.Label(self.frame, text=rtr_customerid).grid(column=1, row=5, sticky=W)
+        ttk.Label(self.frame, text='Router customer ID: ').grid(column=0, row=6, sticky=W)
+        ttk.Label(self.frame, textvariable=rtr_customerid).grid(column=1, row=6, sticky=W)
         
-        ttk.Label(self.frame, text='BSD GUI visible: ').grid(column=0, row=6, sticky=W)
-        ttk.Label(self.frame, text=rtr_bsdgui).grid(column=1, row=6, sticky=W)
+        ttk.Label(self.frame, text='BSD GUI visible: ').grid(column=0, row=7, sticky=W)
+        ttk.Label(self.frame, textvariable=rtr_bsdgui).grid(column=1, row=7, sticky=W)
         
-        ttk.Label(self.frame, text='Fw downgrade permitted: ').grid(column=0, row=7, sticky=W)
-        ttk.Label(self.frame, text=rtr_fwdowngrade).grid(column=1, row=7, sticky=W)
+        ttk.Label(self.frame, text='Fw downgrade permitted: ').grid(column=0, row=8, sticky=W)
+        ttk.Label(self.frame, textvariable=rtr_fwdowngrade).grid(column=1, row=8, sticky=W)
         
+        ttk.Label(self.frame, text='Router IP (bridge interface): ').grid(column=0, row=9, sticky=W)
+        ttk.Label(self.frame, textvariable=rtr_ip).grid(column=1, row=9, sticky=W)
+        
+        ttk.Label(self.frame, text='Router Net Mask (bridge interface): ').grid(column=0, row=10, sticky=W)
+        ttk.Label(self.frame, textvariable=rtr_mask).grid(column=1, row=10, sticky=W)
         
 class ThirdUi:
 
@@ -575,7 +666,7 @@ class App:
         horizontal_pane = ttk.PanedWindow(vertical_pane, orient=HORIZONTAL)
         vertical_pane.add(horizontal_pane)
         form_frame = ttk.Labelframe(horizontal_pane, text="Router Info")
-        form_frame.columnconfigure(1, weight=1)
+        form_frame.columnconfigure(1, weight=1,minsize=150)
         horizontal_pane.add(form_frame, weight=1)
         console_frame = ttk.Labelframe(horizontal_pane, text="Console")
         console_frame.columnconfigure(0, weight=1)
@@ -603,11 +694,22 @@ class App:
         filem.add_command(label = 'Save as bin config',     command = save_config, state = DISABLED)
         filem.add_command(label = 'Save as xml config',     command = save_xmlconfig, state = DISABLED)
         filem.add_command(label = 'Save as CPE xml config', command = save_cpexmlconfig, state = DISABLED)
-        filem.add_command(label = 'Exit',                   command = confquit)
-        
+        filem.add_command(label = 'Exit',                   command = confquit)        
         menubar.add_cascade(label = 'File', menu = filem)
 
+        infom = Menu(menubar)
+        infom.add_command(label = 'Show passwords',           command = confquit)
+        infom.add_command(label = 'Show restricted commands', command = confquit)
+        infom.add_command(label = 'Save passwords',           command = confquit)
+        infom.add_command(label = 'Save restriced commands',  command = confquit)
+        menubar.add_cascade(label = 'Info', menu = infom)
 
+        editm = Menu(menubar)
+        editm.add_command(label = 'Enable restricted web gui',      command = confquit)
+        editm.add_command(label = 'Enable restricted CLI commands', command = confquit)
+        menubar.add_cascade(label = 'Edit', menu = editm)
+
+        
 
     def quit(self, *args):
         #self.clock.stop()
@@ -626,8 +728,30 @@ def print_passwords():
         
 logging.basicConfig(level=logging.DEBUG)
 root = tk.Tk()
-xml_src    = tk.StringVar()     # file loaded with main xml configuration
-cpexml_src = tk.StringVar()     # file loaded with cpe xml configuration
+xml_src          = tk.StringVar()     # file loaded with main xml configuration
+cpexml_src       = tk.StringVar()     # file loaded with cpe xml configuration
+rtr_hwversion    = tk.StringVar()
+rtr_manufacturer = tk.StringVar()
+rtr_modelname    = tk.StringVar()
+rtr_serial       = tk.StringVar()
+rtr_fwupgrade    = tk.StringVar()
+rtr_customerid   = tk.StringVar()
+rtr_bsdgui       = tk.StringVar()
+rtr_fwdowngrade  = tk.StringVar()
+rtr_ip           = tk.StringVar()
+rtr_mask         = tk.StringVar()
+
+rtr_hwversion.set('                   ')
+rtr_manufacturer.set('                   ')
+rtr_modelname.set('                   ')
+rtr_serial.set('                   ')
+rtr_fwupgrade.set('                   ')
+rtr_customerid.set('                   ')
+rtr_bsdgui.set('                   ')
+rtr_fwdowngrade.set('                   ')
+rtr_ip.set('                   ')
+rtr_mask.set('                   ')
+
 xml_src.set('Not loaded')
 cpexml_src.set('Not loaded')
 
