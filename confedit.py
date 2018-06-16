@@ -43,14 +43,14 @@ randomstr  = ''.join(random.choice(string.ascii_lowercase + string.digits) for _
 tmpradix   = tempfile.gettempdir() + '/' + randomstr + '-'
 tmpconf    = tmpradix + 'conf.xml'
 tmpconfcpe = tmpradix + 'confcpe.xml'
+fversion   = mydir + '/version'
 
 homedir    = str(Path.home())
 defaultdir = homedir
 loaded_bin = 0                   # binary config loaded
 loaded_xml = 0                   # xml config loaded
 loaded_cpe = 0                   # cpe xml config loaded
-
-
+versionstr = ''
 
 load_pems_done = 0
 
@@ -204,6 +204,33 @@ def load_pems():
     logger.log(ldebug,"len 1: " + str(len(pemconf_data)))
     logger.log(ldebug,"len 2: " + str(len(pemcpe_data)))
     
+
+#------------------------------------------------------------------------------
+# about - 
+#------------------------------------------------------------------------------
+def about():
+    global versionstr
+    global fversion
+    aboutstr=''
+    aboutstr=aboutstr.join(["ADB Configuration Editor (confedit)\n",
+                            "Copyright (c) Valerio Di Giampietro 2018 (main program)\n",
+                            "Copyright (c) 2017 Gabriel Huber (decrypting algorithm)\n",
+                            "Copyright (c) 2017 Benjamin Bertrand (windows interface)\n\n",
+                            "License informations available in the LICENSE file\n\n",
+                            "THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n",
+                            "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n",
+                            "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n",
+                            "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n",
+                            "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n",
+                            "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n",
+                            "SOFTWARE.\n\n"])
+
+    if (versionstr == ''):
+        with open(fversion,"r") as f:
+            versionstr = f.read()
+            logger.log(ldebug,"reading " + fversion)
+    popupmsg('About', aboutstr + "Program version: " + versionstr + "\n")
+
     
 #------------------------------------------------------------------------------
 # load_config - load binary router configuration file - ok
@@ -493,12 +520,22 @@ def confquit(*args):
     print("Conf quit")
     sys.exit(0)
 
+#------------------------------------------------------------------------------
+# not_yet - print in the console the not implemented yet message
+#------------------------------------------------------------------------------
+def not_yet(mstr=''):
+    logger.log(lerr, mstr + "not implemented yet\n")
+    popupmsg('Info','Not implemented yet')
 
 #------------------------------------------------------------------------------
 # Main program start - set TK GUI based on
 # https://github.com/beenje/tkinter-logging-text-widget
 # Copyright (c) 2017, Benjamin Bertrand
 #------------------------------------------------------------------------------
+
+LARGE_FONT = ("Verdana", 12)
+NORM_FONT  = ("Helvetica", 10)
+SMALL_FONT = ("Helvetica", 8)
 
 logger = logging.getLogger(__name__)
 
@@ -702,7 +739,7 @@ class App:
         infom.add_command(label = 'Show restricted commands', command = not_yet)
         infom.add_command(label = 'Save passwords',           command = not_yet)
         infom.add_command(label = 'Save restriced commands',  command = not_yet)
-        infom.add_command(label = 'About',                    command = not_yet)
+        infom.add_command(label = 'About',                    command = about)
         menubar.add_cascade(label = 'Info', menu = infom)
 
         editm = Menu(menubar)
@@ -716,7 +753,41 @@ class App:
     def quit(self, *args):
         #self.clock.stop()
         self.root.destroy()
+# def popup_bonus():
+#     win = tk.Toplevel()
+#     win.wm_title("Window")
+    
+#     l = tk.Label(win, text="Input")
+#     l.grid(row=0, column=0)
+    
+#     b = ttk.Button(win, text="Okay", command=win.destroy)
+#     b.grid(row=1, column=0)
+                            
+        
+def popupmsg(title,msg):
+    popup = tk.Toplevel()
+    popup.wm_title(title)
+    popup.columnconfigure(0, weight=1, minsize=150)
+    popup.rowconfigure(0, weight=1, minsize=50)
+    l = ttk.Label(popup, text=msg, font=NORM_FONT)
+    l.grid(row=0, column=0)
+    b = ttk.Button(popup, text="Okay", command = popup.destroy)
+    b.grid(row=1,column=0)
+    # Gets the requested values of the height and widht.
+    windowWidth = popup.winfo_reqwidth()
+    windowHeight = popup.winfo_reqheight()
+    print("Width",windowWidth,"Height",windowHeight)
 
+    # Gets both half the screen width/height and window width/height
+    positionRight = int(popup.winfo_screenwidth()/2 - windowWidth/2) - 300 + 100
+    positionDown = int(popup.winfo_screenheight()/2 - windowHeight/2) + 100
+    
+    # Positions the window in the center of the page.
+    popup.geometry("+{}+{}".format(positionRight, positionDown))
+    
+
+                                
+        
 def print_passwords():
     global data_out
     global cpedata_out
@@ -727,12 +798,9 @@ def print_passwords():
         logger.log(lerr,"---- passwords from CPE configuration file ----\n")
         logger.log(lwarn,get_passwords(cpedata_out))
 
-#------------------------------------------------------------------------------
-# not_yet - print in the console the not implemented yet message
-#------------------------------------------------------------------------------
-def not_yet(mstr=''):
-    logger.log(lerr, mstr + "not implemented yet\n")
-
+#-----------------------------------------------------------------------------------------------
+# Main Program
+#-----------------------------------------------------------------------------------------------
         
 logging.basicConfig(level=logging.DEBUG)
 root = tk.Tk()
@@ -781,6 +849,19 @@ logger.log(ldebug,"tmpconf:    " + tmpconf)
 logger.log(ldebug,"tmpconfcpe: " + tmpconfcpe)
 logger.log(ldebug,"homedir:    " + homedir)
 
+
+# ---- center the main window
+# Gets the requested values of the height and widht.
+windowWidth = app.root.winfo_reqwidth()
+windowHeight = app.root.winfo_reqheight()
+print("Width",windowWidth,"Height",windowHeight)
+
+# Gets both half the screen width/height and window width/height
+positionRight = int(app.root.winfo_screenwidth()/2 - windowWidth/2) - 300
+positionDown = int(app.root.winfo_screenheight()/2 - windowHeight/2)
+
+# Positions the window in the center of the page.
+app.root.geometry("+{}+{}".format(positionRight, positionDown))
 
 app.root.mainloop()
 
