@@ -698,19 +698,21 @@ class App:
         menubar.add_cascade(label = 'File', menu = filem)
 
         infom = Menu(menubar)
-        infom.add_command(label = 'Show passwords',           command = confquit)
-        infom.add_command(label = 'Show restricted commands', command = confquit)
-        infom.add_command(label = 'Save passwords',           command = confquit)
-        infom.add_command(label = 'Save restriced commands',  command = confquit)
+        infom.add_command(label = 'Show passwords',           command = not_yet)
+        infom.add_command(label = 'Show restricted commands', command = not_yet)
+        infom.add_command(label = 'Save passwords',           command = not_yet)
+        infom.add_command(label = 'Save restriced commands',  command = not_yet)
+        infom.add_command(label = 'About',                    command = not_yet)
         menubar.add_cascade(label = 'Info', menu = infom)
 
         editm = Menu(menubar)
-        editm.add_command(label = 'Enable restricted web gui',      command = confquit)
-        editm.add_command(label = 'Enable restricted CLI commands', command = confquit)
+        editm.add_command(label = 'Enable restricted web gui',      command = not_yet)
+        editm.add_command(label = 'Enable restricted CLI commands', command = not_yet)
+        editm.add_command(label = 'Enable firmware downgrade',      command = not_yet)        
+        editm.add_command(label = 'Preferences',                    command = not_yet)        
         menubar.add_cascade(label = 'Edit', menu = editm)
 
         
-
     def quit(self, *args):
         #self.clock.stop()
         self.root.destroy()
@@ -724,6 +726,12 @@ def print_passwords():
     if ('cpedata_out' in globals()):
         logger.log(lerr,"---- passwords from CPE configuration file ----\n")
         logger.log(lwarn,get_passwords(cpedata_out))
+
+#------------------------------------------------------------------------------
+# not_yet - print in the console the not implemented yet message
+#------------------------------------------------------------------------------
+def not_yet(mstr=''):
+    logger.log(lerr, mstr + "not implemented yet\n")
 
         
 logging.basicConfig(level=logging.DEBUG)
