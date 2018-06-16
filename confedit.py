@@ -128,7 +128,7 @@ def get_passwords (xml_str):
                 for child in parent:
                     if (child.tag in ['Name', 'AuthUserName', 'Password', 'AuthPassword', 'Username',
                                       'Enable', 'Url', 'Alias', 'Hostname' ]):
-                        sout = sout + "  " + child.tag + "  " + child.text + "\n"
+                        sout = sout + "  " + "%-15s" % (child.tag) + "  " + child.text + "\n"
 
                 sout = sout + "\n"
     return sout
@@ -141,6 +141,8 @@ def check_enable_menu ():
     global loaded_xml
     global loaded_cpe
     global filem
+    global infom
+    global editm
     global menubar
     global rtr_hwversion
     global rtr_manufacturer
@@ -156,15 +158,31 @@ def check_enable_menu ():
     print("check_enable_menu - loaded_bin, loaded_xml, loaded_cpe",loaded_bin,loaded_xml,loaded_cpe)
     
     if ((loaded_bin == 1 ) or ((loaded_xml == 1) and (loaded_cpe == 1))):
-        filem.entryconfig(4, state = NORMAL)
-        filem.entryconfig(5, state = NORMAL)
-        filem.entryconfig(6, state = NORMAL)
-        logger.log(level,"enabling menu")
+        filem.entryconfig(4, state = NORMAL)     # save as bin config
+        filem.entryconfig(5, state = NORMAL)     # save as xml config
+        filem.entryconfig(6, state = NORMAL)     # save as cpe xml config
+        editm.entryconfig(1, state = NORMAL)     # enable restricted webgui
+        editm.entryconfig(2, state = NORMAL)     # enable restricted CLI commands
+        editm.entryconfig(3, state = NORMAL)     # enable firmware downgrade        
     else:
-        filem.entryconfig(4, state = DISABLED)
-        filem.entryconfig(5, state = DISABLED)
-        filem.entryconfig(6, state = DISABLED)
-        logger.log(level,"disabling menu")
+        filem.entryconfig(4, state = DISABLED)   # save as bin config 
+        filem.entryconfig(5, state = DISABLED)   # save as xml config
+        filem.entryconfig(6, state = DISABLED)   # save as cpe xml config
+
+    if ((loaded_bin == 1) or (loaded_xml == 1) or (loaded_cpe == 1)):
+        infom.entryconfig(1, state = NORMAL)     # show passwords
+        infom.entryconfig(3, state = NORMAL)     # save passwords
+    else:
+        infom.entryconfig(1, state = DISABLED)   # show passwords
+        infom.entryconfig(3, state = DISABLED)   # save passwords
+
+    if ((loaded_bin == 1) or (loaded_cpe == 1)):
+        infom.entryconfig(2, state = NORMAL)     # show restricted commands
+        infom.entryconfig(4, state = NORMAL)     # save restricted commands
+    else:
+        infom.entryconfig(2, state = DISABLED)   # show restricted commands
+        infom.entryconfig(4, state = DISABLED)   # save restricted commands
+        
         
     if ((loaded_bin == 0) and (loaded_cpe == 0)):
         rtr_hwversion.set('                   ')
@@ -213,7 +231,7 @@ def about():
     global fversion
     aboutstr=''
     aboutstr=aboutstr.join(["ADB Configuration Editor (confedit)\n",
-                            "Copyright (c) Valerio Di Giampietro 2018 (main program)\n",
+                            "Copyright (c) 2018 Valerio Di Giampietro (main program)\n",
                             "Copyright (c) 2017 Gabriel Huber (decrypting algorithm)\n",
                             "Copyright (c) 2017 Benjamin Bertrand (windows interface)\n\n",
                             "License informations available in the LICENSE file\n\n",
@@ -325,7 +343,7 @@ def load_config(*args):
     loaded_xml = 0
     loaded_cpe = 0
     check_enable_menu()
-    print_passwords()
+    #print_passwords()
     get_info(cpedata_out)
     
 #------------------------------------------------------------------------------
@@ -360,7 +378,7 @@ def load_xmlconfig(*args):
     xml_src.set(name)
     if (loaded_cpe == 0):
         cpexml_src.set('')
-    print_passwords()
+    #print_passwords()
     check_enable_menu()
 
     
@@ -395,7 +413,7 @@ def load_cpexmlconfig(*args):
     if (not load_pems_done):
         load_pems()
     cpexml_src.set(name)
-    print_passwords()
+    #print_passwords()
     get_info(cpedata_out)
     check_enable_menu()
                                     
@@ -564,7 +582,7 @@ class ConsoleUi:
         self.frame = frame
         # Create a ScrolledText wdiget
         self.scrolled_text = ScrolledText(frame, state='disabled', height=12)
-        self.scrolled_text.grid(row=0, column=0, sticky=(N, S, W, E))
+        self.scrolled_text.grid(row=0, column=0, sticky=(N, S, W, E),padx=3,pady=3)
         self.scrolled_text.configure(font='TkFixedFont')
         self.scrolled_text.tag_config('INFO', foreground='black')
         self.scrolled_text.tag_config('DEBUG', foreground='gray')
@@ -608,7 +626,7 @@ class FormUi:
         # Create a combobbox to select the logging level
         values = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
         self.level = tk.StringVar()
-        ttk.Label(self.frame, text='Level:').grid(column=0, row=0, sticky=W)
+        ttk.Label(self.frame, text='Level:').grid(column=0, row=0, sticky=W, padx=3, pady=3)
         self.combobox = ttk.Combobox(
             self.frame,
             textvariable=self.level,
@@ -617,14 +635,14 @@ class FormUi:
             values=values
         )
         self.combobox.current(0)
-        self.combobox.grid(column=1, row=0, sticky=(W, E))
+        self.combobox.grid(column=1, row=0, sticky=(W, E), padx=3, pady=3)
         # Create a text field to enter a message
         self.message = tk.StringVar()
-        ttk.Label(self.frame, text='Message:').grid(column=0, row=1, sticky=W)
-        ttk.Entry(self.frame, textvariable=self.message, width=25).grid(column=1, row=1, sticky=(W, E))
+        ttk.Label(self.frame, text='Message:').grid(column=0, row=1, sticky=W, padx=3, pady=3)
+        ttk.Entry(self.frame, textvariable=self.message, width=25).grid(column=1, row=1, sticky=(W, E), padx=3, pady=3)
         # Add a button to log the message
         self.button = ttk.Button(self.frame, text='Submit', command=self.submit_message)
-        self.button.grid(column=1, row=2, sticky=W)
+        self.button.grid(column=1, row=2, sticky=W, padx=3, pady=3)
 
     def submit_message(self):
         # Get the logging level numeric value
@@ -693,17 +711,19 @@ class App:
 
     def __init__(self, root):
         global filem
+        global infom
+        global editm
         self.root = root
         root.title('ADB Config Editor')
         root.columnconfigure(0, weight=1)
         root.rowconfigure(0, weight=1)
         # Create the panes and frames
         vertical_pane = ttk.PanedWindow(self.root, orient=VERTICAL)
-        vertical_pane.grid(row=0, column=0, sticky="nsew")
+        vertical_pane.grid(row=0, column=0, sticky="nsew", padx=3, pady=3)
         horizontal_pane = ttk.PanedWindow(vertical_pane, orient=HORIZONTAL)
         vertical_pane.add(horizontal_pane)
         form_frame = ttk.Labelframe(horizontal_pane, text="Router Info")
-        form_frame.columnconfigure(1, weight=1,minsize=150)
+        form_frame.columnconfigure(1, weight=1, minsize=120)
         horizontal_pane.add(form_frame, weight=1)
         console_frame = ttk.Labelframe(horizontal_pane, text="Console")
         console_frame.columnconfigure(0, weight=1)
@@ -735,17 +755,17 @@ class App:
         menubar.add_cascade(label = 'File', menu = filem)
 
         infom = Menu(menubar)
-        infom.add_command(label = 'Show passwords',           command = not_yet)
-        infom.add_command(label = 'Show restricted commands', command = not_yet)
-        infom.add_command(label = 'Save passwords',           command = not_yet)
-        infom.add_command(label = 'Save restriced commands',  command = not_yet)
+        infom.add_command(label = 'Show passwords',           command = print_passwords, state = DISABLED)
+        infom.add_command(label = 'Show restricted commands', command = not_yet, state = DISABLED)
+        infom.add_command(label = 'Save passwords',           command = save_passwords, state = DISABLED)
+        infom.add_command(label = 'Save restriced commands',  command = not_yet, state = DISABLED)
         infom.add_command(label = 'About',                    command = about)
         menubar.add_cascade(label = 'Info', menu = infom)
 
         editm = Menu(menubar)
-        editm.add_command(label = 'Enable restricted web gui',      command = not_yet)
-        editm.add_command(label = 'Enable restricted CLI commands', command = not_yet)
-        editm.add_command(label = 'Enable firmware downgrade',      command = not_yet)        
+        editm.add_command(label = 'Enable restricted web gui',      command = not_yet, state = DISABLED)
+        editm.add_command(label = 'Enable restricted CLI commands', command = not_yet, state = DISABLED)
+        editm.add_command(label = 'Enable firmware downgrade',      command = not_yet, state = DISABLED)        
         editm.add_command(label = 'Preferences',                    command = not_yet)        
         menubar.add_cascade(label = 'Edit', menu = editm)
 
@@ -767,12 +787,12 @@ class App:
 def popupmsg(title,msg):
     popup = tk.Toplevel()
     popup.wm_title(title)
-    popup.columnconfigure(0, weight=1, minsize=150)
+    popup.columnconfigure(0, weight=1, minsize=150, pad=15)
     popup.rowconfigure(0, weight=1, minsize=50)
     l = ttk.Label(popup, text=msg, font=NORM_FONT)
-    l.grid(row=0, column=0)
+    l.grid(row=0, column=0, padx=3, pady=3)
     b = ttk.Button(popup, text="Okay", command = popup.destroy)
-    b.grid(row=1,column=0)
+    b.grid(row=1,column=0, padx=3, pady=3)
     # Gets the requested values of the height and widht.
     windowWidth = popup.winfo_reqwidth()
     windowHeight = popup.winfo_reqheight()
@@ -791,13 +811,55 @@ def popupmsg(title,msg):
 def print_passwords():
     global data_out
     global cpedata_out
-    if ('data_out' in globals()):
-        logger.log(lerr,"\n---- passwords from main configuration file ----\n")
+    if (('data_out' in globals()) and ((loaded_bin == 1) or (loaded_xml == 1))):
+        logger.log(lerr,"\n---- passwords from main configuration file ----")
         logger.log(lwarn,get_passwords(data_out))
-    if ('cpedata_out' in globals()):
-        logger.log(lerr,"---- passwords from CPE configuration file ----\n")
-        logger.log(lwarn,get_passwords(cpedata_out))
+    else:
+        logger.log(lerr,"\n---- Main configuration file not loaded ----")
 
+    if (('cpedata_out' in globals()) and ((loaded_bin == 1) or (loaded_cpe == 1))):
+        logger.log(lerr,"---- passwords from CPE configuration file ----")
+        logger.log(lwarn,get_passwords(cpedata_out))
+    else:
+        logger.log(lerr,"\n---- CPE configuration file not loaded ----")
+        
+#-----------------------------------------------------------------------------------------------
+# save_passwords  - save passwords to a text file
+#-----------------------------------------------------------------------------------------------
+def save_passwords():
+    global data_out
+    global cpedata_out
+    global defaultdir
+    
+    pass_str = ''
+    if (('data_out' in globals()) and ((loaded_bin == 1) or (loaded_xml == 1))):
+        pass_str = pass_str + "---- passwords from main configuration file ----\n\n"
+        pass_str = pass_str + get_passwords(data_out)
+    else:
+        pass_str = pass_str + "---- Main configuration file not loaded ----\n\n"
+
+    if (('cpedata_out' in globals()) and ((loaded_bin == 1) or (loaded_cpe == 1))):
+        pass_str = pass_str + "\n---- passwords from CPE configuration file ----\n\n"
+        pass_str = pass_str + get_passwords(cpedata_out)
+    else:
+        pass_str = pass_str + "\n---- CPE configuration file not loaded ----\n"
+        
+    name = asksaveasfilename(initialdir=defaultdir,
+                             filetypes =(("Text password file", "*.txt"),("All Files","*.*")),
+                             title = "Choose a file."
+                             )
+    print (name)
+    #Using try in case user types in unknown file or closes without choosing a file.
+    try:
+        with open(name,'w') as f:
+            f.write(pass_str)
+    except:
+        print("Error writing: ",name)
+        sys.exit(1)
+
+    defaultdir=os.path.dirname(name)
+
+        
 #-----------------------------------------------------------------------------------------------
 # Main Program
 #-----------------------------------------------------------------------------------------------
@@ -869,57 +931,3 @@ app.root.mainloop()
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 
-
-
-# root = Tk()
-# root.title("ADB Configuration Editor")
-
-# # menu bar
-# menubar = Menu(root)
-# root.config(menu=menubar)
-
-# filem = Menu(menubar)
-# filem.add_command(label = 'Open bin config',        command = load_config)
-# filem.add_command(label = 'Open xml config',        command = load_xmlconfig)
-# filem.add_command(label = 'Open CPE xml config',    command = load_cpexmlconfig)
-# filem.add_command(label = 'Save as bin config',     command = save_config, state = DISABLED)
-# filem.add_command(label = 'Save as xml config',     command = save_xmlconfig, state = DISABLED)
-# filem.add_command(label = 'Save as CPE xml config', command = save_cpexmlconfig, state = DISABLED)
-# filem.add_command(label = 'Exit',                   command = confquit)
-
-# menubar.add_cascade(label = 'File', menu = filem)
-
-# mainframe = ttk.Frame(root, padding="3 3 12 12")
-# mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
-# mainframe.columnconfigure(0, weight=1)
-# mainframe.rowconfigure(0, weight=1)
-
-# voip_user = StringVar()
-# voip_pass = StringVar()
-
-# voip_user.set("user")
-# voip_pass.set("pass")
-
-# voip_user_entry = ttk.Entry(mainframe, width=7, textvariable=voip_user)
-# voip_user_entry.grid(column=2, row=1, sticky=(W, E))
-
-# voip_pass_entry = ttk.Entry(mainframe, width=7, textvariable=voip_pass)
-# voip_pass_entry.grid(column=2, row=2, sticky=(W, E))
-
-# #ttk.Label(mainframe, textvariable=meters).grid(column=2, row=2, sticky=(W, E))
-
-# ttk.Label(mainframe, text="Voip username:").grid(column=1, row=1, sticky=W)
-# ttk.Label(mainframe, text="Voip password:").grid(column=1, row=2, sticky=W)
-# #ttk.Label(mainframe, text="meters").grid(column=3, row=2, sticky=W)
-
-# #ttk.Button(mainframe, text="Load Config", command=load_config).grid(column=1, row=3, sticky=W)
-# #ttk.Button(mainframe, text="Save Config", command=save_config).grid(column=2, row=3, sticky=W)
-# #ttk.Button(mainframe, text="Quit",        command=confquit).grid(column=3, row=3, sticky=W)
-
-
-# for child in mainframe.winfo_children(): child.grid_configure(padx=5, pady=5)
-
-# voip_user_entry.focus()
-# root.bind('<Return>', confquit)
-
-# root.mainloop()
