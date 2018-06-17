@@ -249,7 +249,24 @@ def about():
             logger.log(ldebug,"reading " + fversion)
     popupmsg('About', aboutstr + "Program version: " + versionstr + "\n")
 
+#------------------------------------------------------------------------------
+# enable_fw_upgrade   unable fw upgrade/downgrade 
+#------------------------------------------------------------------------------
+def enable_fw_upgrade():
+    global cpedata_out
+    cpedata_out = re.sub(b'<X_DLINK_fw_upgr_permitted>false</X_DLINK_fw_upgr_permitted>',
+                         b'<X_DLINK_fw_upgr_permitted>true</X_DLINK_fw_upgr_permitted>',
+                         cpedata_out,
+                         0,
+                         re.DOTALL)
+    cpedata_out = re.sub(b'<X_DLINK_AllowFirmwareDowngrade>false</X_DLINK_AllowFirmwareDowngrade>',
+                         b'<X_DLINK_AllowFirmwareDowngrade>true</X_DLINK_AllowFirmwareDowngrade>',
+                         cpedata_out,
+                         0,
+                         re.DOTALL)
+    get_info(cpedata_out)
     
+
 #------------------------------------------------------------------------------
 # load_config - load binary router configuration file - ok
 #------------------------------------------------------------------------------
@@ -763,10 +780,10 @@ class App:
         menubar.add_cascade(label = 'Info', menu = infom)
 
         editm = Menu(menubar)
-        editm.add_command(label = 'Enable restricted web gui',      command = not_yet, state = DISABLED)
-        editm.add_command(label = 'Enable restricted CLI commands', command = not_yet, state = DISABLED)
-        editm.add_command(label = 'Enable firmware downgrade',      command = not_yet, state = DISABLED)        
-        editm.add_command(label = 'Preferences',                    command = not_yet)        
+        editm.add_command(label = 'Enable restricted web gui',         command = not_yet, state = DISABLED)
+        editm.add_command(label = 'Enable restricted CLI commands',    command = not_yet, state = DISABLED)
+        editm.add_command(label = 'Enable firmware upgrade/downgrade', command = enable_fw_upgrade, state = DISABLED)        
+        editm.add_command(label = 'Preferences',                       command = not_yet)        
         menubar.add_cascade(label = 'Edit', menu = editm)
 
         
