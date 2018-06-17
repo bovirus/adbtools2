@@ -54,6 +54,47 @@ versionstr = ''
 
 load_pems_done = 0
 
+def show_restricted():
+    global cpedata_out
+    sout = get_restricted(cpedata_out)
+    logger.log(linfo,sout)
+
+
+#------------------------------------------------------------------------------
+# get_restricted return a string with restricted commands in the cpe xml
+#     input: xml_str it is cpedata_out
+#------------------------------------------------------------------------------
+def get_restricted(xml_str):
+    global rtr_ip
+    mystr   = re.sub(b'<!-- DATA.*', b'', xml_str, 0, re.DOTALL)
+    xmltree = ET.parse(io.BytesIO(mystr))
+    xmlroot = xmltree.getroot()
+
+    sweb = '';
+    scli = '';
+
+    for i in xmlroot.findall(".//X_ADB_AccessControl/Feature/PagePath"):
+        web = i.text
+        parent = i.getparent()
+        perm = ''
+        for child in parent:
+            if child.tag == 'Permissions':
+                perm = child.text
+        print(i.text)
+        print(perm)
+
+        if perm == '0000':
+            print(web[0:4])
+            if web[0:4] == 'dboa':
+                sweb = sweb + "\n" + "    " + "http://" + rtr_ip.get() + "/ui/" + web
+            else:
+                scli = scli + "\n" + "    " + web
+    sout="\nRestricted web urls\n" + sweb + "\n" + "\nRestricted CLI commands\n" + scli
+    return(sout)
+    
+
+    
+
 #------------------------------------------------------------------------------
 # get_info     setup router info textvariables
 #     input    xml_str   binary string, xml or cpe xml conf file
@@ -773,7 +814,7 @@ class App:
 
         infom = Menu(menubar)
         infom.add_command(label = 'Show passwords',           command = print_passwords, state = DISABLED)
-        infom.add_command(label = 'Show restricted commands', command = not_yet, state = DISABLED)
+        infom.add_command(label = 'Show restricted commands', command = show_restricted, state = DISABLED)
         infom.add_command(label = 'Save passwords',           command = save_passwords, state = DISABLED)
         infom.add_command(label = 'Save restriced commands',  command = not_yet, state = DISABLED)
         infom.add_command(label = 'About',                    command = about)
@@ -824,7 +865,6 @@ def popupmsg(title,msg):
     
 
                                 
-        
 def print_passwords():
     global data_out
     global cpedata_out
