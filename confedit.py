@@ -59,6 +59,24 @@ def show_restricted():
     sout = get_restricted(cpedata_out)
     logger.log(linfo,sout)
 
+def save_restricted():
+    global cpedata_out
+    global defaultdir
+    sout = get_restricted(cpedata_out)
+    name = asksaveasfilename(initialdir=defaultdir,
+                             filetypes =(("Text file", "*.txt"),("All Files","*.*")),
+                             title = "Restricted text file"
+                             )
+    print (name)
+    #Using try in case user types in unknown file or closes without choosing a file.
+    try:
+        with open(name,'w') as f:
+            f.write(sout)
+    except:
+        print("Error writing: ",name)
+        sys.exit(1)
+
+    defaultdir=os.path.dirname(name)
 
 #------------------------------------------------------------------------------
 # get_restricted return a string with restricted commands in the cpe xml
@@ -816,7 +834,7 @@ class App:
         infom.add_command(label = 'Show passwords',           command = print_passwords, state = DISABLED)
         infom.add_command(label = 'Show restricted commands', command = show_restricted, state = DISABLED)
         infom.add_command(label = 'Save passwords',           command = save_passwords, state = DISABLED)
-        infom.add_command(label = 'Save restriced commands',  command = not_yet, state = DISABLED)
+        infom.add_command(label = 'Save restriced commands',  command = save_restricted, state = DISABLED)
         infom.add_command(label = 'About',                    command = about)
         menubar.add_cascade(label = 'Info', menu = infom)
 
