@@ -109,10 +109,34 @@ def get_restricted(xml_str):
                 scli = scli + "\n" + "    " + web
     sout="\nRestricted web urls\n" + sweb + "\n" + "\nRestricted CLI commands\n" + scli
     return(sout)
-    
 
-    
 
+#------------------------------------------------------------------------------
+#    <PagePath>dboard/storage/ftpserver</PagePath>
+#    <Origin>CPE</Origin>
+#    <Permissions>2221</Permissions>
+#    <PagePath>clish/configure/management/webGui</PagePath>
+#    <Origin>CPE</Origin>
+#    <Permissions>0000</Permissions>
+
+def enable_restricted_web():
+    global cpedata_out
+    cpedata_out = re.sub(b'(<PagePath>dboa\S+</PagePath>.\s+<Origin>\S+.\s+<Permissions>)0000',b'\g<1>2221',cpedata_out, 0, re.DOTALL)
+    logger.log(lerr,"Enabled restricted web pages")
+    
+def enable_restricted_cli():
+    global cpedata_out
+    cpedata_out = re.sub(b'(<PagePath>clis\S+</PagePath>.\s+<Origin>\S+.\s+<Permissions>)0000',b'\g<1>2221',cpedata_out, 0, re.DOTALL)
+    logger.log(lerr,"Enabled restricted commands in CLI")
+
+#<Name>dlinkddns.com</Name>
+#<Name>dlinkdns.com</Name>
+
+def fix_dlinkddns():
+    global cpedata_out
+    cpedata_out = re.sub(b'<Name>dlinkdns.com</Name>',b'<Name>dlinkddns.com</Name>',cpedata_out, 0, re.DOTALL)
+    logger.log(lerr,"Fixed dlinkdns -> dlinkddns")
+    
 #------------------------------------------------------------------------------
 # get_info     setup router info textvariables
 #     input    xml_str   binary string, xml or cpe xml conf file
@@ -223,6 +247,7 @@ def check_enable_menu ():
         editm.entryconfig(1, state = NORMAL)     # enable restricted webgui
         editm.entryconfig(2, state = NORMAL)     # enable restricted CLI commands
         editm.entryconfig(3, state = NORMAL)     # enable firmware downgrade        
+        editm.entryconfig(4, state = NORMAL)     # enable fix dlinkdns -> dlinkddns        
     else:
         filem.entryconfig(4, state = DISABLED)   # save as bin config 
         filem.entryconfig(5, state = DISABLED)   # save as xml config
@@ -324,8 +349,8 @@ def enable_fw_upgrade():
                          0,
                          re.DOTALL)
     get_info(cpedata_out)
+    logger.log(lerr,"Enbabled firmware upgrade/downgrade")
     
-
 #------------------------------------------------------------------------------
 # load_config - load binary router configuration file - ok
 #------------------------------------------------------------------------------
@@ -839,9 +864,10 @@ class App:
         menubar.add_cascade(label = 'Info', menu = infom)
 
         editm = Menu(menubar)
-        editm.add_command(label = 'Enable restricted web gui',         command = not_yet, state = DISABLED)
-        editm.add_command(label = 'Enable restricted CLI commands',    command = not_yet, state = DISABLED)
-        editm.add_command(label = 'Enable firmware upgrade/downgrade', command = enable_fw_upgrade, state = DISABLED)        
+        editm.add_command(label = 'Enable restricted web gui',         command = enable_restricted_web, state = DISABLED)
+        editm.add_command(label = 'Enable restricted CLI commands',    command = enable_restricted_cli, state = DISABLED)
+        editm.add_command(label = 'Enable firmware upgrade/downgrade', command = enable_fw_upgrade, state = DISABLED)
+        editm.add_command(label = 'Fix dlinkdns -> dlinkddns',         command = fix_dlinkddns, state = DISABLED)        
         editm.add_command(label = 'Preferences',                       command = not_yet)        
         menubar.add_cascade(label = 'Edit', menu = editm)
 
