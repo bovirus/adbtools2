@@ -18,7 +18,7 @@ from tkinter import *
 from tkinter.scrolledtext import ScrolledText
 from tkinter import ttk , VERTICAL, HORIZONTAL, N, S, E, W
 from tkinter.filedialog import askopenfilename, asksaveasfilename
-from Crypto.Cipher import AES # requires pycrypto
+from Cryptodome.Cipher import AES # requires pycrypto
 from lxml import etree as ET
 from io import StringIO
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-from Crypto.Cipher import AES # requires pycrypto
+from Cryptodome.Cipher import AES # requires pycrypto
 
 if len(sys.argv) < 5:
     print("Usage: pkcrypt.py sym_encrypt|sym_decrypt <key> <in> <out>")

@@ -3,7 +3,7 @@
 import re
 import sys
 import base64
-from Crypto.Cipher import AES # requires pycrypto
+from Cryptodome.Cipher import AES # requires pycrypto
 
 if len(sys.argv) < 5:
     print("Usage: confxml2bin.py  <key4conf> <key4cpe> <conf_xml> <confcpe_xml> <conf_bin>")
