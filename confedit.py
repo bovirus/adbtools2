@@ -214,7 +214,7 @@ def get_passwords (xml_str):
                         sout = sout + "  " + "%-15s" % (child.tag) + "  " + child.text + "\n"
 
                 sout = sout + "\n"
-    return sout
+    return(sout)
 
 #------------------------------------------------------------------------------
 # check_enable_menu - check and, if needed, enable menut items 
@@ -291,15 +291,19 @@ def load_pems():
         with open(down_pem, "rb") as f:
             pemconf_data = f.read()
     except:
-        print("Error opening: ", down_pem)
-        sys.exit(1)
+        logger.log(lerr,"load_pems: error opening: ", down_pem)
+        popupmsg('Severe Error', "A severe error in load_pems occurred\nfile " +
+                  down_pem + "is missing\n")
+        conferror_quit(1)
 
     try:
         with open(up_pem, "rb") as f:
             pemcpe_data = f.read()
     except:
-        print("Error opening: ",up_pem)
-        sys.exit(1)
+        logger.log(lerr,"load_pems: error opening: ", up_pem)
+        popupmsg('Severe Error', "A severe error in load_pems occurred\nfile " +
+                  up_pem + "is missing\n")
+        conferror_quit(1)
         
     load_pems_done = 1
     logger.log(ldebug,"load pems done")
@@ -330,7 +334,7 @@ def about():
     if (versionstr == ''):
         with open(fversion,"r") as f:
             versionstr = f.read()
-            logger.log(ldebug,"reading " + fversion)
+            logger.log(ldebug,"about: reading " + fversion)
     popupmsg('About', aboutstr + "Program version: " + versionstr + "\n")
 
 #------------------------------------------------------------------------------
@@ -349,7 +353,7 @@ def enable_fw_upgrade():
                          0,
                          re.DOTALL)
     get_info(cpedata_out)
-    logger.log(lerr,"Enbabled firmware upgrade/downgrade")
+    logger.log(lerr,"enable_fw_upgrade: Enbabled firmware upgrade/downgrade")
     
 #------------------------------------------------------------------------------
 # load_config - load binary router configuration file - ok
@@ -365,21 +369,39 @@ def load_config(*args):
     global pem_data
     global xml_src
     global cpexml_src
+
     name = askopenfilename(initialdir=defaultdir,
                            filetypes =(("Configuration file", "*.bin"),("All Files","*.*")),
-                           title = "Choose a file."
+                           title = "Binary Configuration File"
                            )
-    logger.log(ldebug,"loading: " + name)
-    xml_src.set(name)
-    cpexml_src.set(name)
+
+
+    try:
+        logger.log(ldebug,"load_config: loading " + name)
+
+    except:
+        logger.log(ldebug, 'load_config: no file selected')
+        return()
+
+    if (name == ''):
+        logger.log(ldebug, 'load_config: no file selected')
+        return()
+    
     
     #Using try in case user types in unknown file or closes without choosing a file.
     try:
         with open(name,'rb') as f:
             data_in = f.read()
     except:
-        print("Error opening: ",name)
-        sys.exit(1)
+        logger.log(lerr,"load_config: error opening ",name)
+        load_bin = 0
+        load_xml = 0
+        load_cpe = 0
+        check_enable_menu()
+        xml_src.set('')
+        cpexml_src.set('')
+        return()
+
 
     defaultdir=os.path.dirname(name)
     logger.log(ldebug,"defaultdir: " + defaultdir)
@@ -395,7 +417,17 @@ def load_config(*args):
     # Just take a random chunk out of the file and use it as our key
     key = pemconf_data[0x20:0x30]
     cipher = AES.new(key, AES.MODE_CBC, IV)
-    data_out = cipher.decrypt(data_in)
+
+    try:
+        data_out = cipher.decrypt(data_in)
+
+    except:
+        logger.log(ldebug, 'load_config: Error in decrypting data.\n' +
+                           'Wrong input file?')
+        popupmsg('Error in input file',' Error in decrypting data.\n' +
+                 'Wrong input file?')
+        return()
+
     # Padding is a badly implemented PKCS#7 where 16 bytes padding is ignored,
     # so we have to check all previous bytes to see if it is valid.
     padding_length = data_out[-1]
@@ -414,16 +446,15 @@ def load_config(*args):
     #<!-- DATA
     #9V/jO+TpbscUypF/41d3Ej15nwHuUp+c4wBWV4uFWb1Zb/nS6QuDiLUoZeJ2s0mksjXrARR2
 
-    #with open ("dbg.xml",'wb') as fd:
-    #    fd.write(data_out)
-    
     match = re.search(b'<!-- DATA.(.*).-->', data_out, re.DOTALL)
 
     if match:
         cpedata_hex = match.group(1)
     else:
-        print ("Error in finding hex data\n")
-        sys.exit(1)
+        logger.log(lerr, "load_config: Error in finding hex data\n")
+        popupmsg('Severe Error', "A severe error in load_config occurred.\n" +
+                 "Unable to extract CPE xml configuration")
+        conferror_quit(2)
     
     cpedata_bin = base64.b64decode(cpedata_hex)
     
@@ -446,6 +477,8 @@ def load_config(*args):
     check_enable_menu()
     #print_passwords()
     get_info(cpedata_out)
+    xml_src.set(name)
+    cpexml_src.set(name)
     
 #------------------------------------------------------------------------------
 # load_xmlconfig - load xml router configuration file - ok
@@ -458,17 +491,34 @@ def load_xmlconfig(*args):
     global data_out
     global defaultdir
     name = askopenfilename(initialdir=defaultdir,
-                           filetypes =(("Configuration file", "*.xml"),("All Files","*.*")),
-                           title = "Choose a file."
+                           filetypes =(("XML Configuration file", "*.xml"),("All Files","*.*")),
+                           title = "XML Configuration file."
                            )
     print (name)
+    try:
+        logger.log(ldebug,"load_xmlconfig: loading " + name)
+
+    except:
+        logger.log(ldebug, 'load_xmlconfig: no file selected')
+        return()
+
+    if (name == ''):
+        logger.log(ldebug, 'load_xmlconfig: no file selected')
+        return()
+    
     #Using try in case user types in unknown file or closes without choosing a file.
     try:
         with open(name,'rb') as f:
             data_out = f.read()
     except:
-        print("Error opening: ",name)
-        sys.exit(1)
+        logger.log(lerr,"load_xmlconfig: error opening ",name)
+        load_bin = 0
+        load_xml = 0
+        load_cpe = 0
+        check_enable_menu()
+        xml_src.set('')
+        cpexml_src.set('')
+        return()
 
     defaultdir=os.path.dirname(name)
     loaded_xml = 1
@@ -479,9 +529,7 @@ def load_xmlconfig(*args):
     xml_src.set(name)
     if (loaded_cpe == 0):
         cpexml_src.set('')
-    #print_passwords()
     check_enable_menu()
-
     
 #------------------------------------------------------------------------------
 # load_cpexmlconfig - load cpe xml router configuration file - ok 
@@ -493,17 +541,35 @@ def load_cpexmlconfig(*args):
     global loaded_xml
     global loaded_bin
     name = askopenfilename(initialdir=defaultdir,
-                           filetypes =(("CPE Configuration file", "*.xml"),("All Files","*.*")),
-                           title = "Choose a file."
+                           filetypes =(("CPE XML Configuration file", "*.xml"),("All Files","*.*")),
+                           title = "CPE XML Conf File."
                            )
     print (name)
+
+    try:
+        logger.log(ldebug,"load_cpexmlconfig: loading " + name)
+
+    except:
+        logger.log(ldebug, 'load_cpexmlconfig: no file selected')
+        return()
+
+    if (name == ''):
+        logger.log(ldebug, 'load_cpexmlconfig: no file selected')
+        return()
+    
     #Using try in case user types in unknown file or closes without choosing a file.
     try:
         with open(name,'rb') as f:
             cpedata_out = f.read()
     except:
-        print("Error opening ", name)
-        sys.exit(1)
+        logger.log(lerr,"load_cpexmlconfig: error opening ",name)
+        load_bin = 0
+        load_xml = 0
+        load_cpe = 0
+        check_enable_menu()
+        xml_src.set('')
+        cpexml_src.set('')
+        return()
 
     defaultdir=os.path.dirname(name)
     loaded_cpe = 1
@@ -514,7 +580,6 @@ def load_cpexmlconfig(*args):
     if (not load_pems_done):
         load_pems()
     cpexml_src.set(name)
-    #print_passwords()
     get_info(cpedata_out)
     check_enable_menu()
                                     
@@ -548,7 +613,6 @@ def save_config(*args):
     cpedata_in  = cipher.encrypt(cpedata_out)
     cpedata_hex = base64.b64encode(cpedata_in)
     cpedata2_hex = re.sub(b"(.{72})", b"\\1\n", cpedata_hex, 0, re.DOTALL)
-    #print(cpedata2_hex)
 
     # -------------------------------------------------------------------------
     # insert data cpe in hex format inside the main xml data and encrypt all
@@ -559,7 +623,9 @@ def save_config(*args):
     # #9V/jO+TpbscUypF/41d3Ej15nwHuUp+c4wBWV4uFWb1Zb/nS6QuDiLUoZeJ2s0mksjXrARR2
 
 
-    data_out = re.sub(b'<!-- DATA\n(.*)\n-->', b"<!-- DATA\n" + cpedata2_hex + b"\n-->",data_out, 1, re.DOTALL)
+    data_out = re.sub(b'<!-- DATA\n(.*)\n-->',
+                      b"<!-- DATA\n" + cpedata2_hex + b"\n-->",
+                      data_out, 1, re.DOTALL)
 
     key = pemconf_data[0x20:0x30]
     cipher = AES.new(key, AES.MODE_CBC, IV)
@@ -576,17 +642,30 @@ def save_config(*args):
     # -------------------------------------------------------------------------
     
     name = asksaveasfilename(initialdir=defaultdir,
-                             filetypes =(("Configuration file", "*.bin"),("All Files","*.*")),
-                             title = "Choose a file."
+                             filetypes =(("Binary configuration file", "*.bin"),("All Files","*.*")),
+                             title = "Binary Conf File."
                              )
     print (name)
+    try:
+        logger.log(ldebug,"save_config: saving " + name)
+
+    except:
+        logger.log(ldebug, 'save_config: no file selected')
+        return()
+
+    if (name == ''):
+        logger.log(ldebug, 'save_config: no file selected')
+        return()
+
+    
     #Using try in case user types in unknown file or closes without choosing a file.
     try:
         with open(name,'wb') as f:
             f.write(data_in)
     except:
-        print("Error writing: ",name)
-        sys.exit(1)
+        logger.log(lerr,"save_config: error opening ",name)
+        check_enable_menu()
+        return()
 
     defaultdir=os.path.dirname(name)
 
@@ -596,17 +675,28 @@ def save_config(*args):
 def save_xmlconfig(*args):
     global defaultdir
     name = asksaveasfilename(initialdir=defaultdir,
-                             filetypes =(("Save xml configuration file", "*.xml"),("All Files","*.*")),
-                             title = "Choose a file."
+                             filetypes =(("XML configuration file", "*.xml"),("All Files","*.*")),
+                             title = "Save XML Conf File"
                              )
-    print ("save_xmlconfig file name",name)
+    try:
+        logger.log(ldebug,"save_xmlconfig: saving " + name)
+
+    except:
+        logger.log(ldebug, 'save_xmlconfig: no file selected')
+        return()
+
+    if (name == ''):
+        logger.log(ldebug, 'save_xmlconfig: no file selected')
+        return()
+    
     #Using try in case user types in unknown file or closes without choosing a file.
     try:
         with open(name,'wb') as f:
             f.write(data_out)
     except:
-        print("Error writing: ",name)
-        sys.exit(1)
+        logger.log(lerr,"save_config: error opening ",name)
+        check_enable_menu()
+        return()
 
     defaultdir=os.path.dirname(name)
 
@@ -617,17 +707,30 @@ def save_cpexmlconfig(*args):
     global defaultdir
     global cpedata_out
     name = asksaveasfilename(initialdir=defaultdir,
-                             filetypes =(("Save CPE xml configuration file", "*.xml"),("All Files","*.*")),
-                             title = "Choose a file."
+                             filetypes =(("XML config file", "*.xml"),("All Files","*.*")),
+                             title = "Save CPE XML conf file"
                              )
-    print ("save_cpexmlconfig file name", name)
-    print ("length cpedata_out", len(cpedata_out))
+
+    
+    try:
+        logger.log(ldebug,"save_cpexmlconfig: saving " + name)
+
+    except:
+        logger.log(ldebug, 'save_cpexmlconfig: no file selected')
+        return()
+
+    if (name == ''):
+        logger.log(ldebug, 'save_cpexmlconfig: no file selected')
+        return()
+    
     #Using try in case user types in unknown file or closes without choosing a file.
     try:
         with open(name,'wb') as f:
             f.write(cpedata_out)
     except:
-        print("Error writing: ",name)
+        logger.log(lerr,"save_cpexmlconfig: error opening ",name)
+        check_enable_menu()
+        return()
 
     defaultdir=os.path.dirname(name)
 
@@ -639,6 +742,10 @@ def confquit(*args):
     print("Conf quit")
     sys.exit(0)
 
+def conferror_quit(err):
+    logger.log(lerr,"Exit with error: " + err)
+    sys.exit(err)
+    
 #------------------------------------------------------------------------------
 # not_yet - print in the console the not implemented yet message
 #------------------------------------------------------------------------------
