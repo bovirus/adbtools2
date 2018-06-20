@@ -7,7 +7,7 @@ from Cryptodome.Cipher import AES # requires pycrypto
 
 if len(sys.argv) < 5:
     print("Usage: confxml2bin.py  <key4conf> <key4cpe> <conf_xml> <confcpe_xml> <conf_bin>")
-    exit(1)
+    sys.exit(1)
 
 key4conf     = sys.argv[1]
 key4cpe      = sys.argv[2]

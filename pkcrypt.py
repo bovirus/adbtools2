@@ -5,12 +5,12 @@ from Cryptodome.Cipher import AES # requires pycrypto
 
 if len(sys.argv) < 5:
     print("Usage: pkcrypt.py sym_encrypt|sym_decrypt <key> <in> <out>")
-    exit(1)
+    sys.exit(1)
 
 task = sys.argv[1]
 if task not in ("sym_encrypt", "sym_decrypt"):
     print("Error: First argument must be sym_encrypt or sym_decrypt.")
-    exit(1)
+    sys.exit(1)
 
 key_filename = sys.argv[2]
 in_filename = sys.argv[3]

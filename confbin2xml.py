@@ -7,7 +7,7 @@ from Cryptodome.Cipher import AES # requires pycrypto
 
 if len(sys.argv) < 5:
     print("Usage: confbin2xml.py  <key4conf> <key4cpe> <conf_bin> <conf_xml> <confcpe_xml>")
-    exit(1)
+    sys.exit(1)
 
 key4conf     = sys.argv[1]
 key4cpe      = sys.argv[2]
@@ -73,7 +73,7 @@ if match:
         f.write(cpedata_hex)
 else:
     print ("No DATA match\n")
-    exit(1)
+    sys.exit(1)
     
 cpedata_bin = base64.b64decode(cpedata_hex)
 
