@@ -12,7 +12,22 @@ Python dependencies can be installed using
 
     pip3 install -r requirements.txt
 
-Based on adbtools by Gabriel Huber (https://github.com/Yepoleb/adbtools)
+Based on adbtools by Gabriel Huber (https://github.com/Yepoleb/adbtools).
+Using some gui elements by Benjamin Bertrand (https://github.com/beenje/tkinter-logging-text-widget)
+
+## confedit
+
+It is the main, gui based, tool that allows:
+
+- decryption of the router configuration
+- extraction of the main XML configuration file and the CPE configuration file
+- encryption of main XML configuration file and the XML CPE configuration file
+- extraction of passwords embedded in the configuration files, including the VoIP username and password
+- editing of various features including:
+  -- enable restricted web gui elements
+  -- enable restricted CLI commands
+  -- enable firmware upgrade/downgrade
+  -- fix wrong ddns server: dlinkdns.con -> dlinkddns.com
 
 ## confbin2xml
 
@@ -41,11 +56,11 @@ The confbin2xml.py tool extract and decrypt both files, they have
 similar, but not identical, content. I suppose that the two contents
 have to be consistent.
 
-Python Usage example:
+**Python Usage example:**
 
     python3 confbin2xml.py download.pem upload.pem config_full_DVA-5592_2018-06-04T222624.bin conf.xml confcpe.xml
 
-Windows Usage example:
+**Windows Usage example:**
 
     d:\adbtools2> confbin2xml.exe download.pem upload.pem config_full_DVA-5592_2018-06-04T222624.bin conf.xml confcpe.xml
 
@@ -63,7 +78,7 @@ difficulties in displaying them correctly, you can use another editor
 or convert them to "dos format" with a command similar to the
 following:
 
-    d:\adbtools2> cat conf.xml | more /P > conf2.xml
+    d:\adbtools2> type conf.xml | more /P > conf2.xml
 
 now conf2.xml can be correctly viewed with notepad.
 
@@ -76,6 +91,28 @@ fragment:
                 <AuthUserName>39099123456</AuthUserName>
           </SIP>
 
+## confxml2bin
+Does the opposit of confbin2xml, takes, as input, the main XML configuration file, the CPE XML configuration file, the two encrypting keys and generates the encrypted binary XML file ready to be loaded into the router.
+
+Using confbin2xml and confxml2bin it is possible to extract the two XML files, modify them and generate the new encrypted binary XML file, ready to be loaded into the router.
+
+**Python usage example:**
+
+  python3 confxml2bin.py download.pem upload.pem conf.xml confcpe.xml conf.bin
+  
+**Windows usage example:**
+  
+  d:\adbtools2> confxml2bin.exe download.pem upload.pem conf.xml confcpe.xml conf.bin
+  
+**where:**
+
+    download.pem   input, encrypting key for the main configuration file, from the firmware file system
+    upload.pem     input, encrypting key for the CPE Data configuration file, form the firmware file system
+    conf.xml       input, main configuration file
+    confcpe.xml    input, CPE Data configuration file
+    conf.bin       output, configuration file ready to be uploaded to the router web interface
+
+
 ## pkcrypt
 
 Tool used for encrypting/decrypting the config backups from the
@@ -86,11 +123,11 @@ makes the configs impossible to decrypt, even for the devices
 themselves. Key can be found at `/etc/certs/download.pem` in the
 firmware image.
 
-Python usage example:
+**Python usage example:**
 
     python3 pkcrypt.py sym_decrypt download.pem config.bin config.xml
 
-Windows usage example:
+**Windows usage example:**
 
     d:\adbtools2> pkcrypt.exe sym_decrypt download.pem config.bin config.xml
 
