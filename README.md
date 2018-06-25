@@ -19,15 +19,15 @@ Using some gui elements by Benjamin Bertrand (https://github.com/beenje/tkinter-
 
 It is the main, gui based, tool that allows:
 
-- decryption of the router configuration
-- extraction of the main XML configuration file and the CPE configuration file
-- encryption of main XML configuration file and the XML CPE configuration file
-- extraction of passwords embedded in the configuration files, including the VoIP username and password
-- editing of various features including:
-  -- enable restricted web gui elements
-  -- enable restricted CLI commands
-  -- enable firmware upgrade/downgrade
-  -- fix wrong ddns server: dlinkdns.con -> dlinkddns.com
+* decryption of the router configuration
+* extraction of the main XML configuration file and the CPE configuration file
+* encryption of main XML configuration file and the XML CPE configuration file
+* extraction of passwords embedded in the configuration files, including the VoIP username and password
+* editing of various features including:
+  * enable restricted web gui elements
+  * enable restricted CLI commands
+  * enable firmware upgrade/downgrade
+  * fix wrong ddns server: dlinkdns.con -> dlinkddns.com
 
 ## confbin2xml
 
