@@ -6,12 +6,13 @@ import random
 import re
 import sys
 import base64
-import os.path
+import os
 import io
 import queue
 import logging
 import signal
 import tkinter as tk
+import configparser
 
 from pathlib import Path
 from tkinter import *
@@ -53,6 +54,8 @@ loaded_cpe = 0                   # cpe xml config loaded
 versionstr = ''
 
 load_pems_done = 0
+inidir     = os.environ.get('APPDATA',homedir)
+inifile    = inidir + '/.confedit.ini'
 
 def show_restricted():
     global cpedata_out
@@ -77,7 +80,34 @@ def save_restricted():
         sys.exit(1)
 
     defaultdir=os.path.dirname(name)
+#------------------------------------------------------------------------------
+# read_inifile    read the initial configuration file and careate one if it
+#                 does not exist
+#------------------------------------------------------------------------------
+def read_inifile():
+    global iniconfig
+    global inifile
+    global defaultdir
+    iniconfig = configparser.ConfigParser()
+    if os.path.isfile(inifile):
+        iniconfig.read(inifile)
+        defaultdir=iniconfig['global']['SaveLoadDir']
+    else:
+        iniconfig['global'] = {'LogDebug':                 'yes',
+                               'SaveLoadDirLastLocation':  'yes',
+                               'SaveLoadDir':              defaultdir }
+        write_inifile()
 
+#------------------------------------------------------------------------------
+# write_inifile   write the configuration file, iniconfig dictionary must
+#                 already exist
+#------------------------------------------------------------------------------
+def write_inifile():
+    global iniconfig
+    global inifile
+    with open(inifile,'w') as configfile:
+        iniconfig.write(configfile)
+        
 #------------------------------------------------------------------------------
 # get_restricted return a string with restricted commands in the cpe xml
 #     input: xml_str it is cpedata_out
@@ -975,7 +1005,7 @@ class App:
         editm.add_command(label = 'Enable restricted CLI commands',    command = enable_restricted_cli, state = DISABLED)
         editm.add_command(label = 'Enable firmware upgrade/downgrade', command = enable_fw_upgrade, state = DISABLED)
         editm.add_command(label = 'Fix dlinkdns -> dlinkddns',         command = fix_dlinkddns, state = DISABLED)        
-        editm.add_command(label = 'Preferences',                       command = not_yet)        
+        editm.add_command(label = 'Preferences',                       command = edit_preference)        
         menubar.add_cascade(label = 'Edit', menu = editm)
 
         
@@ -1015,6 +1045,104 @@ def popupmsg(title,msg):
     popup.geometry("+{}+{}".format(positionRight, positionDown))
     
 
+def edit_preference():
+    global iniconfig
+    global dbginfo
+    global popup
+    global lastloc
+    global dirloc
+    global e2
+    
+    popup = tk.Toplevel()
+    popup.wm_title('Edit Preference')
+    popup.columnconfigure(0, weight=1, minsize=150, pad=15)
+    popup.rowconfigure(0, weight=1, minsize=50)
+    dbginfo = StringVar(popup)
+    dbginfo.set(iniconfig['global']['LogDebug'])
+    lastloc = StringVar(popup)
+    lastloc.set(iniconfig['global']['SaveLoadDirLastLocation'])
+    dirloc  = StringVar(popup)
+    dirloc.set(iniconfig['global']['SaveLoadDir'])
+    if (lastloc.get() == 'yes'):
+        dirloc.set(defaultdir)
+    
+    c0 = ttk.Checkbutton(popup, text="Print debugging info",
+                         variable=dbginfo, onvalue='yes', offvalue='no')
+    c0.grid(row=0, column=0, columnspan=2, padx=3, pady=0, sticky='W')
+
+    c1 = ttk.Checkbutton(popup,text="Use last used folder as load/save location",
+                         variable=lastloc, onvalue='yes', offvalue='no', command=edit_pref_dirloc)
+    c1.grid(row=1, column=0, columnspan=2, padx=3, pady=0, sticky='W')
+
+    l2 = ttk.Label(popup, text="Save/Load default folder")
+    l2.grid(row=2, column=0, padx=3, pady=0, sticky='W')
+    
+    e2 = ttk.Entry(popup, textvariable=dirloc, width=len(dirloc.get()) + 15, state=DISABLED)
+    e2.grid(row=2, column=1, padx=3, pady=0, sticky='W')
+    
+    b3 = ttk.Button(popup, text="Cancel", command = popup.destroy)
+    b3.grid(row=3,column=0, padx=30, pady=3, sticky='W')
+
+    b3b = ttk.Button(popup, text="Save", command = save_preference)
+    b3b.grid(row=3,column=1, padx=30, pady=3, sticky='E')
+
+	
+    # Gets the requested values of the height and widht.
+    windowWidth = popup.winfo_reqwidth()
+    windowHeight = popup.winfo_reqheight()
+    print("Width",windowWidth,"Height",windowHeight)
+
+    # Gets both half the screen width/height and window width/height
+    positionRight = int(popup.winfo_screenwidth()/2 - windowWidth/2) - 300 + 100
+    positionDown = int(popup.winfo_screenheight()/2 - windowHeight/2) + 100
+    
+    # Positions the window in the center of the page.
+    popup.geometry("+{}+{}".format(positionRight, positionDown))
+    print("dbginfo: " + dbginfo.get())
+
+def edit_pref_dirloc():
+    global popup
+    global dirloc
+    global lastloc
+    global e2
+    global defaultdir
+	
+    if (lastloc.get() == 'yes'):
+        e2.configure(state=DISABLED)
+        dirloc.set(defaultdir)
+    else:
+        e2.configure(state=NORMAL)
+		 
+def save_preference():
+    global popup
+    global iniconfig
+    global dbginfo
+    global lastloc
+    global dirloc
+    iniconfig['global']['LogDebug']=dbginfo.get()
+    iniconfig['global']['SaveLoadDirLastLocation']=lastloc.get()
+
+    if iniconfig['global']['LogDebug'] == 'yes':
+        #logging.basicConfig(level=logging.DEBUG)
+        logger.setLevel(logging.DEBUG)
+    else:
+        #logging.basicConfig(level=logging.INFO)
+        logger.setLevel(logging.INFO)
+        
+    if (os.path.isdir(dirloc.get())):
+        iniconfig['global']['SaveLoadDir']=dirloc.get()
+        popup.destroy()
+        write_inifile()
+    else:
+        popupmsg('Folder name error','folder ' + dirloc.get() + ' does not exist')
+
+def save_defaultdir():
+    global iniconfig
+    global defaultdir
+    if (iniconfig['global']['SaveLoadDirLastLocation'] == 'yes') and \
+       (iniconfig['global']['SaveLoadDir'] != defaultdir):
+       iniconfig['global']['SaveLoadDir'] = defaultdir
+       write_inifile()
                                 
 def print_passwords():
     global data_out
@@ -1071,8 +1199,13 @@ def save_passwords():
 #-----------------------------------------------------------------------------------------------
 # Main Program
 #-----------------------------------------------------------------------------------------------
-        
-logging.basicConfig(level=logging.DEBUG)
+read_inifile()
+
+if iniconfig['global']['LogDebug'] == 'yes':
+    logging.basicConfig(level=logging.DEBUG)
+else:
+    logging.basicConfig(level=logging.INFO)
+    
 root = tk.Tk()
 xml_src          = tk.StringVar()     # file loaded with main xml configuration
 cpexml_src       = tk.StringVar()     # file loaded with cpe xml configuration
@@ -1118,7 +1251,7 @@ logger.log(ldebug,"tmpradix:   " + tmpradix)
 logger.log(ldebug,"tmpconf:    " + tmpconf)
 logger.log(ldebug,"tmpconfcpe: " + tmpconfcpe)
 logger.log(ldebug,"homedir:    " + homedir)
-
+logger.log(ldebug,"inifile:    " + inifile)
 
 # ---- center the main window
 # Gets the requested values of the height and widht.
@@ -1134,7 +1267,7 @@ positionDown = int(app.root.winfo_screenheight()/2 - windowHeight/2)
 app.root.geometry("+{}+{}".format(positionRight, positionDown))
 
 app.root.mainloop()
-
+save_defaultdir()
 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
