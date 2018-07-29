@@ -354,6 +354,10 @@ mode with the following command in the clish shell
 
     DLINK# restore default-setting 
 
+You will return to the normal mode, but the previous configuration has
+been wiped out, so the router restart as if it was resetted to factory
+configuration.
+
 ## Information source to develop these tools
 
 The information comes from the router file system analysis. The router
