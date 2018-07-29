@@ -158,7 +158,7 @@ analysis) and at the `/bin/clish` script you can see that the normal
 configuration file is `/tmp/clish/startup.xml` (`/tmp/clish` links to
 `/etc/clish` in "normal" mode and to `/etc/clish/prod` in "factory
 mode"), in this file there is an "hidden" command that isn't
-auto-completed and don't show in the clish CLI:
+auto-completed and doesn't show in the clish CLI:
 
 ```
    <COMMAND name="factory-mode" help="hidden">
@@ -297,18 +297,18 @@ it is possible to:
 
 * modify `/tmp/Users.sh` to modify `/tmp/passwd` (`/etc/passwd` links
   to this file) to remove the '*' from the root password field to
-  allow `su - root` withoud password
+  allow `su - root` without password
 
-* give the following command to reconfigure the `cm` daemon `cmclient
+* give the command to reconfigure the `cm` daemon: `cmclient
   DOM Device /tmp/Management.xml`
    
 
 * force the execution of our modified `/tmp/Users.sh` script with the
-  command `cmclient ADD Device.Users.User`
+  command: `cmclient ADD Device.Users.User`
 
 The script `hack-script.sh` does exactly the above steps, so to become
 root you have to:
-
+```
     /root $ cat > /tmp/hack-script.sh
        do a copy and paste of the script
        press CTRL-D to terminate the copy
@@ -341,7 +341,7 @@ root you have to:
     root@localhost:~# id
     uid=0(root) gid=0(root) groups=0(root),19(remoteaccess),20(localaccess)
     root@localhost:~# 
-
+```
 You are now root, you could modify everything, but I have found that
 if you modify the root jffs2 file system you will start getting, on
 the console, error messages related to jffs2 checksum errors. The root
@@ -349,6 +349,10 @@ jffs2 file system is mounted read/write, but the router firmware never
 modify it, and treat it as if it was mounted read only. Only the
 firmware upgrade procedure rewrite the root jffs2 file system.
 
+To return to router normal mode of operation you have to exit factory
+mode with the following command in the clish shell
+
+    DLINK# restore default-setting 
 
 ## Information source to develop these tools
 
