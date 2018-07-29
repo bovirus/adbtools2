@@ -156,7 +156,7 @@ interface. This shell is configured through an xml configuration file;
 looking at the startup scripts (see below about router file system
 analysis) and at the `/bin/clish` script you can see that the normal
 configuration file is `/tmp/clish/startup.xml` (`/tmp/clish` links to
-/etc/clish in "normal" mode and to `/etc/clish/prod` in "factory
+`/etc/clish` in "normal" mode and to `/etc/clish/prod` in "factory
 mode"), in this file there is an "hidden" command that isn't
 auto-completed and don't show in the clish CLI:
 
