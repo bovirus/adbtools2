@@ -136,9 +136,9 @@ firmware image.
 
 ## hack-script.sh
 
-This a script to be executed on the `/bin/ash` command line interface
-in the router to exploit a vulnerability and become root. Details on
-how to use this script are in the following section.
+This is a script to be executed on the `/bin/ash` command line
+interface in the router to exploit a vulnerability and become
+root. Details on how to use this script are in the following section.
 
 ## How to become root on this router
 
@@ -279,7 +279,7 @@ The `cm` process knows that it has to call `/etc/ah/Users.sh` through:
           del="Users.sh"
     >
 ```
-* the `cm` daemon prepend the '/etc/ah/` path in front of `Users.sh`
+* the `cm` daemon prepend the `/etc/ah/` path in front of `Users.sh`
 
 ### Exploiting the `cm` daemon to run our script with `root` privileges
 
@@ -303,7 +303,7 @@ it is possible to:
   DOM Device /tmp/Management.xml`
    
 
-* force the execution of our modified /tmp/Users.sh script with the
+* force the execution of our modified `/tmp/Users.sh` script with the
   command `cmclient ADD Device.Users.User`
 
 The script `hack-script.sh` does exactly the above steps, so to become
@@ -342,19 +342,19 @@ root you have to:
     uid=0(root) gid=0(root) groups=0(root),19(remoteaccess),20(localaccess)
     root@localhost:~# 
 
-You are now root, could modify everything, but I have found that if
-you modify the root jffs2 file system you will start getting, on the
-console, error messages related to jffs2 checksum errors. The root
-jffs2 file system is mounted read only but the router firmware never
+You are now root, you could modify everything, but I have found that
+if you modify the root jffs2 file system you will start getting, on
+the console, error messages related to jffs2 checksum errors. The root
+jffs2 file system is mounted read/write, but the router firmware never
 modify it, and treat it as if it was mounted read only. Only the
-firmware upgrade procedure rewrite ther root jffs2 file system.
+firmware upgrade procedure rewrite the root jffs2 file system.
 
 
 ## Information source to develop these tools
 
 The information comes from the router file system analysis. The router
 firmware available at
-ftp://ftp.dlink.eu/Products/dva/dva-5592/driver_software/ has been
+`ftp://ftp.dlink.eu/Products/dva/dva-5592/driver_software/` has been
 extracted using the binwalk (https://github.com/ReFirmLabs/binwalk)
 and jefferson (https://github.com/sviehb/jefferson) firmware
 extraction tools.
