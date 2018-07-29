@@ -347,7 +347,7 @@ if you modify the root jffs2 file system you will start getting, on
 the console, error messages related to jffs2 checksum errors. The root
 jffs2 file system is mounted read/write, but the router firmware never
 modify it, and treat it as if it was mounted read only. Only the
-firmware upgrade procedure rewrite the root jffs2 file system.
+firmware upgrade procedure rewrites the root jffs2 file system.
 
 To return to router normal mode of operation you have to exit factory
 mode with the following command in the clish shell
