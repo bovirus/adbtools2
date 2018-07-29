@@ -191,9 +191,9 @@ So it is possible to enter "factory-mode" with the following commands:
     DLINK(factory)# Connection closed by foreign host. 
     valerio@ubuntu-hp:~$  
 
-The system reboot and enter factory mode. The configuration is wiped
+The system reboots and enters factory mode. The configuration is wiped
 out and the router doesn'operate normally: DHCP server is not working,
-WiFi has some esoteric, but unsable, SSIDs and Internet connection
+WiFi has some esoteric, but unusable, SSIDs and Internet connection
 doesn't work. You have to configure a static IP address on your PC to
 communicate with the router's default IP (192.168.1.1).
 
@@ -225,7 +225,7 @@ shell:
 ### The role of the `cm` daemon running with `root` privileges
 
 Based on filesystem analysis I have discovered that large part of the
-router configuration id done by a system process, `/sbin/cm`, running
+router configuration is done by a system process, `/sbin/cm`, running
 with root privileges:
 
     /root $ ps -ef | egrep 'PID| cm' 
@@ -243,26 +243,26 @@ through a compiled plugin. `cmclient` simply writes commands to
 through the `/tmp/cmctl` socket file.
 
 During the router boot `cmclient` is used by startup files to
-configure the `/sbin/cm` process giving him location of xml
+configure the `/sbin/cm` process giving it location of xml
 configuration files.
 
-During normal operation `cmclient` is executed by the web interface or
-the clish CLI in response to user's request to get configuration
+During normal operations `cmclient` is executed by the web interface
+or the clish CLI in response to user's request to get configuration
 information or to change configuration parameters; in these cases
-`cmclient` is executed by an unprivileged user (the web interface
-runs as user `nobody`, the CLI runs, usually, as user `admin`).
+`cmclient` is executed by an unprivileged user (the web interface runs
+as user `nobody`, the CLI runs, usually, as user `admin`).
 
 The daemon `cm`, to change router configuration, uses "helper scripts"
-located in the `/etc/ah' folder; so, for example, to add a new user or to
+located in the `/etc/ah` folder; so, for example, to add a new user or to
 change current user's password it executes the helper script
 `/etc/ah/Users.sh` passing it the correct parameters.
 
 The `cm` process knows that it has to call `/etc/ah/Users.sh` through:
 
 * a startup script executes the command
-
+```
   cmclient DOM Device /etc/cm/tr181/dom/
-
+```
 * the `cm` daemon process every file in the above folder, including
   `/etc/cm/tr181/dom/Management.xml`
 
