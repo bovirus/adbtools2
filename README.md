@@ -145,7 +145,7 @@ how to use this script are in the following section.
 Previous known Epicentro vulnerabilities (like
 https://www.exploit-db.com/exploits/44983/) has been closed in this
 version of software (_ADB_PlatformSoftwareVersion=6.0.0.0028) so I was
-forced to search another uneploited vulenarbility.
+forced to search another unexploited vulnerability.
 
 ### How to get an unprivileged busybox command prompt
 
@@ -159,7 +159,7 @@ configuration file is `/tmp/clish/startup.xml` (`/tmp/clish` links to
 /etc/clish in "normal" mode and to `/etc/clish/prod` in "factory
 mode"), in this file there is an "hidden" command that isn't
 auto-completed and don't show in the clish CLI:
-
+`
    <COMMAND name="factory-mode" help="hidden">
       <ACTION>
 	   cmclient DUMPDM FactoryData /tmp/cfg/FactoryData.xml > /dev/null
@@ -167,7 +167,7 @@ auto-completed and don't show in the clish CLI:
 	   cmclient REBOOT > /dev/null
       </ACTION>
    </COMMAND>
-				
+`				
 So it is possible to enter "factory-mode" with the following commands:
 
     valerio@ubuntu-hp:~$ telnet 192.168.1.1 
