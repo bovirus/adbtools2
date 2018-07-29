@@ -259,7 +259,7 @@ change current user's password it executes the helper script
 
 The `cm` process knows that it has to call `/etc/ah/Users.sh` through:
 
-* a startup script executes the command
+* a startup script that executes the command:
 ```
   cmclient DOM Device /etc/cm/tr181/dom/
 ```
@@ -267,7 +267,7 @@ The `cm` process knows that it has to call `/etc/ah/Users.sh` through:
   `/etc/cm/tr181/dom/Management.xml`
 
 * in the above file it is included the following xml snippet:
-
+```
     <object name="Users.User.{i}." 
           access="readOnly" 
           minEntries="0" 
@@ -278,7 +278,7 @@ The `cm` process knows that it has to call `/etc/ah/Users.sh` through:
           add="Users.sh" 
           del="Users.sh"
     >
-
+```
 * the `cm` daemon prepend the '/etc/ah/` path in front of `Users.sh`
 
 ### Exploiting the `cm` daemon to run our script with `root` privileges
