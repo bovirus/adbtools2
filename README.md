@@ -8,6 +8,9 @@ compiled version for Windows. The .exe doesn't require Python and
 related additional modules, but please note that I use mainly Linux,
 so the .exe version can be older than the python version.
 
+There is also a bash shell script to be executed on the router to
+exploit a vulnerability and become root.
+
 Python dependencies can be installed using
 
     pip3 install -r requirements.txt
@@ -131,6 +134,221 @@ firmware image.
 
     d:\adbtools2> pkcrypt.exe sym_decrypt download.pem config.bin config.xml
 
+## hack-script.sh
+
+This a script to be executed on the `/bin/ash` command line interface
+in the router to exploit a vulnerability and become root. Details on
+how to use this script are in the following section.
+
+## How to become root on this router
+
+Previous known Epicentro vulnerabilities (like
+https://www.exploit-db.com/exploits/44983/) has been closed in this
+version of software (_ADB_PlatformSoftwareVersion=6.0.0.0028) so I was
+forced to search another uneploited vulenarbility.
+
+### How to get an unprivileged busybox command prompt
+
+When you telnet into this router you get a `/bin/clish` command
+prompt. Clish (or Klish) si an open source project
+(http://libcode.org/projects/klish/) to give a "Cisco like"
+interface. This shell is configured through an xml configuration file;
+looking at the startup scripts (see below about router file system
+analysis) and at the `/bin/clish` script you can see that the normal
+configuration file is `/tmp/clish/startup.xml` (`/tmp/clish` links to
+/etc/clish in "normal" mode and to `/etc/clish/prod` in "factory
+mode"), in this file there is an "hidden" command that isn't
+auto-completed and don't show in the clish CLI:
+
+   <COMMAND name="factory-mode" help="hidden">
+      <ACTION>
+	   cmclient DUMPDM FactoryData /tmp/cfg/FactoryData.xml > /dev/null
+	   nvramUpdate Feature 0x2 > /dev/null
+	   cmclient REBOOT > /dev/null
+      </ACTION>
+   </COMMAND>
+				
+So it is possible to enter "factory-mode" with the following commands:
+
+    valerio@ubuntu-hp:~$ telnet 192.168.1.1 
+    Trying 192.168.1.1... 
+    Connected to 192.168.1.1. 
+    Escape character is '^]'. 
+    Login: admin 
+    Password: 
+
+    ******************************************** 
+    *                 D-Link                   * 
+    *                                          * 
+    *      WARNING: Authorised Access Only     * 
+    ******************************************** 
+
+    Welcome 
+    DLINK# factory 
+    DLINK(factory)# factory-mode 
+    DLINK(factory)# 
+    DLINK(factory)# Connection closed by foreign host. 
+    valerio@ubuntu-hp:~$  
+
+The system reboot and enter factory mode. The configuration is wiped
+out and the router doesn'operate normally: DHCP server is not working,
+WiFi has some esoteric, but unsable, SSIDs and Internet connection
+doesn't work. You have to configure a static IP address on your PC to
+communicate with the router's default IP (192.168.1.1).
+
+But in this mode it is possible to enter an unprivileged busybox
+shell:
+
+    valerio@ubuntu-hp:~$ telnet 192.168.1.1 
+    Trying 192.168.1.1... 
+    Connected to 192.168.1.1. 
+    Escape character is '^]'. 
+    Login: admin 
+    Password: 
+
+    ******************************************** 
+    *                 D-Link                   * 
+    *                                          * 
+    *      WARNING: Authorised Access Only     * 
+    ******************************************** 
+
+    Welcome 
+    DLINK# system shell 
+
+
+    BusyBox v1.17.3 (2018-04-11 12:29:54 CEST) built-in shell (ash) 
+    Enter 'help' for a list of built-in commands. 
+
+    /root $ 
+
+### The role of the `cm` daemon running with `root` privileges
+
+Based on filesystem analysis I have discovered that large part of the
+router configuration id done by a system process, `/sbin/cm`, running
+with root privileges:
+
+    /root $ ps -ef | egrep 'PID| cm' 
+    PID USER       VSZ STAT COMMAND 
+    356 0         2560 S    cm  
+
+This process (`cm` probably means "Configuration Manager") is started
+by `/etc/init.d/services.sh` startup script, it is a daemon listening
+for commands on the socket file `/tmp/cmctl`.
+
+Commands are given using the `cmclient` configuration command, it is
+not a program but it is interpreted directly by busybox probably
+through a compiled plugin. `cmclient` simply writes commands to
+`/tmp/cmctl`. Also `clish` has a plugin to talk directly to `cm`
+through the `/tmp/cmctl` socket file.
+
+During the router boot `cmclient` is used by startup files to
+configure the `/sbin/cm` process giving him location of xml
+configuration files.
+
+During normal operation `cmclient` is executed by the web interface or
+the clish CLI in response to user's request to get configuration
+information or to change configuration parameters; in these cases
+`cmclient` is executed by an unprivileged user (the web interface
+runs as user `nobody`, the CLI runs, usually, as user `admin`).
+
+The daemon `cm`, to change router configuration, uses "helper scripts"
+located in the `/etc/ah' folder; so, for example, to add a new user or to
+change current user's password it executes the helper script
+`/etc/ah/Users.sh` passing it the correct parameters.
+
+The `cm` process knows that it has to call `/etc/ah/Users.sh` through:
+
+* a startup script executes the command
+
+  cmclient DOM Device /etc/cm/tr181/dom/
+
+* the `cm` daemon process every file in the above folder, including
+  `/etc/cm/tr181/dom/Management.xml`
+
+* in the above file it is included the following xml snippet:
+
+    <object name="Users.User.{i}." 
+          access="readOnly" 
+          minEntries="0" 
+          maxEntries="unbounded" 
+          numEntriesParameter="UserNumberOfEntries" 
+          enableParameter="Enable" 
+          set="Users.sh" 
+          add="Users.sh" 
+          del="Users.sh"
+    >
+
+* the `cm` daemon prepend the '/etc/ah/` path in front of `Users.sh`
+
+### Exploiting the `cm` daemon to run our script with `root` privileges
+
+The interesting thing is that it is possible to re-configure the `cm`
+daemon configuration giving it, through cmclient, a command to load a
+new XML file located, for example, in the /tmp folder. This means that
+it is possible to:
+
+* copy `/etc/cm/tr181/dom/Management.xml` into `/tmp`
+
+* modify `/tmp/Managemente.xml` to load `../../tmp/Users.sh`
+  (`/tmp/Users.sh`) instead of `Users.sh` (`/etc/ah/Users.sh`)
+
+* copy `/etc/ah/Users.sh` into `/tmp`
+
+* modify `/tmp/Users.sh` to modify `/tmp/passwd` (`/etc/passwd` links
+  to this file) to remove the '*' from the root password field to
+  allow `su - root` withoud password
+
+* give the following command to reconfigure the `cm` daemon `cmclient
+  DOM Device /tmp/Management.xml`
+   
+
+* force the execution of our modified /tmp/Users.sh script with the
+  command `cmclient ADD Device.Users.User`
+
+The script `hack-script.sh` does exactly the above steps, so to become
+root you have to:
+
+    /root $ cat > /tmp/hack-script.sh
+       do a copy and paste of the script
+       press CTRL-D to terminate the copy
+
+    /root $ chmod a+x /tmp/hack-script.sh
+    /root $ /tmp/hack-script.sh
+
+    ....
+
+    /root $ su -
+
+
+    BusyBox v1.17.3 (2018-04-11 12:29:54 CEST) built-in shell (ash)
+    Enter 'help' for a list of built-in commands.
+
+	  ___           ___           ___           ___     
+	 |\__\         /\  \         /\  \         /\  \    
+	 |:|  |       /::\  \       /::\  \       /::\  \   
+	 |:|  |      /:/\:\  \     /:/\:\  \     /:/\:\  \  
+	 |:|__|__   /::\~\:\  \   /::\~\:\  \   _\:\~\:\  \ 
+	 /::::\__\ /:/\:\ \:\__\ /:/\:\ \:\__\ /\ \:\ \:\__\
+	/:/~~/~    \/__\:\/:/  / \/__\:\/:/  / \:\ \:\ \/__/
+       /:/  /           \::/  /       \::/  /   \:\ \:\__\  
+       \/__/            /:/  /         \/__/     \:\/:/  /  
+		       /:/  /                     \::/  /   
+		       \/__/                       \/__/    r41358.07b1b3a7  
+    ..................................................................
+     yet another purposeful solution by  Advanced Digital Broadcast SA
+    ..................................................................
+    root@localhost:~# id
+    uid=0(root) gid=0(root) groups=0(root),19(remoteaccess),20(localaccess)
+    root@localhost:~# 
+
+You are now root, could modify everything, but I have found that if
+you modify the root jffs2 file system you will start getting, on the
+console, error messages related to jffs2 checksum errors. The root
+jffs2 file system is mounted read only but the router firmware never
+modify it, and treat it as if it was mounted read only. Only the
+firmware upgrade procedure rewrite ther root jffs2 file system.
+
+
 ## Information source to develop these tools
 
 The information comes from the router file system analysis. The router
@@ -140,8 +358,14 @@ extracted using the binwalk (https://github.com/ReFirmLabs/binwalk)
 and jefferson (https://github.com/sviehb/jefferson) firmware
 extraction tools.
 
-The file `backup-conf.sh` has been the main information source to
+The file `/usr/sbin/backup-conf.sh` has been the main information source to
 build these tools.
+
+To become root the main source of information has been the clish
+configuration files (the normal clish configuragion file
+`/etc/clish/startup.xml` and factory mode configuration file
+`/etc/clish/prod/startup.xml`) and startup scripts in `/etc/init.d`,
+especially `/etc/init.d/services.sh`.
 
 ## YAPL file structure
 
