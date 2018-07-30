@@ -92,7 +92,8 @@
 # root@localhost:~#
 # ====== end of step 4	 
 #
-#
+# you can copy/past from the line below
+#!/bin/ash
 echo "copy in /tmp and modify /etc/cm/tr181/dom/Management.xml"
 echo "replacing 'Users.sh' with '../../tmp/Users.sh'"
 cat /etc/cm/tr181/dom/Management.xml | \
