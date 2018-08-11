@@ -1,0 +1,9 @@
+--- /tmp/jr-orig/etc/clish/startup.xml	2018-04-11 12:38:09.000000000 +0200
++++ /tmp/jr-new/etc/clish/startup.xml	2018-08-04 14:19:34.920273355 +0200
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<CLISH_MODULE xmlns="http://clish.sourceforge.net/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://clish.sourceforge.net/XMLSchema                      http://clish.sourceforge.net/XMLSchema/clish.xsd"><PLUGIN name="cmplugin" file="/usr/lib/cmplugin.so" /><COMMAND name="!" help="Comments" args="comment" args_help="ignored comment text"><ACTION builtin="clish_nop" /></COMMAND><COMMAND name="exit"><ACTION builtin="clish_nested_up" /></COMMAND><COMMAND name="quit" help="Quit the current CLI session"><ACTION builtin="clish_close" /></COMMAND><OVERVIEW>
++<CLISH_MODULE xmlns="http://clish.sourceforge.net/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://clish.sourceforge.net/XMLSchema                      http://clish.sourceforge.net/XMLSchema/clish.xsd"><PLUGIN name="cmplugin" file="/usr/lib/cmplugin.so" /><COMMAND name="!" help="Comments" args="comment" args_help="ignored comment text"><ACTION builtin="clish_nop" /></COMMAND><COMMAND name="exit"><ACTION builtin="clish_nested_up" /></COMMAND><COMMAND help="system" name="system" /><COMMAND help="enters system shell" name="system shell"><ACTION>exec /bin/ash</ACTION></COMMAND><COMMAND name="quit" help="Quit the current CLI session"><ACTION builtin="clish_close" /></COMMAND><OVERVIEW>
+ CONTEXT SENSITIVE HELP
+ [?] - Display context sensitive help. This is either a list of possible
+       command completions with summaries, or the full syntax of the
