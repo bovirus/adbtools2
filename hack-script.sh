@@ -92,7 +92,7 @@
 # root@localhost:~#
 # ====== end of step 4	 
 #
-# you can copy/past from the line below
+# --------- copy/paste from the line below --------------------------
 #!/bin/ash
 echo "copy in /tmp and modify /etc/cm/tr181/dom/Management.xml"
 echo "replacing 'Users.sh' with '../../tmp/Users.sh'"
@@ -120,3 +120,7 @@ cmclient ADD Device.Users.User
 echo "Done, now you can become root with the following command:"
 echo "su -"
 
+echo "enable, until reboot, upgrade with an unsigned firmware"
+cp -p /usr/sbin/upgrade.sh /tmp/upgrade.sh
+cat /usr/sbin/upgrade.sh | sed  -r 's/ret_code\=\$\?/ret_code\=0/' > /tmp/upgrade.sh
+su -c "mount --bind /tmp/upgrade.sh /usr/sbin/upgrade.sh" -
