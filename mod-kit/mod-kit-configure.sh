@@ -8,19 +8,23 @@
 # in case of different firmware version this script can be used as a
 # guide to do a similar job modifying what needs to be modified
 #
-# START OF CUSTOMIZABLE PARAMETERS
 # --------------------------------------------------------------------------------
 MK_BASEDIR=$HOME/mod-kit                    # base dir of the mod-kit files
 MKFS_JFFS2=/usr/local/bin/mkfs.jffs2-lzma   # mkfs.jffs2 command with lzma patch
+if [ ! -x $MKFS_JFFS2 ]
+then
+    MKFS_JFFS2=`which mkfs.jffs2`
+fi
 # --------------------------------------------------------------------------------
-# END OF CUSTOMIZABLE PARAMETERS
 #
 SCRIPT=`realpath $0`
 SCRIPTPATH=`dirname $SCRIPT`
 #
 #
 usage() {
-    echo "usage: ./mod-kit-configure.sh <firmware file>"
+    echo "usage: ./mod-kit-configure.sh [ -d basedir ] [ -j /path/to/mkfs.jffs2 ] <firmware file>"
+    echo "   -d basedir (defautl $MK_BASEDIR)"
+    echo "   -j /path/to/mkfs.jffs2 (default $MKFS_JFFS2)"
     echo "   example:"
     echo "   ./mod-kit-configure.sh /path/to/DVA-5592_A1_WI_20180405.sig"
     echo
@@ -53,6 +57,22 @@ check_fwfile() {
     echo "# ------ firmware file ok"
 }
 
+# ------ process arguments
+while getopts :d:j: option
+do
+    case "${option}"
+    in
+	d) MK_BASEDIR="${OPTARG}";;
+	j) MKFS_JFFS2="${OPTARG}";;
+	?) echo "ERROR: unexpected option"
+	   usage
+	   exit
+	   ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
 
 # ------ check input parameter (presence and firmware file existence)
 echo "# ------ check input parameter (presence and firmware file existence)"
@@ -78,18 +98,14 @@ check_fwfile $FW_PATH
 # ------ check mkfs.jffs2 existence and lzma support
 echo "# ------ check mkfs.jffs2 existence and lzma support"
 
-if [ ! -x $MKFS_JFFS2 ]
-then
-    MKFS_JFFS2=`which mkfs.jffs2`
-fi
 
 $MKFS_JFFS2 -L 2>&1 | grep lzma
 ret=$?
 if [ ! "$ret" = "0" ]
 then
     echo "$MKFS_JFFS2 does not support lzma compression"
-    echo "please follow documentation, modify this script's"
-    echo "MKFS_JFFS2 variable to point to a mkfs.jffs2 command"
+    echo "please follow documentation, use -j option "
+    echo "to point to a mkfs.jffs2 command"
     echo "with lzma support. Follow documentation to apply"
     echo "the lzma patch to mkfs.jffs2 source"
     exit 1
@@ -159,7 +175,7 @@ done
 echo "# ------ copying $FW_PATH --> $MK_BASEDIR/input"
 cp $FW_PATH $MK_BASEDIR/input
 echo "# ------ copying patch and overlay files to $MK_BASEDIR/root-patch"
-rsync -rav $SCRIPTPATH/root-patch/   $MK_BASEDIR/root-patch/
-rsync -rav $SCRIPTPATH/root-overlay/ $MK_BASEDIR/root-overlay/
+rsync --exclude .gitignore -rav $SCRIPTPATH/root-patch/   $MK_BASEDIR/root-patch/
+rsync --exclude .gitignore -rav $SCRIPTPATH/root-overlay/ $MK_BASEDIR/root-overlay/
 cp $SCRIPTPATH/device-table.txt      $MK_BASEDIR/
 cp $SCRIPTPATH/root-permissions.acl  $MK_BASEDIR/

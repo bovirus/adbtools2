@@ -13,6 +13,39 @@ then
     FW_NEW_FILE="$FW_FILE-mod.sig"
 fi
 
+usage () {
+    echo "usage: ./mod-kit-configure.sh [ -c ] [ -h ]"
+    echo "       -d clean all generated files from a previous run"
+    echo "       -h print this help"
+}
+
+
+while getopts :ch option
+do
+    case "${option}"
+    in
+	c) OPMODE="CLEAN";;
+	h) usage
+	   exit
+	   ;;
+	?) echo "unexpected option"
+	   usage
+	   exit
+	   ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+if [ "$1" != "" ]
+then
+    echo "unexpected argument"
+    usage
+    exit
+fi
+
+
+
 # ------ print main variables and create $MK_BASEDIR/conf.sh file
 echo "------ main variables and create $MK_BASEDIR/conf.sh file"
 echo "       MK_BASEDIR    $MK_BASEDIR"
@@ -22,7 +55,22 @@ echo "       SCRIPT        $SCRIPT"
 echo "       SCRIPTPATH    $SCRIPTPATH"
 echo "       ERASESIZE     $ERASESIZE"
 echo "       FW_NEW_FILE   $FW_NEW_FILE"
+echo "       OPMODE        $OPMODE"
 echo
+
+if [ "$OPMODE" = "CLEAN" ]
+then
+    echo "# ------ cleanup file generated in a previous run"
+    rm -f  $MK_BASEDIR/input/*bin
+    rm -f  $MK_BASEDIR/output/*bin
+    rm -f  $MK_BASEDIR/output/*log
+    rm -f  $MK_BASEDIR/output/*sig
+    rm -rf $MK_BASEDIR/input/root/*
+    rm -rf $MK_BASEDIR/output/root/*
+    echo "#        cleanup done"
+    exit
+fi
+
 
 # ------ extract boot and root fs from firmware file
 echo "------ extract boot and root fs from firmware file"
@@ -160,3 +208,11 @@ echo "# ------ recalculate checksum in the modified firmware"
 dd if=/dev/zero of=$MK_BASEDIR/output/$FW_NEW_FILE conv=notrunc bs=1 count=16 seek=240
 hash=$(md5sum $MK_BASEDIR/output/$FW_NEW_FILE | cut -d " " -f1)
 echo -n $hash | xxd -r -p | dd of=$MK_BASEDIR/output/$FW_NEW_FILE conv=notrunc bs=1 count=16 seek=240
+
+# ------ generate xdelta patch file if xdelta3 is installed
+XDELTA3=`which xdelta3`
+if [ "$XDELTA3" != "" ]
+then
+    echo "# ------ generate xdelta patch file"
+    xdelta3 -9 -e -s  $MK_BASEDIR/input/$FW_FILE $MK_BASEDIR/output/$FW_NEW_FILE $MK_BASEDIR/output/$FW_NEW_FILE.xdelta
+fi
