@@ -349,6 +349,30 @@ jffs2 file system is mounted read/write, but the router firmware never
 modify it, and treat it as if it was mounted read only. Only the
 firmware upgrade procedure rewrites the root jffs2 file system.
 
+The `hack-script.sh` enable, also, the possibility to upgrade the
+router with an unsigned firmware file. To do so it
+
+* copy the /usr/sbin/upgrade.sh in /tmp/upgrade.sh and replace the
+  following snippet
+```
+sig_verify $file 2> /dev/null
+ret_code=$?
+```
+  with
+```
+sig_verify $file 2> /dev/null
+ret_code=0
+```
+  this means that an unsigned firmware will be treated as a signed
+  firmware
+
+* execute the `mount --bind` command to temporary "replace"
+  /usr/sbin/upgrade.sh and temporary (until reboot) allow an upgrade
+  with an unsigned firmware:
+```
+su -c "mount --bind /tmp/upgrade.sh /usr/sbin/upgrade.sh" -
+```
+
 To return to router normal mode of operation you have to exit factory
 mode with the following command in the clish shell
 
