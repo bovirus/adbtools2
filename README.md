@@ -385,24 +385,24 @@ configuration.
 # Firmware modification kit
 
 In the folder `mod-kit` there are a couple of scripts and support
-files to modify an official firmware with another that includes our
+files to modify an official firmware with another that includes custom
 modifications.
 
 The scripts allow to extract the root file system from the official
-firmware, apply our patches on this file system, overwrite exiting
-files or add new files to the file system and then generate a new
-unsigned firmware file that can be loaded into the router using the
-`hack-script.sh` and the procedure to become root described above.
+firmware, apply custom patches, overwrite exiting files or add new
+files to the file system and then generate a new unsigned firmware
+file that can be loaded into the router using the `hack-script.sh` and
+the procedure to become root described above.
 
 Current implementation has the following limitations (some of them
 will be removed in future releases):
 
 * only the DVA-5592_A1_WI_20180405.sig firmware can be modified
-  (firmware for the device D-Link DVA-5592 ditributed in Italy by
+  (firmware for the device D-Link DVA-5592 distributed in Italy by
   Wind)
 
-* new root file image, incorporating our modifications, must not be
-  greater than current root file image size
+* new root file system image, incorporating custom modifications, must
+  not be greater than current root file image size
 
 * runs only on Linux (this limitation will not be removed in future
   releases)
@@ -463,6 +463,60 @@ mkfs.jffs2: error!:
 # copy the mkfs.jffs2 command in a suitable location
 sudo cp mkfs.jffs2 /usr/local/bin/mkfs.jffs2-lzma
 ```
+
+## Content of the firmware modification kit folder (mod-kit)
+
+The folder mod-kit contains the following files/directories:
+
+* **mod-kit-configure.sh** this script prepare and create the
+    directory tree that will contain the original firmware file, the
+    original extracted root file system, the patch directory, the
+    overlay file system, the new modified root file system, the new
+    modified and unsigned firmware file. This is the first script to
+    run.
+
+* **mod-kit-run.sh** this is the main script that extract the root
+    file system from the original firmware, apply patches to it, apply
+    overlay files and generate the new unsigned firmware file.
+
+* **device-table.txt** the device table used by `mkfs.jffs2` to allow
+    creation of /dev/console and /dev/null in the jffs2 root file
+    image. This is needed because the normal user has no right to
+    create a special file
+
+* **root-permissions.acl** this file contains the correct file owner
+    and mode of each file in the root file system. This file is needed
+    because files extracted by Jefferson haven't the correct file mode
+    and ownership
+
+* **mtd-utils-lzma_jffs2.patch** this is the patch to apply to
+    mtd-utils to add support for lzma compression (see above)
+
+* **root-patch** this is a directory with same folder structure as the
+    root file system and a corresponding file for each file that needs
+    to be patched on the original root file system. The patch file
+    name is the same as to file to be patched with the suffic
+    `.patch`. Currently only the following files will be patched:
+
+    * **/etc/passwd.orig** to remove the `:*:` from the `root` entry,
+        to allow `su -` without any password. Please note that `root`
+        cannot login with telnet or ssh, so this should not create a
+        serious security treat.
+
+    * **/usr/sbin/upgrade.sh.patch** to allow firmware upgrade with
+        unsigned firmware file, using the web interface
+
+    * **/usr/sbin/usb_hotplug_sw_upgrade.sh.patch** to allow firmware
+      upgrade with unsigned firmware file, using a USB key
+
+    * **/etc/clish/startup.xml.patch** to allow the command "system
+        shell" in normal mode (currently this command is available
+        only in factory mode)
+
+* **root-overlay** this is a directory with same folder structure as
+    the root file system, files present on this directory will be
+    written to the new root file system, after the above patches have
+    been applied. Currently there is only the `/opt` directory
 
 
 ## Information source to develop these tools
