@@ -481,8 +481,8 @@ The folder mod-kit contains the following files/directories:
 
 * **device-table.txt** the device table used by `mkfs.jffs2` to allow
     creation of /dev/console and /dev/null in the jffs2 root file
-    image. This is needed because the normal user has no right to
-    create a special file
+    system image. This is needed because the normal user has no right
+    to create a special file
 
 * **root-permissions.acl** this file contains the correct file owner
     and mode of each file in the root file system. This file is needed
@@ -495,23 +495,26 @@ The folder mod-kit contains the following files/directories:
 * **root-patch** this is a directory with same folder structure as the
     root file system and a corresponding file for each file that needs
     to be patched on the original root file system. The patch file
-    name is the same as to file to be patched with the suffic
+    name is the same as the file to be patched with the suffix
     `.patch`. Currently only the following files will be patched:
 
     * **/etc/passwd.orig** to remove the `:*:` from the `root` entry,
         to allow `su -` without any password. Please note that `root`
-        cannot login with telnet or ssh, so this should not create a
-        serious security treat.
+        cannot login with telnet or ssh, and no login is allowd from
+        Internet, so this security treat is mitigated. It is possible
+        to modify the patch to input a salted, crypted password in
+        this field.
 
-    * **/usr/sbin/upgrade.sh.patch** to allow firmware upgrade with
-        unsigned firmware file, using the web interface
+    * **/usr/sbin/upgrade.sh** to allow firmware upgrade with unsigned
+        firmware file, using the web interface.
 
-    * **/usr/sbin/usb_hotplug_sw_upgrade.sh.patch** to allow firmware
-      upgrade with unsigned firmware file, using a USB key
+    * **/usr/sbin/usb_hotplug_sw_upgrade.sh** to allow firmware
+      upgrade with unsigned firmware file, using a USB key.
 
-    * **/etc/clish/startup.xml.patch** to allow the command "system
-        shell" in normal mode (currently this command is available
-        only in factory mode)
+    * **/etc/clish/startup.xml** to allow the command "system shell"
+        in normal mode (currently this command is available only in
+        factory mode). This command allows to escape the clish
+        interface and use a standard /bin/ash (busybox) CLI.
 
 * **root-overlay** this is a directory with same folder structure as
     the root file system, files present on this directory will be
