@@ -382,6 +382,89 @@ You will return to the normal mode, but the previous configuration has
 been wiped out, so the router restart as if it was resetted to factory
 configuration.
 
+# Firmware modification kit
+
+In the folder `mod-kit` there are a couple of scripts and support
+files to modify an official firmware with another that includes our
+modifications.
+
+The scripts allow to extract the root file system from the official
+firmware, apply our patches on this file system, overwrite exiting
+files or add new files to the file system and then generate a new
+unsigned firmware file that can be loaded into the router using the
+`hack-script.sh` and the procedure to become root described above.
+
+Current implementation has the following limitations (some of them
+will be removed in future releases):
+
+* only the DVA-5592_A1_WI_20180405.sig firmware can be modified
+  (firmware for the device D-Link DVA-5592 ditributed in Italy by
+  Wind)
+
+* new root file image, incorporating our modifications, must not be
+  greater than current root file image size
+
+* runs only on Linux (this limitation will not be removed in future
+  releases)
+
+## Firmware modification kit prerequisites
+
+The kit requires some software to be available, the two most important
+required software are:
+
+* Jefferson available at https://github.com/sviehb/jefferson, to
+  extract the jffs2 root file system from the firmware file
+
+* mkfs.jffs2, part of mtd-utils
+  (http://www.linux-mtd.infradead.org/source.html) with the lzma patch
+  to support lzma compression. The version of mkfs.jffs2, usually
+  available on package repositories, doesn't include the lzma patch. I
+  grabbed the lzma patch from the openwrt project and included it in
+  this repository.
+
+To get mkfs.jffs2 with lzma support there are at least two
+possibilities: get a compiled version with the lzma patch included
+from an OpenWRT SDK or compile the mtd-utils from source.
+
+To compile the mtd-utils, some additional packages can be needed on
+the Linux system used for compilation, for example, in my case, on my
+Ubuntu 16.04.05, I had to install:
+
+```
+sudo apt install liblzo2-2 liblzo2-dev libacl1 libacl1-dev
+```
+
+If some errors pop-up during compilation it is always possible to
+google the error and find what package is needed to resolve the issue.
+
+To compile mtd-utils and apply the lzma patch included in this
+repository I did:
+
+```
+# get the mtd-utils version v2.0.2 (last stable version, currently)
+git clone -b v2.0.2 --single-branch --depth 1 git://git.infradead.org/mtd-utils.git
+
+# apply the lzma patch included in this repository
+cd mtd-utils/
+patch -p1  < /path/to/this/repository/mod-kit/mtd-utils-lzma_jffs2.patch
+
+# build the mtd-utils packages
+./autogen.sh
+./configure
+make
+
+# check that lzma compression is included
+./mkfs.jffs2 -L
+mkfs.jffs2: error!: 
+      zlib priority:80 enabled
+      lzma priority:70 enabled
+     rtime priority:50 enabled
+
+# copy the mkfs.jffs2 command in a suitable location
+sudo cp mkfs.jffs2 /usr/local/bin/mkfs.jffs2-lzma
+```
+
+
 ## Information source to develop these tools
 
 The information comes from the router file system analysis. The router
