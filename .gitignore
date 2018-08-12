@@ -1,0 +1,6 @@
+*.bin
+*.xml
+*~
+dec.sh
+enc.sh
+*.orig

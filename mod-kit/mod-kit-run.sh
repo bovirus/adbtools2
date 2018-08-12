@@ -103,7 +103,7 @@ cd $CURRWD
 
 # ------ apply overlay to new root file system
 echo "# ------ apply overlay to new root file system"
-rsync -rav $MK_BASEDIR/root-overlay/ $MK_BASEDIR/output/root/
+rsync --exclude=.gitignore -rav $MK_BASEDIR/root-overlay/ $MK_BASEDIR/output/root/
 
 
 
