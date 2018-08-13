@@ -29,8 +29,6 @@ Benjamin Bertrand (https://github.com/beenje/tkinter-logging-text-widget)
 
 # Table of contents
 
-<!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
-
 - [ADB Tools 2 description](#adb-tools-2-description)
 - [Table of contents](#table-of-contents)
 - [Decrypt and modify the router configuration file](#decrypt-and-modify-the-router-configuration-file)
@@ -45,19 +43,13 @@ Benjamin Bertrand (https://github.com/beenje/tkinter-logging-text-widget)
 	- [hack-script.sh](#hack-scriptsh)
 - [Firmware modification kit](#firmware-modification-kit)
 	- [Firmware modification kit prerequisites](#firmware-modification-kit-prerequisites)
-- [get the mtd-utils version v2.0.2 (last stable version, currently)](#get-the-mtd-utils-version-v202-last-stable-version-currently)
-- [apply the lzma patch included in this repository](#apply-the-lzma-patch-included-in-this-repository)
-- [build the mtd-utils packages](#build-the-mtd-utils-packages)
-- [check that lzma compression is included](#check-that-lzma-compression-is-included)
-- [copy the mkfs.jffs2 command in a suitable location, for example](#copy-the-mkfsjffs2-command-in-a-suitable-location-for-example)
 	- [Content of the firmware modification kit folder (mod-kit)](#content-of-the-firmware-modification-kit-folder-mod-kit)
 	- [Script mod-kit-configure.sh](#script-mod-kit-configuresh)
 	- [Script mod-kit-run.sh](#script-mod-kit-runsh)
 - [Information source to develop these tools](#information-source-to-develop-these-tools)
 - [YAPL file structure](#yapl-file-structure)
-	- [Author](#author)
+- [Author](#author)
 
-<!-- /TOC -->
 
 # Decrypt and modify the router configuration file
 
@@ -506,27 +498,27 @@ To compile mtd-utils and apply the lzma patch included in this
 repository I did:
 
 ```
-# get the mtd-utils version v2.0.2 (last stable version, currently)
-git clone -b v2.0.2 --single-branch --depth 1 git://git.infradead.org/mtd-utils.git
+    # get the mtd-utils version v2.0.2 (last stable version, currently)
+    git clone -b v2.0.2 --single-branch --depth 1 git://git.infradead.org/mtd-utils.git
 
-# apply the lzma patch included in this repository
-cd mtd-utils/
-patch -p1  < /path/to/this/repository/mod-kit/mtd-utils-lzma_jffs2.patch
+    # apply the lzma patch included in this repository
+    cd mtd-utils/
+    patch -p1  < /path/to/this/repository/mod-kit/mtd-utils-lzma_jffs2.patch
 
-# build the mtd-utils packages
-./autogen.sh
-./configure
-make
+    # build the mtd-utils packages
+    ./autogen.sh
+    ./configure
+    make
 
-# check that lzma compression is included
-./mkfs.jffs2 -L
-mkfs.jffs2: error!:
-      zlib priority:80 enabled
-      lzma priority:70 enabled
-     rtime priority:50 enabled
+    # check that lzma compression is included
+    ./mkfs.jffs2 -L
+    mkfs.jffs2: error!:
+          zlib priority:80 enabled
+          lzma priority:70 enabled
+         rtime priority:50 enabled
 
-# copy the mkfs.jffs2 command in a suitable location, for example
-sudo cp mkfs.jffs2 /usr/local/bin/mkfs.jffs2-lzma
+    # copy the mkfs.jffs2 command in a suitable location, for example
+    sudo cp mkfs.jffs2 /usr/local/bin/mkfs.jffs2-lzma
 ```
 
 ## Content of the firmware modification kit folder (mod-kit)
@@ -703,7 +695,7 @@ didn't know where else to put.
     0x10 - ....: Zero separated strings
     .... - ....: Instructions that somehow reference the strings
 
-## Author
+# Author
 I am happy to be contacted about this project, my contact details are:
 
 |Item             |Content                                          |
