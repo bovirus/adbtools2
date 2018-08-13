@@ -25,6 +25,8 @@ usage() {
     echo "usage: ./mod-kit-configure.sh [ -d basedir ] [ -j /path/to/mkfs.jffs2 ] <firmware file>"
     echo "   -d basedir (defautl $MK_BASEDIR)"
     echo "   -j /path/to/mkfs.jffs2 (default $MKFS_JFFS2)"
+    echo "   -h this help"
+    echo
     echo "   example:"
     echo "   ./mod-kit-configure.sh /path/to/DVA-5592_A1_WI_20180405.sig"
     echo
@@ -58,12 +60,15 @@ check_fwfile() {
 }
 
 # ------ process arguments
-while getopts :d:j: option
+while getopts :d:j:h option
 do
     case "${option}"
     in
 	d) MK_BASEDIR="${OPTARG}";;
 	j) MKFS_JFFS2="${OPTARG}";;
+	h) usage
+	   exit
+	   ;;
 	?) echo "ERROR: unexpected option"
 	   usage
 	   exit

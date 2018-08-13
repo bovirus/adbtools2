@@ -1,36 +1,87 @@
-# ADB Tools 2
+# ADB Tools 2 description
 
-Tools for hacking ADB Epicentro routers, including the D-Link DVA-5592
-distributed by Wind in Italy to his FTTC Home Fiber subscribers.
+Tools for hacking ADB Epicentro routers, especially the D-Link
+DVA-5592 distributed by Wind in Italy to his FTTC and Fiber
+subscribers.
 
-These tools are python3 scripts available in python source and in .exe
-compiled version for Windows. The .exe doesn't require Python and
-related additional modules, but please note that I use mainly Linux,
-so the .exe version can be older than the python version.
+These tools are:
 
-There is also a bash shell script to be executed on the router to
-exploit a vulnerability and become root.
+* **python3 scripts** to decrypt and modify the router configuration file
+  to recover VOIP and other passwords in plain text and to enable
+  hidden or disabled functions. These scripts are available in python
+  source and in .exe compiled version for Windows. The .exe files don't
+  require Python and related additional modules
+* **hack-script.sh** used to automate the procedure to become root on the
+  DVA-5592 router and to temporary enable (until next reboot) the upgrade with
+  an unsigned firmware
+* **mod-kit** a folder with a firmware modification kit for the DVA-5592 router.
+ The kit includes a couple of bash scripts and support files to enable the
+ modification of the root file system and the generation of an unsigned
+ firmware file to be loaded into the router thanks to the above script
 
 Python dependencies can be installed using
 
     pip3 install -r requirements.txt
 
-Based on adbtools by Gabriel Huber (https://github.com/Yepoleb/adbtools).
-Using some gui elements by Benjamin Bertrand (https://github.com/beenje/tkinter-logging-text-widget)
+Python scripts are based on adbtools by Gabriel Huber
+(https://github.com/Yepoleb/adbtools) and use some gui elements by
+Benjamin Bertrand (https://github.com/beenje/tkinter-logging-text-widget)
+
+# Table of contents
+
+<!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+
+- [ADB Tools 2 description](#adb-tools-2-description)
+- [Table of contents](#table-of-contents)
+- [Decrypt and modify the router configuration file](#decrypt-and-modify-the-router-configuration-file)
+	- [confedit](#confedit)
+	- [confbin2xml](#confbin2xml)
+	- [confxml2bin](#confxml2bin)
+	- [pkcrypt](#pkcrypt)
+- [How to become root on the D-Link DVA-5592 router](#how-to-become-root-on-the-d-link-dva-5592-router)
+	- [Get an unprivileged busybox command prompt](#get-an-unprivileged-busybox-command-prompt)
+	- [The role of the *cm* daemon running with *root* privileges](#the-role-of-the-cm-daemon-running-with-root-privileges)
+	- [Exploiting the *cm* daemon to run a script with *root* privileges](#exploiting-the-cm-daemon-to-run-a-script-with-root-privileges)
+	- [hack-script.sh](#hack-scriptsh)
+- [Firmware modification kit](#firmware-modification-kit)
+	- [Firmware modification kit prerequisites](#firmware-modification-kit-prerequisites)
+- [get the mtd-utils version v2.0.2 (last stable version, currently)](#get-the-mtd-utils-version-v202-last-stable-version-currently)
+- [apply the lzma patch included in this repository](#apply-the-lzma-patch-included-in-this-repository)
+- [build the mtd-utils packages](#build-the-mtd-utils-packages)
+- [check that lzma compression is included](#check-that-lzma-compression-is-included)
+- [copy the mkfs.jffs2 command in a suitable location, for example](#copy-the-mkfsjffs2-command-in-a-suitable-location-for-example)
+	- [Content of the firmware modification kit folder (mod-kit)](#content-of-the-firmware-modification-kit-folder-mod-kit)
+	- [Script mod-kit-configure.sh](#script-mod-kit-configuresh)
+	- [Script mod-kit-run.sh](#script-mod-kit-runsh)
+- [Information source to develop these tools](#information-source-to-develop-these-tools)
+- [YAPL file structure](#yapl-file-structure)
+	- [Author](#author)
+
+<!-- /TOC -->
+
+# Decrypt and modify the router configuration file
+
+The following Python3 scripts allows to decrypt and/or modify and encrypt
+the binary router configuration, locally saved using the web interface.
+
+This  allows to show hidden passwords, including the VOIP password, stored in the
+encrypted configuration file and to modify the configuration file to enable
+hidden or disabled functionalities.
 
 ## confedit
 
-It is the main, gui based, tool that allows:
+It is the main, GUI based, tool that allows:
 
 * decryption of the router configuration
 * extraction of the main XML configuration file and the CPE configuration file
 * encryption of main XML configuration file and the XML CPE configuration file
-* extraction of passwords embedded in the configuration files, including the VoIP username and password
+* extraction of passwords embedded in the configuration files, including the
+  VoIP username and password
 * editing of various features including:
-  * enable restricted web gui elements
-  * enable restricted CLI commands
-  * enable firmware upgrade/downgrade
-  * fix wrong ddns server: dlinkdns.con -> dlinkddns.com
+  - enable restricted web GUI elements
+  - enable restricted CLI commands
+  - enable firmware upgrade/downgrade
+  - fix wrong ddns server: dlinkdns.con -> dlinkddns.com
 
 ## confbin2xml
 
@@ -40,10 +91,9 @@ webinterface.
 
 The config backup file is a binary encrypted xml file
 with a trailing segment of base64 encrypted CPE DATA as in the
-following excerpt:
+following snippet:
 
 ````
-
   <!-- CPE Data: DVA-5592/DVA-5592 system type    : 963138_VD5920 -->
   <!-- DATA
   9V/jO+TpbscUypF/41d3Ej15nwHuUp+c4wBWV4uFWb1Zb/nS6QuDiLUoZeJ2s0mksjXrARR2
@@ -52,7 +102,6 @@ following excerpt:
   24g6a+nGht0O4xs99XXewI5uq0i/7+sf1Ic7CkscNfrS7k0n07MFPLWSV97kkmU1/+GfGwrd
   e1ICfokPdjY=
   -->
-
 ````
 
 The confbin2xml.py tool extract and decrypt both files, they have
@@ -76,18 +125,18 @@ where:
     confcpe.xml    output, CPE Data configuration file decrypted
 
 The output files written by the tool (conf.xml and confcpe.xml) are
-text file in "unix format" (lf as line separator) so notepad has
+text file in "unix format" (Line Feed as line separator) so notepad has
 difficulties in displaying them correctly, you can use another editor
 or convert them to "dos format" with a command similar to the
 following:
 
     d:\adbtools2> type conf.xml | more /P > conf2.xml
 
-now conf2.xml can be correctly viewed with notepad.
+in this way conf2.xml can be correctly viewed with notepad.
 
-One intersting piece of information is the SIP username and password
-in plaintext in both configuration file as in the following conf.xml
-fragment:
+One interesting piece of information is the SIP username and password
+in plain text in both configuration file as in the following conf.xml
+snippet:
 
           <SIP>
                 <AuthPassword>1234XABC</AuthPassword>
@@ -95,18 +144,19 @@ fragment:
           </SIP>
 
 ## confxml2bin
-Does the opposit of confbin2xml, takes, as input, the main XML configuration file, the CPE XML configuration file, the two encrypting keys and generates the encrypted binary XML file ready to be loaded into the router.
+
+Does the opposite of confbin2xml, takes, as input, the main XML configuration file, the CPE XML configuration file, the two encrypting keys and generates the encrypted binary XML file ready to be loaded into the router.
 
 Using confbin2xml and confxml2bin it is possible to extract the two XML files, modify them and generate the new encrypted binary XML file, ready to be loaded into the router.
 
 **Python usage example:**
 
   python3 confxml2bin.py download.pem upload.pem conf.xml confcpe.xml conf.bin
-  
+
 **Windows usage example:**
-  
+
   d:\adbtools2> confxml2bin.exe download.pem upload.pem conf.xml confcpe.xml conf.bin
-  
+
 **where:**
 
     download.pem   input, encrypting key for the main configuration file, from the firmware file system
@@ -134,27 +184,26 @@ firmware image.
 
     d:\adbtools2> pkcrypt.exe sym_decrypt download.pem config.bin config.xml
 
-## hack-script.sh
 
-This is a script to be executed on the `/bin/ash` command line
-interface in the router to exploit a vulnerability and become
-root. Details on how to use this script are in the following section.
-
-## How to become root on this router
+# How to become root on the D-Link DVA-5592 router
 
 Previous known Epicentro vulnerabilities (like
-https://www.exploit-db.com/exploits/44983/) has been closed in this
-version of software (_ADB_PlatformSoftwareVersion=6.0.0.0028) so I was
-forced to search another unexploited vulnerability.
+https://www.exploit-db.com/exploits/44983/) has been closed in the
+software version (\_ADB_PlatformSoftwareVersion=6.0.0.0028) used by this
+router, so it was necessary to to search another unexploited vulnerability.
 
-### How to get an unprivileged busybox command prompt
+The procedure described here has been tested on the DVA-5592 router, probably
+it will function on other Epicentro routers, eventually with some modifications.
 
-When you telnet into this router you get a `/bin/clish` command
+## Get an unprivileged busybox command prompt
+
+A telnet into this router gives a `/bin/clish` command
 prompt. Clish (or Klish) si an open source project
 (http://libcode.org/projects/klish/) to give a "Cisco like"
-interface. This shell is configured through an xml configuration file;
-looking at the startup scripts (see below about router file system
-analysis) and at the `/bin/clish` script you can see that the normal
+interface. This shell is configured through an xml configuration file.
+
+Looking at the startup scripts (see below about router file system
+analysis) and at the `/bin/clish` script it is possible to see that the normal
 configuration file is `/tmp/clish/startup.xml` (`/tmp/clish` links to
 `/etc/clish` in "normal" mode and to `/etc/clish/prod` in "factory
 mode"), in this file there is an "hidden" command that isn't
@@ -169,67 +218,69 @@ auto-completed and doesn't show in the clish CLI:
       </ACTION>
    </COMMAND>
 ```				
+
 So it is possible to enter "factory-mode" with the following commands:
 
-    valerio@ubuntu-hp:~$ telnet 192.168.1.1 
-    Trying 192.168.1.1... 
-    Connected to 192.168.1.1. 
-    Escape character is '^]'. 
-    Login: admin 
-    Password: 
+    valerio@ubuntu-hp:~$ telnet 192.168.1.1
+    Trying 192.168.1.1...
+    Connected to 192.168.1.1.
+    Escape character is '^]'.
+    Login: admin
+    Password:
 
-    ******************************************** 
-    *                 D-Link                   * 
-    *                                          * 
-    *      WARNING: Authorised Access Only     * 
-    ******************************************** 
+    ********************************************
+    *                 D-Link                   *
+    *                                          *
+    *      WARNING: Authorised Access Only     *
+    ********************************************
 
-    Welcome 
-    DLINK# factory 
-    DLINK(factory)# factory-mode 
-    DLINK(factory)# 
-    DLINK(factory)# Connection closed by foreign host. 
+    Welcome
+    DLINK# factory
+    DLINK(factory)# factory-mode
+    DLINK(factory)#
+    DLINK(factory)# Connection closed by foreign host.
     valerio@ubuntu-hp:~$  
 
 The system reboots and enters factory mode. The configuration is wiped
-out and the router doesn'operate normally: DHCP server is not working,
+out and the router doesn't operate normally: DHCP server is not working,
 WiFi has some esoteric, but unusable, SSIDs and Internet connection
-doesn't work. You have to configure a static IP address on your PC to
+doesn't work. It is needed to configure a static IP address on the PC to
 communicate with the router's default IP (192.168.1.1).
 
 But in this mode it is possible to enter an unprivileged busybox
 shell:
 
-    valerio@ubuntu-hp:~$ telnet 192.168.1.1 
-    Trying 192.168.1.1... 
-    Connected to 192.168.1.1. 
-    Escape character is '^]'. 
-    Login: admin 
-    Password: 
+    valerio@ubuntu-hp:~$ telnet 192.168.1.1
+    Trying 192.168.1.1...
+    Connected to 192.168.1.1.
+    Escape character is '^]'.
+    Login: admin
+    Password:
 
-    ******************************************** 
-    *                 D-Link                   * 
-    *                                          * 
-    *      WARNING: Authorised Access Only     * 
-    ******************************************** 
+    ********************************************
+    *                 D-Link                   *
+    *                                          *
+    *      WARNING: Authorised Access Only     *
+    ********************************************
 
-    Welcome 
-    DLINK# system shell 
+    Welcome
+    DLINK# system shell
 
 
-    BusyBox v1.17.3 (2018-04-11 12:29:54 CEST) built-in shell (ash) 
-    Enter 'help' for a list of built-in commands. 
+    BusyBox v1.17.3 (2018-04-11 12:29:54 CEST) built-in shell (ash)
+    Enter 'help' for a list of built-in commands.
 
-    /root $ 
+    /root $
 
-### The role of the `cm` daemon running with `root` privileges
+## The role of the *cm* daemon running with *root* privileges
 
-Based on filesystem analysis I have discovered that large part of the
-router configuration is done by a system process, `/sbin/cm`, running
+The result of file system analysis shows that large part of the
+router configuration modification, in response to user's CLI commands or web
+interaction, is done by a system process, `/sbin/cm`, running
 with root privileges:
 
-    /root $ ps -ef | egrep 'PID| cm' 
-    PID USER       VSZ STAT COMMAND 
+    /root $ ps -ef | egrep 'PID| cm'
+    PID USER       VSZ STAT COMMAND
     356 0         2560 S    cm  
 
 This process (`cm` probably means "Configuration Manager") is started
@@ -239,7 +290,9 @@ for commands on the socket file `/tmp/cmctl`.
 Commands are given using the `cmclient` configuration command, it is
 not a program but it is interpreted directly by busybox probably
 through a compiled plugin. `cmclient` simply writes commands to
-`/tmp/cmctl`. Also `clish` has a plugin to talk directly to `cm`
+`/tmp/cmctl`.
+
+Also `clish` has a plugin to talk directly to `cm`
 through the `/tmp/cmctl` socket file.
 
 During the router boot `cmclient` is used by startup files to
@@ -266,91 +319,101 @@ The `cm` process knows that it has to call `/etc/ah/Users.sh` through:
 * the `cm` daemon process every file in the above folder, including
   `/etc/cm/tr181/dom/Management.xml`
 
-* in the above file it is included the following xml snippet:
+* in the above file there is the following xml snippet:
 ```
-    <object name="Users.User.{i}." 
-          access="readOnly" 
-          minEntries="0" 
-          maxEntries="unbounded" 
-          numEntriesParameter="UserNumberOfEntries" 
-          enableParameter="Enable" 
-          set="Users.sh" 
-          add="Users.sh" 
+    <object name="Users.User.{i}."
+          access="readOnly"
+          minEntries="0"
+          maxEntries="unbounded"
+          numEntriesParameter="UserNumberOfEntries"
+          enableParameter="Enable"
+          set="Users.sh"
+          add="Users.sh"
           del="Users.sh"
     >
 ```
 * the `cm` daemon prepend the `/etc/ah/` path in front of `Users.sh`
 
-### Exploiting the `cm` daemon to run our script with `root` privileges
+## Exploiting the *cm* daemon to run a script with *root* privileges
 
 The interesting thing is that it is possible to re-configure the `cm`
-daemon configuration giving it, through cmclient, a command to load a
-new XML file located, for example, in the /tmp folder. This means that
-it is possible to:
+daemon giving it, through cmclient, a command to load a
+new XML file located, for example, in the /tmp folder. Each definition in a new
+XML file overwrites existing definitions, This means that it is possible to:
 
 * copy `/etc/cm/tr181/dom/Management.xml` into `/tmp`
 
 * modify `/tmp/Managemente.xml` to load `../../tmp/Users.sh`
   (`/tmp/Users.sh`) instead of `Users.sh` (`/etc/ah/Users.sh`)
 
+* give the command to reconfigure the `cm` daemon: `cmclient
+  DOM Device /tmp/Management.xml`
+
 * copy `/etc/ah/Users.sh` into `/tmp`
 
 * modify `/tmp/Users.sh` to modify `/tmp/passwd` (`/etc/passwd` links
-  to this file) to remove the '*' from the root password field to
+  to this file) to remove the '\*' from the root password field to
   allow `su - root` without password
 
-* give the command to reconfigure the `cm` daemon: `cmclient
-  DOM Device /tmp/Management.xml`
-   
+* have `cm` execute the modified `/tmp/Users.sh` script with `root` privileges
+  with the command: `cmclient ADD Device.Users.User`
 
-* force the execution of our modified `/tmp/Users.sh` script with the
-  command: `cmclient ADD Device.Users.User`
+## hack-script.sh
 
-The script `hack-script.sh` does exactly the above steps, so to become
-root you have to:
+This is a script to be executed on the `/bin/ash` command line
+interface in the router to exploit the above vulnerability and become
+root.
+
+This script does exactly the above steps, so to become root, in an unprivileged
+busybox command prompt, it is needed to:
+
 ```
-    /root $ cat > /tmp/hack-script.sh
-       do a copy and paste of the script
-       press CTRL-D to terminate the copy
+/root $ cat > /tmp/hack-script.sh
+   do a copy and paste of the script
+   press CTRL-D to terminate the copy
 
-    /root $ chmod a+x /tmp/hack-script.sh
-    /root $ /tmp/hack-script.sh
+/root $ chmod a+x /tmp/hack-script.sh
+/root $ /tmp/hack-script.sh
 
-    ....
+ ....
 
-    /root $ su -
+/root $ su -
 
 
-    BusyBox v1.17.3 (2018-04-11 12:29:54 CEST) built-in shell (ash)
-    Enter 'help' for a list of built-in commands.
+BusyBox v1.17.3 (2018-04-11 12:29:54 CEST) built-in shell (ash)
+Enter 'help' for a list of built-in commands.
 
-	  ___           ___           ___           ___     
-	 |\__\         /\  \         /\  \         /\  \    
-	 |:|  |       /::\  \       /::\  \       /::\  \   
-	 |:|  |      /:/\:\  \     /:/\:\  \     /:/\:\  \  
-	 |:|__|__   /::\~\:\  \   /::\~\:\  \   _\:\~\:\  \ 
-	 /::::\__\ /:/\:\ \:\__\ /:/\:\ \:\__\ /\ \:\ \:\__\
-	/:/~~/~    \/__\:\/:/  / \/__\:\/:/  / \:\ \:\ \/__/
-       /:/  /           \::/  /       \::/  /   \:\ \:\__\  
-       \/__/            /:/  /         \/__/     \:\/:/  /  
-		       /:/  /                     \::/  /   
-		       \/__/                       \/__/    r41358.07b1b3a7  
-    ..................................................................
-     yet another purposeful solution by  Advanced Digital Broadcast SA
-    ..................................................................
-    root@localhost:~# id
-    uid=0(root) gid=0(root) groups=0(root),19(remoteaccess),20(localaccess)
-    root@localhost:~# 
+      ___           ___           ___           ___     
+     |\__\         /\  \         /\  \         /\  \    
+     |:|  |       /::\  \       /::\  \       /::\  \   
+     |:|  |      /:/\:\  \     /:/\:\  \     /:/\:\  \  
+     |:|__|__   /::\~\:\  \   /::\~\:\  \   _\:\~\:\  \
+     /::::\__\ /:/\:\ \:\__\ /:/\:\ \:\__\ /\ \:\ \:\__\
+    /:/~~/~    \/__\:\/:/  / \/__\:\/:/  / \:\ \:\ \/__/
+   /:/  /           \::/  /       \::/  /   \:\ \:\__\  
+   \/__/            /:/  /         \/__/     \:\/:/  /  
+                   /:/  /                     \::/  /   
+                   \/__/                       \/__/    r41358.07b1b3a7  
+..................................................................
+ yet another purposeful solution by  Advanced Digital Broadcast SA
+..................................................................
+root@localhost:~# id
+uid=0(root) gid=0(root) groups=0(root),19(remoteaccess),20(localaccess)
+root@localhost:~#
 ```
-You are now root, you could modify everything, but I have found that
-if you modify the root jffs2 file system you will start getting, on
+
+As *root*, it is now possible to modify everything, but I have found that
+modifying the root jffs2 file system I start getting, on
 the console, error messages related to jffs2 checksum errors. The root
 jffs2 file system is mounted read/write, but the router firmware never
 modify it, and treat it as if it was mounted read only. Only the
 firmware upgrade procedure rewrites the root jffs2 file system.
 
-The `hack-script.sh` enable, also, the possibility to upgrade the
-router with an unsigned firmware file. To do so it
+I don't know why this happens, it seems (but not fully sure) that adding files
+doesn't give checksum error messages, but modifying existing files does.
+
+The `hack-script.sh` has another feature: the possibility to temporary upgrade
+the router with an unsigned firmware file. To do so it
 
 * copy the /usr/sbin/upgrade.sh in /tmp/upgrade.sh and replace the
   following snippet
@@ -363,8 +426,10 @@ ret_code=$?
 sig_verify $file 2> /dev/null
 ret_code=0
 ```
-  this means that an unsigned firmware will be treated as a signed
-  firmware
+`sig_verify` is the executable used to check that the firmware file has been
+digitally signed with the supplier's private key. The public key is embedded in
+this executable file. This modification means that an unsigned firmware will
+be treated as a signed one.
 
 * execute the `mount --bind` command to temporary "replace"
   /usr/sbin/upgrade.sh and temporary (until reboot) allow an upgrade
@@ -372,37 +437,36 @@ ret_code=0
 ```
 su -c "mount --bind /tmp/upgrade.sh /usr/sbin/upgrade.sh" -
 ```
+* after the execution of `hack-script.sh`, before reboot and still in "factory
+mode" it is possible to upgrade, via web interface, the router with an unsigned
+firmware generated with the "Firmware Modification Kit" described below.
 
-To return to router normal mode of operation you have to exit factory
+To return to normal mode of operation it is needed to exit factory
 mode with the following command in the clish shell
 
-    DLINK# restore default-setting 
+    DLINK# restore default-setting
 
-You will return to the normal mode, but the previous configuration has
-been wiped out, so the router restart as if it was resetted to factory
+The router will return to the normal mode, but the previous configuration has
+been wiped out, so the router restarts as if it was resetted to factory
 configuration.
 
 # Firmware modification kit
 
-In the folder `mod-kit` there are a couple of scripts and support
-files to modify an official firmware with another that includes custom
-modifications.
-
-The scripts allow to extract the root file system from the official
-firmware, apply custom patches, overwrite exiting files or add new
-files to the file system and then generate a new unsigned firmware
-file that can be loaded into the router using the `hack-script.sh` and
-the procedure to become root described above.
+This kit, located in the folder *mod-kit* in this repository, allows to
+extract the root file system from an official firmware file, modify and/or
+add new files to this root file system and generate a new, unsigned, firmware
+file, ready to be uploaded to the router, via web interface, following the
+procedure described above and involving the use of `hack-script.sh`.
 
 Current implementation has the following limitations (some of them
-will be removed in future releases):
+may be removed in future releases):
 
 * only the DVA-5592_A1_WI_20180405.sig firmware can be modified
   (firmware for the device D-Link DVA-5592 distributed in Italy by
-  Wind)
+  Wind and released on 2018/04/05)
 
 * new root file system image, incorporating custom modifications, must
-  not be greater than current root file image size
+  not be greater than current root file system image size
 
 * runs only on Linux (this limitation will not be removed in future
   releases)
@@ -413,17 +477,17 @@ The kit requires some software to be available, the two most important
 required software are:
 
 * Jefferson available at https://github.com/sviehb/jefferson, to
-  extract the jffs2 root file system from the firmware file
+  extract the jffs2 root file system from the JFFS2 image file
 
 * mkfs.jffs2, part of mtd-utils
-  (http://www.linux-mtd.infradead.org/source.html) with the lzma patch
+  (http://www.linux-mtd.infradead.org/source.html), with the lzma patch
   to support lzma compression. The version of mkfs.jffs2, usually
   available on package repositories, doesn't include the lzma patch. I
   grabbed the lzma patch from the openwrt project and included it in
   this repository.
 
 To get mkfs.jffs2 with lzma support there are at least two
-possibilities: get a compiled version with the lzma patch included
+options: get a compiled version with the lzma patch included
 from an OpenWRT SDK or compile the mtd-utils from source.
 
 To compile the mtd-utils, some additional packages can be needed on
@@ -435,7 +499,8 @@ sudo apt install liblzo2-2 liblzo2-dev libacl1 libacl1-dev
 ```
 
 If some errors pop-up during compilation it is always possible to
-google the error and find what package is needed to resolve the issue.
+google the error and find what package is needed to install to resolve the
+issue.
 
 To compile mtd-utils and apply the lzma patch included in this
 repository I did:
@@ -455,12 +520,12 @@ make
 
 # check that lzma compression is included
 ./mkfs.jffs2 -L
-mkfs.jffs2: error!: 
+mkfs.jffs2: error!:
       zlib priority:80 enabled
       lzma priority:70 enabled
      rtime priority:50 enabled
 
-# copy the mkfs.jffs2 command in a suitable location
+# copy the mkfs.jffs2 command in a suitable location, for example
 sudo cp mkfs.jffs2 /usr/local/bin/mkfs.jffs2-lzma
 ```
 
@@ -471,23 +536,23 @@ The folder mod-kit contains the following files/directories:
 * **mod-kit-configure.sh** this script prepare and create the
     directory tree that will contain the original firmware file, the
     original extracted root file system, the patch directory, the
-    overlay file system, the new modified root file system, the new
+    overlay directory, the new modified root file system, the new
     modified and unsigned firmware file. This is the first script to
     run.
 
-* **mod-kit-run.sh** this is the main script that extract the root
+* **mod-kit-run.sh** this is the main script that extracts the root
     file system from the original firmware, apply patches to it, apply
     overlay files and generate the new unsigned firmware file.
 
 * **device-table.txt** the device table used by `mkfs.jffs2` to allow
     creation of /dev/console and /dev/null in the jffs2 root file
-    system image. This is needed because the normal user has no right
-    to create a special file
+    system image. This is needed because the normal user (not root), that runs
+    this kit, has no rights to create a special device file.
 
 * **root-permissions.acl** this file contains the correct file owner
     and mode of each file in the root file system. This file is needed
     because files extracted by Jefferson haven't the correct file mode
-    and ownership
+    and ownership.
 
 * **mtd-utils-lzma_jffs2.patch** this is the patch to apply to
     mtd-utils to add support for lzma compression (see above)
@@ -500,7 +565,7 @@ The folder mod-kit contains the following files/directories:
 
     * **/etc/passwd.orig** to remove the `:*:` from the `root` entry,
         to allow `su -` without any password. Please note that `root`
-        cannot login with telnet or ssh, and no login is allowd from
+        cannot login with telnet or ssh, and no login is allowed from
         Internet, so this security treat is mitigated. It is possible
         to modify the patch to input a salted, crypted password in
         this field.
@@ -509,7 +574,7 @@ The folder mod-kit contains the following files/directories:
         firmware file, using the web interface.
 
     * **/usr/sbin/usb_hotplug_sw_upgrade.sh** to allow firmware
-      upgrade with unsigned firmware file, using a USB key.
+        upgrade with unsigned firmware file, using a USB key.
 
     * **/etc/clish/startup.xml** to allow the command "system shell"
         in normal mode (currently this command is available only in
@@ -521,8 +586,94 @@ The folder mod-kit contains the following files/directories:
     written to the new root file system, after the above patches have
     been applied. Currently there is only the `/opt` directory
 
+## Script mod-kit-configure.sh
 
-## Information source to develop these tools
+This script creates the directory tree where the firmware modification kit will
+store original firmware file, original root file system, modified root file
+system, modified and unsigned firmware file system and other support files.
+
+Script usage is the following:
+```
+usage: ./mod-kit-configure.sh [ -d basedir ] [ -j /path/to/mkfs.jffs2 ] <firmware file>
+   -d basedir (defautl $HOME/mod-kit)
+   -j /path/to/mkfs.jffs2 (default /usr/local/bin/mkfs.jffs2-lzma)
+   -h this help
+
+   example:
+   ./mod-kit-configure.sh /path/to/DVA-5592_A1_WI_20180405.sig
+```
+
+This script will create the following directories, and partially populate then,
+under the *basedir* provided with the `-d` option (default is $HOME/mod-kit)
+
+* **input** the original firmware file is copied to this directory, the original
+  root file system images and other original intermediate images are stored on
+  this directory
+
+* **input/root** the original root file system, extracted with Jefferson by the
+  `mod-kit-run.sh` script is stored there
+
+* **output** the modified firmware file is generated, by `mod-kit-run.sh`, in
+  this directory, intermediate modified file system images are stored in this
+  directory
+
+* **output/root** the modified root file system is stored in this directory.
+  The original file system in `input/root` is copied here, then patches from
+  `root-patch` directories are applied, then files in the `root-overlay`
+  directory are copied here.
+
+* **root-patch** this is a directory with same folder structure as the
+  root file system and a corresponding file for each file that needs
+  to be patched on the original root file system. The patch file
+  name is the same as the file to be patched with the suffix
+  `.patch`. This directory is initially populated by the `mod-kit-configure.sh`
+  script from the similar directory in this repository. The user can customize
+  this directory adding more patch files.
+
+* **root-overlay** this is a directory with same folder structure as
+  the root file system, files present on this directory will be
+  written to the new root file system, after the above patches have
+  been applied by the `mod-kit-run.sh` script. This directory is initially
+  populated by the `mod-kit-configure.sh` script from the similar directory
+  in this repository. The user can customize this directory adding more files
+  and or directories.
+
+* **device-table.txt**  the device table used by `mkfs.jffs2` to allow
+  creation of /dev/console and /dev/null in the jffs2 root file
+  system image. This is needed because the normal user (not root), that runs
+  this kit, has no rights to create a special device file. This file is
+  populated by the `mod-kit-configure.sh` script from the similar file
+  in this repository.
+
+* **root-permissions.acl** this file contains the correct file owner
+  and mode of each file in the root file system. This file is needed
+  because files extracted by Jefferson haven't the correct file mode
+  and ownership. This file is populated by the `mod-kit-configure.sh` script
+  from the similar file in this repository.
+
+## Script mod-kit-run.sh
+
+This script does the main job to generate the modified unsigned firmware
+file:
+
+* extract the root file system image from the original firmware file
+* extract the original file system from the image into `input/root`
+* copy `input/root` to `output/root`
+* apply patches from `root-patches` to `output/root`
+* copy additional files/directory from `root-overlay` to `output/root`
+* generate the new root file system image
+* insert the new root file system image into the new unsigned firmware files
+* if *xdelta3* is available, generate and *xdelta* file to binary patch the
+  original firmware to obtain the new modified firmware file.
+
+Usage of this script is the following:
+```
+usage: ./mod-kit-run.sh [ -c ] [ -h ]
+       -d clean all generated files from a previous run
+       -h print this help
+```
+
+# Information source to develop these tools
 
 The information comes from the router file system analysis. The router
 firmware available at
@@ -540,7 +691,7 @@ configuration files (the normal clish configuragion file
 `/etc/clish/prod/startup.xml`) and startup scripts in `/etc/init.d`,
 especially `/etc/init.d/services.sh`.
 
-## YAPL file structure
+# YAPL file structure
 
 Yapl files are used as the CGI templates. This is just documentation that I
 didn't know where else to put.
