@@ -1,22 +1,28 @@
 #!/bin/sh
 #
-# takes a parameter:
-#   boot     for start (startup)
-#   shutdown for kill  (shutdown)
-#   install  for install (to install entware)
+# takes 1 or 2  parameter:
+#   boot               for start (startup)
+#   shutdown           for kill  (shutdown)
+#   install  [type]    for install (to install entware), type can be "generic"
+#                      or "alternative", default is "alternative"
 #
-# On Start
+# On boot
 # mount on /opt ext2, ext3 or ext4 file system if available on a USB key first partition
 # with device name /dev/sda1 or /dev/sdb1
 # then executes "/opt/etc/init.d/rc.unslung start" if exists
 #
-# On Stop
+# On shutdown
 # executes "/opt/etc/init.d/rc.unslung stop" if exists
 # unmount /opt if mounted
 #
 #
 #
 action=$1
+installtype="alternative"
+if [ "$2" != "" ]
+then
+   installtype=$2
+fi
 mntpoint="/opt"
 dev="/dev/sda1"
 mloaded=""
@@ -139,33 +145,38 @@ then
 else
     echo "entware.sh: /opt/etc/init.d/rc.unslung not found"
     echo "entware.sh: entware software not found on /opt"
-    echo "entware.sh: unmounting /opt"
     if [ "$action" = "install" ]
     then
 	echo "entware.sh: Entware Installation"
-	echo "entware.sh: downloading http://bin.entware.net/armv7sf-k3.2/installer/alternative.sh"
-	wget http://bin.entware.net/armv7sf-k3.2/installer/alternative.sh -O /tmp/alternative.sh
-	ret=$?
-	if [ "$ret" = "0" ]
+	if [ "$installtype" = "alternative" ] || [ "$installtype" = "generic" ]
 	then
-	    echo "entware.sh: installing entware, executing /tmp/alternative.sh"
-	    chmod a+x /tmp/alternative.sh
-	    /tmp/alternative.sh
-	    exit
-	fi
-    else 
-	umount /opt
-	ret=$?
-	if [ "$ret" = "0" ]
-	then
-	    echo "entware.sh: succesfully unmounted /opt"
+	    echo "entware.sh: downloading http://bin.entware.net/armv7sf-k3.2/installer/$installtype.sh"
+	    wget http://bin.entware.net/armv7sf-k3.2/installer/$installtype.sh -O /tmp/$installtype.sh
+	    ret=$?
+	    if [ "$ret" = "0" ]
+	    then
+		echo "entware.sh: installing entware, executing /tmp/$installtype.sh"
+		chmod a+x /tmp/$installtype.sh
+		/tmp/$installtype.sh
+		exit
+	    fi
 	else
-	    echo "entware.sh: ERROR unmounting /opt"
+	    echo "entware.sh: unsupporte installation type: $installtype"
+	    echo "entware.sh:    only generic and alternative installation type supported"
 	fi
-	echo "entware.sh: unloading loaded kernel modules"
-	for m in $mloaded
-	do echo "entware.sh: unloading $m"
-	   rmmod $m
-	done
-    fi   
+     fi 
+    echo "entware.sh: unmounting /opt"
+    umount /opt
+    ret=$?
+    if [ "$ret" = "0" ]
+    then
+	echo "entware.sh: succesfully unmounted /opt"
+    else
+	echo "entware.sh: ERROR unmounting /opt"
+    fi
+    echo "entware.sh: unloading loaded kernel modules"
+    for m in $mloaded
+    do echo "entware.sh: unloading $m"
+       rmmod $m
+    done
 fi
