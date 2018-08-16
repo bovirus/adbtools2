@@ -15,7 +15,7 @@ fi
 
 usage () {
     echo "usage: ./mod-kit-run.sh [ -c ] [ -h ]"
-    echo "       -d clean all generated files from a previous run"
+    echo "       -c clean all generated files from a previous run"
     echo "       -h print this help"
 }
 
