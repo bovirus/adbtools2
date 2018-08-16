@@ -23,8 +23,8 @@ Python dependencies can be installed using
 
     pip3 install -r requirements.txt
 
-Python scripts are based on adbtools by Gabriel Huber
-(https://github.com/Yepoleb/adbtools) and use some gui elements by
+Python3 scripts are based on adbtools forked from Gabriel Huber's repository
+(https://github.com/Yepoleb/adbtools) and use some GUI elements by
 Benjamin Bertrand (https://github.com/beenje/tkinter-logging-text-widget)
 
 # Table of contents
@@ -46,6 +46,7 @@ Benjamin Bertrand (https://github.com/beenje/tkinter-logging-text-widget)
 	- [Content of the firmware modification kit folder (mod-kit)](#content-of-the-firmware-modification-kit-folder-mod-kit)
 	- [Script mod-kit-configure.sh](#script-mod-kit-configuresh)
 	- [Script mod-kit-run.sh](#script-mod-kit-runsh)
+- [Entware installation](#entware-installation)
 - [Information source to develop these tools](#information-source-to-develop-these-tools)
 - [YAPL file structure](#yapl-file-structure)
 - [Author](#author)
@@ -574,9 +575,26 @@ The folder mod-kit contains the following files/directories:
         interface and use a standard /bin/ash (busybox) CLI.
 
 * **root-overlay** this is a directory with same folder structure as
-    the root file system, files present on this directory will be
+    the root file system, files present in this directory will be
     written to the new root file system, after the above patches have
-    been applied. Currently there is only the `/opt` directory
+    been applied. Currently the main folder and files located in This
+    directory are the followings:
+
+    * `/opt` directory, it is the mount point for an ext2, ext3 or ext4
+      first partition on a USB key where to install *entware*
+      (https://github.com/Entware)
+
+    * `/etc/init.d/entware.sh` and related link files in `/etc/rc.d`
+      (`K00entware.sh` and `S99entware.sh`). This script is executed on boot,
+      with parameter "boot", and on shutdown, with parameter "shutdwon", and
+      initializes or terminates the *entware* environment. It can be manually
+      executed to install the *entware* environment on an available ext2, ext3
+      or ext4 first partition on an attached USB key (see below
+      for instructions)
+
+    * `/usr/bin/wget` it is needed for initial *entware* installation
+
+    * `/usr/lib/libtirpc.so.3.0.0` and related links, they are needed by `wget`
 
 ## Script mod-kit-configure.sh
 
@@ -661,8 +679,202 @@ file:
 Usage of this script is the following:
 ```
 usage: ./mod-kit-run.sh [ -c ] [ -h ]
-       -d clean all generated files from a previous run
+       -c clean all generated files from a previous run
        -h print this help
+```
+
+# Entware installation
+
+*Entware* (https://github.com/Entware/Entware) is a software repository for
+embedded devices with more than 2000 packages and a package manager (*opkg*)
+to easily install them and to automatically resolve dependencies.
+
+*Entware* packages are installed under the `/opt` directory tree (in this case
+this is the first ext2, ext3 or ext4 partition of an attached USB key) and use
+libraries, configurations files etc. inside the `/opt` tree; this means that
+*entware* remains in some way separated from the firmware installed on the
+device and does not interfere much with the installed firmware.
+
+To remove *entware* it is enough to unmount the `/opt` directory or to remove
+everything from the USB key partition mounted on `/opt`.
+
+To install *entware*, on a router running the modified firmware, it is needed
+to:
+  * attach an already formatted USB key with the first, or only, partition
+    formatted with an ext2, ext3 or ext4 file system. Ext4 is preferred.
+
+  * telnet to the router and executes the command `/etc/init.d/entware.sh`;
+    usage of this command for installation is:
+    ```
+    /etc/init.d/entware.sh install [generic | alternative]
+       generic:      do a standard installation (/opt/etc/passwd is a link to
+                     system wide /etc/passwd)
+       alternative:  do an alternative installation (/opt/etc/passwd is a file
+                     with no relation to the system wide /etc/passwd)
+    ```
+    The difference between "standard" and "alternative" installation is
+    explained in the *entware* web site. "Alternative" is recommended, and is
+    the default, because if some software creates additional users during
+    installation, it would get lost after reboot with a "standard" installation
+    because the router keeps the system wide password in /tmp/passwd and this
+    file is recreated at boot based on router configuration saved in XML files.
+
+  * *entware* executables are installed in `/opt/bin` and `/opt/sbin` so, to be
+    able to easily execute them, it is recommended to add these two directories
+    to the PATH, it can be achieved sourcing /opt/etc/profile with
+    ```
+    root@dlinkrouter:~# . /opt/etc/profile
+    ```
+    please note that sourcing `/opt/etc/profile` puts `/opt/bin` and `/opt/sbin`
+    as the first two directories of the PATH, so *entware* commands with 
+    same name as the firmware commands will take precedence. Sometimes it is
+    not what expected.              
+
+A successful *entware* installation is shown below:
+
+```
+valerio@ubuntu-hp:~/temp/entware$ telnet 192.168.1.1
+Trying 192.168.1.1...
+Connected to 192.168.1.1.
+Escape character is '^]'.
+Login: admin
+Password:
+
+********************************************
+*                 D-Link                   *
+*                                          *
+*      WARNING: Authorised Access Only     *
+********************************************
+
+Welcome
+DLINK# system shell
+
+
+BusyBox v1.17.3 (2018-04-11 12:29:54 CEST) built-in shell (ash)
+Enter 'help' for a list of built-in commands.
+
+/root $ su -
+
+
+BusyBox v1.17.3 (2018-04-11 12:29:54 CEST) built-in shell (ash)
+Enter 'help' for a list of built-in commands.
+
+      ___           ___           ___           ___     
+     |\__\         /\  \         /\  \         /\  \    
+     |:|  |       /::\  \       /::\  \       /::\  \   
+     |:|  |      /:/\:\  \     /:/\:\  \     /:/\:\  \  
+     |:|__|__   /::\~\:\  \   /::\~\:\  \   _\:\~\:\  \
+     /::::\__\ /:/\:\ \:\__\ /:/\:\ \:\__\ /\ \:\ \:\__\
+    /:/~~/~    \/__\:\/:/  / \/__\:\/:/  / \:\ \:\ \/__/
+   /:/  /           \::/  /       \::/  /   \:\ \:\__\  
+   \/__/            /:/  /         \/__/     \:\/:/  /  
+                   /:/  /                     \::/  /   
+                   \/__/                       \/__/    r41358.07b1b3a7  
+..................................................................
+ yet another purposeful solution by  Advanced Digital Broadcast SA
+..................................................................
+root@dlinkrouter:~# /etc/init.d/entware.sh install alternative
+entware.sh: fstype: ext3
+entware.sh: module ext2 already loaded
+entware.sh: module mbcache already loaded
+entware.sh: module jbd already loaded
+entware.sh: module jbd2 already loaded
+entware.sh: module ext3 already loaded
+entware.sh: module ext4 already loaded
+entware.sh: /opt/etc/init.d/rc.unslung not found
+entware.sh: entware software not found on /opt
+entware.sh: Entware Installation
+entware.sh: downloading http://bin.entware.net/armv7sf-k3.2/installer/alternative.sh
+Connecting to bin.entware.net (81.4.123.217:80)
+alternative.sh       100% |***************************************************************************************************************************|  2031   0:00:00 ETA
+entware.sh: installing entware, executing /tmp/alternative.sh
+Info: Checking for prerequisites and creating folders...
+Warning: Folder /opt exists!
+Info: Opkg package manager deployment...
+Connecting to bin.entware.net (81.4.123.217:80)
+opkg                 100% |***************************************************************************************************************************|   131k  0:00:00 ETA
+Connecting to bin.entware.net (81.4.123.217:80)
+opkg.conf            100% |***************************************************************************************************************************|   190   0:00:00 ETA
+Connecting to bin.entware.net (81.4.123.217:80)
+ld-2.27.so           100% |***************************************************************************************************************************|   135k  0:00:00 ETA
+Connecting to bin.entware.net (81.4.123.217:80)
+libc-2.27.so         100% |***************************************************************************************************************************|  1218k  0:00:00 ETA
+Connecting to bin.entware.net (81.4.123.217:80)
+libgcc_s.so.1        100% |***************************************************************************************************************************| 50840   0:00:00 ETA
+Connecting to bin.entware.net (81.4.123.217:80)
+libpthread-2.27.so   100% |***************************************************************************************************************************| 92648   0:00:00 ETA
+Info: Basic packages installation...
+Downloading http://bin.entware.net/armv7sf-k3.2/Packages.gz
+Updated list of available packages in /opt/var/opkg-lists/entware
+Installing busybox (1.28.3-2) to root...
+Downloading http://bin.entware.net/armv7sf-k3.2/busybox_1.28.3-2_armv7-3.2.ipk
+Installing libc (2.27-8) to root...
+Downloading http://bin.entware.net/armv7sf-k3.2/libc_2.27-8_armv7-3.2.ipk
+Installing libgcc (7.3.0-8) to root...
+Downloading http://bin.entware.net/armv7sf-k3.2/libgcc_7.3.0-8_armv7-3.2.ipk
+Installing libssp (7.3.0-8) to root...
+Downloading http://bin.entware.net/armv7sf-k3.2/libssp_7.3.0-8_armv7-3.2.ipk
+Installing librt (2.27-8) to root...
+Downloading http://bin.entware.net/armv7sf-k3.2/librt_2.27-8_armv7-3.2.ipk
+Installing libpthread (2.27-8) to root...
+Downloading http://bin.entware.net/armv7sf-k3.2/libpthread_2.27-8_armv7-3.2.ipk
+Configuring libgcc.
+Configuring libc.
+Configuring libpthread.
+Configuring libssp.
+Configuring librt.
+Configuring busybox.
+Installing entware-opt (227000-3) to root...
+Downloading http://bin.entware.net/armv7sf-k3.2/entware-opt_227000-3_all.ipk
+Installing libstdcpp (7.3.0-8) to root...
+Downloading http://bin.entware.net/armv7sf-k3.2/libstdcpp_7.3.0-8_armv7-3.2.ipk
+Installing entware-release (1.0-2) to root...
+Downloading http://bin.entware.net/armv7sf-k3.2/entware-release_1.0-2_all.ipk
+Installing zoneinfo-asia (2018e-1) to root...
+Downloading http://bin.entware.net/armv7sf-k3.2/zoneinfo-asia_2018e-1_armv7-3.2.ipk
+Installing zoneinfo-europe (2018e-1) to root...
+Downloading http://bin.entware.net/armv7sf-k3.2/zoneinfo-europe_2018e-1_armv7-3.2.ipk
+Installing findutils (4.6.0-1) to root...
+Downloading http://bin.entware.net/armv7sf-k3.2/findutils_4.6.0-1_armv7-3.2.ipk
+Installing terminfo (6.1-1) to root...
+Downloading http://bin.entware.net/armv7sf-k3.2/terminfo_6.1-1_armv7-3.2.ipk
+Installing locales (2.27-8) to root...
+Downloading http://bin.entware.net/armv7sf-k3.2/locales_2.27-8_armv7-3.2.ipk
+Installing grep (2.26-1) to root...
+Downloading http://bin.entware.net/armv7sf-k3.2/grep_2.26-1_armv7-3.2.ipk
+Installing libpcre (8.41-2) to root...
+Downloading http://bin.entware.net/armv7sf-k3.2/libpcre_8.41-2_armv7-3.2.ipk
+Installing opkg (2011-04-08-9c97d5ec-17b) to root...
+Downloading http://bin.entware.net/armv7sf-k3.2/opkg_2011-04-08-9c97d5ec-17b_armv7-3.2.ipk
+Installing entware-upgrade (1.0-1) to root...
+Downloading http://bin.entware.net/armv7sf-k3.2/entware-upgrade_1.0-1_all.ipk
+Configuring terminfo.
+Configuring libpcre.
+Configuring grep.
+Configuring locales.
+Entware uses separate locale-archive file independent from main system
+Creating locale archive - /opt/usr/lib/locale/locale-archive
+Adding en_EN.UTF-8
+Adding ru_RU.UTF-8
+You can download locale sources from http://pkg.entware.net/sources/i18n_glib227.tar.gz
+You can add new locales to Entware using /opt/bin/localedef.new
+Configuring entware-upgrade.
+Upgrade operations are not required
+Configuring opkg.
+Configuring zoneinfo-europe.
+Configuring zoneinfo-asia.
+Configuring libstdcpp.
+Configuring entware-release.
+Configuring findutils.
+Configuring entware-opt.
+Info: Congratulations!
+Info: If there are no errors above then Entware was successfully initialized.
+Info: Add /opt/bin & /opt/sbin to your PATH variable
+Info: Add '/opt/etc/init.d/rc.unslung start' to firmware startup script for Entware services to start
+
+This is an alternative Entware installation. We recomend to install and setup Entware version of ssh server
+and use it instead of a firmware supplied one. You can install dropbear or openssh as an ssh server
+root@dlinkrouter:~#
 ```
 
 # Information source to develop these tools
