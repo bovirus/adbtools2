@@ -122,7 +122,7 @@ fi
 # ------ check for other needed commands
 echo "# ------ check for other needed commands"
 
-for i in jefferson dd fakeroot setfacl rsync patch truncate md5sum xxd
+for i in jefferson dd fakeroot setfacl rsync patch truncate md5sum xxd mkpasswd
 do which $i
    ret=$?
    if [ ! "$ret" = "0" ]

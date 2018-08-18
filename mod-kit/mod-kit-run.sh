@@ -14,17 +14,31 @@ then
 fi
 
 usage () {
-    echo "usage: ./mod-kit-run.sh [ -c ] [ -h ]"
-    echo "       -c clean all generated files from a previous run"
-    echo "       -h print this help"
+    echo "usage: ./mod-kit-run.sh [ -c ] [ -h ] [-p password]"
+    echo "       -c             clean all generated files from a previous run"
+    echo "       -p password    set password for root, default 'no.wordpass'"
+    echo "       -h             print this help"
 }
 
+setrootpass () {
+    ENCRPASS=`mkpasswd -m md5 -S $SALT -s "$ROOTPASS"`
+    ESCENCRPASS=`echo ${ENCRPASS} | sed  's/[\/&]/\\&/g'`
+    echo "# ------ modifying root password"
+    echo "         ROOTPASS      $ROOTPASS"
+    echo "         SALT          $SALT"
+    echo "         ENCRPASS      $ENCRPASS"
+    echo "         ESCENCRPASS   $ESCENCRPASS"
+    sed -i "s/^root:[^:]\+:0:0:root:/root:$ESCENCRPASS:0:0:root:/" $MK_BASEDIR/output/root/etc/passwd.orig
+}
 
-while getopts :ch option
+while getopts :cp:h option
 do
     case "${option}"
     in
 	c) OPMODE="CLEAN";;
+	p) ROOTPASS="${OPTARG}"
+	   SALT=`cat /dev/urandom | tr -dc 'a-zA-Z' | fold -w 8 | head -n 1`
+	   ;;
 	h) usage
 	   exit
 	   ;;
@@ -44,6 +58,11 @@ then
     exit
 fi
 
+# if [ "$ROOTPASS" = "" ]
+# then
+#     ROOTPASS="no.wordpass"
+#     SALT="QRbrUCBf"
+# fi
 
 
 # ------ print main variables and create $MK_BASEDIR/conf.sh file
@@ -153,7 +172,12 @@ cd $CURRWD
 echo "# ------ apply overlay to new root file system"
 rsync --exclude=.gitignore -rav $MK_BASEDIR/root-overlay/ $MK_BASEDIR/output/root/
 
-
+# ------ change root password if related option is selected
+if [ "$ROOTPASS" != "" ]
+then
+    echo "# ------ change root password"
+    setrootpass
+fi  
 
 # ------ create new root file system image, step 1 mkfs.jffs2
 echo "# ------ create new root file system image, step1 mkfs.jffs2"
