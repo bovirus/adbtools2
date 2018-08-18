@@ -184,3 +184,4 @@ rsync --exclude .gitignore -rav $SCRIPTPATH/root-patch/   $MK_BASEDIR/root-patch
 rsync --exclude .gitignore -rav $SCRIPTPATH/root-overlay/ $MK_BASEDIR/root-overlay/
 cp $SCRIPTPATH/device-table.txt      $MK_BASEDIR/
 cp $SCRIPTPATH/root-permissions.acl  $MK_BASEDIR/
+cp $SCRIPTPATH/root-rm-files.txt     $MK_BASEDIR/

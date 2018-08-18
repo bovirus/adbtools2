@@ -84,6 +84,7 @@ then
     rm -f  $MK_BASEDIR/output/*bin
     rm -f  $MK_BASEDIR/output/*log
     rm -f  $MK_BASEDIR/output/*sig
+    rm -f  $MK_BASEDIR/output/*sig.xdelta    
     rm -rf $MK_BASEDIR/input/root/*
     rm -rf $MK_BASEDIR/output/root/*
     echo "#        cleanup done"
@@ -171,6 +172,43 @@ cd $CURRWD
 # ------ apply overlay to new root file system
 echo "# ------ apply overlay to new root file system"
 rsync --exclude=.gitignore -rav $MK_BASEDIR/root-overlay/ $MK_BASEDIR/output/root/
+
+# ------ remove files/directories listed in root-rm-files.txt
+echo "# ------ remove files/directories listed in root-rm-files.txt"
+cat $MK_BASEDIR/root-rm-files.txt | grep -v '^#' | \
+while read -r line
+do
+    if [ "$line" != "" ]
+    then
+	lastc=`echo -n $line | tail -c 1`
+	if [ "$lastc" = "/" ]
+	then
+	    echo "         removing dir: $MK_BASEDIR/output/root/$line"
+	    if [ -d "$MK_BASEDIR/output/root/$line" ] && rm -rf "$MK_BASEDIR/output/root/$line"
+	    then
+		echo "         removed dir: $MK_BASEDIR/output/root/$line"
+	    else		
+		echo "UNRECOVERABLE ERROR in removing directory $MK_BASEDIR/output/root/$line"
+		exit 1
+	    fi
+	else
+	    echo "         removing file: $MK_BASEDIR/output/root/$line"
+	    if [ -e "$MK_BASEDIR/output/root/$line" ] && rm -f "$MK_BASEDIR/output/root/$line"
+	    then
+		echo "         removed file: $MK_BASEDIR/output/root/$line"
+	    else
+		echo "UNRECOVERABLE ERROR: cannot remove file $MK_BASEDIR/output/root/$line"
+		exit 1
+	    fi
+	fi
+    fi
+done 
+
+if [ "$?" != "0" ]
+then
+    exit 1
+fi
+
 
 # ------ change root password if related option is selected
 if [ "$ROOTPASS" != "" ]
