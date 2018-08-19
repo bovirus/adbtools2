@@ -182,6 +182,7 @@ cp $FW_PATH $MK_BASEDIR/input
 echo "# ------ copying patch and overlay files to $MK_BASEDIR/root-patch"
 rsync --exclude .gitignore -rav $SCRIPTPATH/root-patch/   $MK_BASEDIR/root-patch/
 rsync --exclude .gitignore -rav $SCRIPTPATH/root-overlay/ $MK_BASEDIR/root-overlay/
-cp $SCRIPTPATH/device-table.txt      $MK_BASEDIR/
-cp $SCRIPTPATH/root-permissions.acl  $MK_BASEDIR/
-cp $SCRIPTPATH/root-rm-files.txt     $MK_BASEDIR/
+cp -p $SCRIPTPATH/device-table.txt      $MK_BASEDIR/
+cp -p $SCRIPTPATH/root-permissions.acl  $MK_BASEDIR/
+cp -p $SCRIPTPATH/root-rm-files.txt     $MK_BASEDIR/
+cp -p $SCRIPTPATH/pre-image-script.sh   $MK_BASEDIR/

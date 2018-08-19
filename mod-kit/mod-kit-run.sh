@@ -7,6 +7,8 @@ SCRIPT=`realpath $0`
 SCRIPTPATH=`dirname $SCRIPT`
 ERASESIZE=$((128 * 1024))
 . $SCRIPTPATH/conf.sh
+export MK_BASEDIR
+export SCRIPTPATH
 FW_NEW_FILE=`echo "$FW_FILE"|sed 's/\.sig$/-mod.sig/'`
 if [ "$FW_NEW_FILE" = "$FW_FILE" ]
 then
@@ -216,6 +218,16 @@ then
     echo "# ------ change root password"
     setrootpass
 fi  
+
+# ------ execute the pre-image-script.sh
+echo "# ------ executing the pre-image-script.sh"
+if [ -x $MK_BASEDIR/pre-image-script.sh ] && $MK_BASEDIR/pre-image-script.sh
+then
+    echo "#        executed the pre-image-script.sh"
+else
+    echo "UNRECOVERABLE ERROR in executing the pre-image-script.sh"
+    exit 1
+fi
 
 # ------ create new root file system image, step 1 mkfs.jffs2
 echo "# ------ create new root file system image, step1 mkfs.jffs2"
