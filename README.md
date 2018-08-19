@@ -527,25 +527,28 @@ repository I did:
 The folder mod-kit contains the following files/directories:
 
 * **mod-kit-configure.sh** this script prepare and create the
-    directory tree that will contain the original firmware file, the
-    original extracted root file system, the patch directory, the
+    directory tree (*mod-kit-dir*) that will contain the original firmware file,
+    the original extracted root file system, the patch directory, the
     overlay directory, the new modified root file system, the new
     modified and unsigned firmware file. This is the first script to
     run.
 
 * **mod-kit-run.sh** this is the main script that extracts the root
     file system from the original firmware, apply patches to it, apply
-    overlay files and generate the new unsigned firmware file.
+    overlay files, remove files listed in `root-rm-files.txt`, executes the
+    `pre-image-script.sh` and generate the new unsigned firmware file.
 
 * **device-table.txt** the device table used by `mkfs.jffs2` to allow
     creation of /dev/console and /dev/null in the jffs2 root file
     system image. This is needed because the normal user (not root), that runs
-    this kit, has no rights to create a special device file.
+    this kit, has no rights to create a special device file. This file is
+    copied to the *mod-kit-dir* and can be customized, if needed.
 
 * **root-permissions.acl** this file contains the correct file owner
     and mode of each file in the root file system. This file is needed
     because files extracted by Jefferson haven't the correct file mode
-    and ownership.
+    and ownership. This file is copied to the *mod-kit-dir* and can be
+    customized, if needed.
 
 * **mtd-utils-lzma_jffs2.patch** this is the patch to apply to
     mtd-utils to add support for lzma compression (see above)
@@ -554,14 +557,15 @@ The folder mod-kit contains the following files/directories:
     root file system and a corresponding file for each file that needs
     to be patched on the original root file system. The patch file
     name is the same as the file to be patched with the suffix
-    `.patch`. Currently only the following files will be patched:
+    `.patch`. This directory is copied to the *mod-kit-dir* and can be
+    customized, if needed. Currently only the following files will be patched:
 
-    * **/etc/passwd.orig** to remove the `:*:` from the `root` entry,
-        to allow `su -` without any password. Please note that `root`
+    * **/etc/passwd.orig** to replace the `:*:` from the `root` entry, with a
+        valid encrypted password field, the default password is **no.wordpass**,
+        but can be changed passing a parameter to `mod-kit-run.sh`; this
+        allows `su -` to root. Please note that `root`
         cannot login with telnet or ssh, and no login is allowed from
-        Internet, so this security treat is mitigated. It is possible
-        to modify the patch to input a salted, crypted password in
-        this field.
+        Internet.
 
     * **/usr/sbin/upgrade.sh** to allow firmware upgrade with unsigned
         firmware file, using the web interface.
@@ -577,7 +581,8 @@ The folder mod-kit contains the following files/directories:
 * **root-overlay** this is a directory with same folder structure as
     the root file system, files present in this directory will be
     written to the new root file system, after the above patches have
-    been applied. Currently the main folder and files located in This
+    been applied. This directory is copied to the *mod-kit-dir* and can be
+    customized. Currently the main folder and files located in this
     directory are the followings:
 
     * `/opt` directory, it is the mount point for an ext2, ext3 or ext4
@@ -588,13 +593,24 @@ The folder mod-kit contains the following files/directories:
       (`K00entware.sh` and `S99entware.sh`). This script is executed on boot,
       with parameter "boot", and on shutdown, with parameter "shutdwon", and
       initializes or terminates the *entware* environment. It can be manually
-      executed to install the *entware* environment on an available ext2, ext3
-      or ext4 first partition on an attached USB key (see below
-      for instructions)
+      executed, with parameter "install" to install the *entware* environment
+      on an available ext2, ext3 or ext4 first partition on an attached USB key
+      (see below for instructions)
 
     * `/usr/bin/wget` it is needed for initial *entware* installation
 
     * `/usr/lib/libtirpc.so.3.0.0` and related links, they are needed by `wget`
+
+* **root-rm-files.txt** this file lists, one per line, files and/or directories
+    to be removed from the new root file system. '#' as first char in a line is
+    a comment and it is ignored, a trailing '/' indicate a directory. This
+    file is copied to the *mod-kit-dir* and can be customized.
+
+* **pre-image-script.sh** this script will be executed just before the
+    creation of the new root file system image and can be used to further
+    sutomize the new root file system. By default it modifies the file
+    `/etc/banner` to add a line identifying adbtools2 version and firmware
+    build date. It is copied to the *mod-kit-dir* and can be customized.
 
 ## Script mod-kit-configure.sh
 
@@ -661,6 +677,17 @@ under the *basedir* provided with the `-d` option (default is $HOME/mod-kit)
   and ownership. This file is populated by the `mod-kit-configure.sh` script
   from the similar file in this repository.
 
+* **root-rm-files.txt** this file lists, one per line, files and/or directories
+  to be removed from the new root file system. '#' as first char in a line is
+  a comment and it is ignored, a trailing '/' indicate a directory. This
+  file can be customized.
+
+* **pre-image-script.sh** this script will be executed just before the
+  creation of the new root file system image and can be used to further
+  customize the new root file system. By default it modifies the file
+  `/etc/banner` to add a line identifying adbtools2 version and firmware
+  build date and can be customized.
+
 ## Script mod-kit-run.sh
 
 This script does the main job to generate the modified unsigned firmware
@@ -678,9 +705,10 @@ file:
 
 Usage of this script is the following:
 ```
-usage: ./mod-kit-run.sh [ -c ] [ -h ]
-       -c clean all generated files from a previous run
-       -h print this help
+usage: ./mod-kit-run.sh [ -c ] [ -h ] [-p password]
+       -c             clean all generated files from a previous run
+       -p password    set password for root, default 'no.wordpass'
+       -h             print this help
 ```
 
 # Entware installation
@@ -726,7 +754,7 @@ to:
     root@dlinkrouter:~# . /opt/etc/profile
     ```
     please note that sourcing `/opt/etc/profile` puts `/opt/bin` and `/opt/sbin`
-    as the first two directories of the PATH, so *entware* commands with 
+    as the first two directories of the PATH, so *entware* commands with
     same name as the firmware commands will take precedence. Sometimes it is
     not what expected.              
 
