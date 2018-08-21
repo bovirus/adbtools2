@@ -2,7 +2,7 @@
 
 In implementing new features I will probably follow the following list in no particular order
 
-- [ ] [mod-kit] create a program to patch an unsigned firmware file with the default root password to change the default password
+- [ ] [mod-kit] create a program to patch an unsigned firmware to change the default password. But this seems diffult to implement, because the root file system is compressed and there isn't an easy way to replace the default encrypted root password without root file system image extraction
 
 - [ ] [mod-kit] remove the limitation that the size of the new root file system image must be lesser or equal to the size of the original root file system image
 
