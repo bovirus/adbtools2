@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 #
+# decrypt and modify the router configuration file to recover VOIP and
+# other passwords in plain text and to enable hidden or disabled
+# functions.
+#
+# License informations are available in the LICENSE file
+#
 import tempfile
 import string
 import random
@@ -53,9 +59,11 @@ loaded_xml = 0                   # xml config loaded
 loaded_cpe = 0                   # cpe xml config loaded
 versionstr = ''
 
-load_pems_done = 0
-inidir     = os.environ.get('APPDATA',homedir)
-inifile    = inidir + '/.confedit.ini'
+load_pems_done = 0               # pem files loaded
+inidir      = os.environ.get('APPDATA',homedir)   # default location for .confedit.ini
+inifile     = inidir + '/.confedit.ini'
+userinifile = inifile                             # ini file in user folder
+proginifile = mydir + '/.confedit.ini'            # ini file in program folder
 
 def show_restricted():
     global cpedata_out
@@ -93,9 +101,10 @@ def read_inifile():
         iniconfig.read(inifile)
         defaultdir=iniconfig['global']['SaveLoadDir']
     else:
-        iniconfig['global'] = {'LogDebug':                 'yes',
-                               'SaveLoadDirLastLocation':  'yes',
-                               'SaveLoadDir':              defaultdir }
+        iniconfig['global'] = {'LogDebug':                  'yes',
+                               'SaveLoadDirLastLocation':   'yes',
+                               'SaveLoadDir':               defaultdir,
+                               'PreferenceInProgramFolder': 'no'}
         write_inifile()
 
 #------------------------------------------------------------------------------
@@ -1052,6 +1061,7 @@ def edit_preference():
     global lastloc
     global dirloc
     global e2
+    global prefinprog
     
     popup = tk.Toplevel()
     popup.wm_title('Edit Preference')
@@ -1063,6 +1073,16 @@ def edit_preference():
     lastloc.set(iniconfig['global']['SaveLoadDirLastLocation'])
     dirloc  = StringVar(popup)
     dirloc.set(iniconfig['global']['SaveLoadDir'])
+    prefinprog = StringVar(popup)
+    try:
+        prefinprog.set(iniconfig['global']['PreferenceInProgramFolder'])
+    except:
+        if os.path.isfile(proginifile):
+            iniconfig['global'] = {'PreferenceInProgramFolder': 'yes'}
+        else:
+            iniconfig['global'] = {'PreferenceInProgramFolder': 'no'}
+        prefinprog.set(iniconfig['global']['PreferenceInProgramFolder'])
+    
     if (lastloc.get() == 'yes'):
         dirloc.set(defaultdir)
     
@@ -1079,12 +1099,18 @@ def edit_preference():
     
     e2 = ttk.Entry(popup, textvariable=dirloc, width=len(dirloc.get()) + 15, state=DISABLED)
     e2.grid(row=2, column=1, padx=3, pady=0, sticky='W')
-    
-    b3 = ttk.Button(popup, text="Cancel", command = popup.destroy)
-    b3.grid(row=3,column=0, padx=30, pady=3, sticky='W')
 
-    b3b = ttk.Button(popup, text="Save", command = save_preference)
-    b3b.grid(row=3,column=1, padx=30, pady=3, sticky='E')
+    c3 = ttk.Checkbutton(popup, text="Preference file in program folder instead of user's folder",
+                         variable=prefinprog, onvalue='yes', offvalue='no')
+    c3.grid(row=3, column=0, columnspan=2, padx=3, pady=0, sticky='W')
+
+    
+    
+    bend = ttk.Button(popup, text="Cancel", command = popup.destroy)
+    bend.grid(row=4,column=0, padx=30, pady=3, sticky='W')
+
+    bendb = ttk.Button(popup, text="Save", command = save_preference)
+    bendb.grid(row=4,column=1, padx=30, pady=3, sticky='E')
 
 	
     # Gets the requested values of the height and widht.
@@ -1106,6 +1132,7 @@ def edit_pref_dirloc():
     global lastloc
     global e2
     global defaultdir
+    global prefinprog
 	
     if (lastloc.get() == 'yes'):
         e2.configure(state=DISABLED)
@@ -1119,8 +1146,11 @@ def save_preference():
     global dbginfo
     global lastloc
     global dirloc
+    global inifile
+    
     iniconfig['global']['LogDebug']=dbginfo.get()
     iniconfig['global']['SaveLoadDirLastLocation']=lastloc.get()
+    iniconfig['global']['PreferenceInProgramFolder']=prefinprog.get()
 
     if iniconfig['global']['LogDebug'] == 'yes':
         #logging.basicConfig(level=logging.DEBUG)
@@ -1129,6 +1159,23 @@ def save_preference():
         #logging.basicConfig(level=logging.INFO)
         logger.setLevel(logging.INFO)
         
+    if iniconfig['global']['PreferenceInProgramFolder'] == 'yes':
+        inifile = proginifile
+        if os.path.isfile(userinifile):
+            logger.log(linfo,"removing user's preference file: " + userinifile)
+            try:
+                os.remove(userinifile)
+            except:
+                logger.log(lerr,"Error removing " + userinifile)
+    else:
+        inifile = userinifile
+        if os.path.isfile(proginifile):
+            logger.log(linfo,"removing preference file in program folder: " + proginifile)
+            try:
+                os.remove(proginifile)
+            except:
+                logger.log(lerr,"Error removing " + proginifile)
+                
     if (os.path.isdir(dirloc.get())):
         iniconfig['global']['SaveLoadDir']=dirloc.get()
         popup.destroy()
@@ -1136,6 +1183,7 @@ def save_preference():
     else:
         popupmsg('Folder name error','folder ' + dirloc.get() + ' does not exist')
 
+                
 def save_defaultdir():
     global iniconfig
     global defaultdir
@@ -1199,6 +1247,18 @@ def save_passwords():
 #-----------------------------------------------------------------------------------------------
 # Main Program
 #-----------------------------------------------------------------------------------------------
+
+ldebug = logging.DEBUG
+linfo  = logging.INFO
+lwarn  = logging.WARNING
+lerr   = logging.ERROR
+lcri   = logging.CRITICAL
+
+if os.path.isfile(mydir + '/.confedit.ini'):     # confed.ini can be stored in program folder based on user preferences
+    logger.log(linfo, "Preference file in program folder")
+    inidir  = mydir
+    inifile = mydir + '/.confedit.ini'
+
 read_inifile()
 
 if iniconfig['global']['LogDebug'] == 'yes':
@@ -1237,11 +1297,6 @@ cpexml_src.set('Not loaded')
 
 app = App(root)
 
-ldebug = logging.DEBUG
-linfo  = logging.INFO
-lwarn  = logging.WARNING
-lerr   = logging.ERROR
-lcri   = logging.CRITICAL
 
 level=ldebug
 logger.log(ldebug,"mydir:      " + mydir)

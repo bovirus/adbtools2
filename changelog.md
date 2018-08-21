@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [v0.8] - 1018-08-19
+## [v0.81] - 2018-08-21
+
+### Added
+
+* [confedit] It is possible to store the preference file in the
+  program folder, the default remains the user's home directory or
+  APPDATA in Windows
+
+## [v0.8] - 2018-08-19
 
 ### Added
 
