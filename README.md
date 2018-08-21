@@ -19,10 +19,6 @@ These tools are:
  modification of the root file system and the generation of an unsigned
  firmware file to be loaded into the router thanks to the above script
 
-Python dependencies can be installed using
-
-    pip3 install -r requirements.txt
-
 Python3 scripts are based on adbtools forked from Gabriel Huber's repository
 (https://github.com/Yepoleb/adbtools) and use some GUI elements by
 Benjamin Bertrand (https://github.com/beenje/tkinter-logging-text-widget)
@@ -60,6 +56,10 @@ the binary router configuration, locally saved using the web interface.
 This  allows to show hidden passwords, including the VOIP password, stored in the
 encrypted configuration file and to modify the configuration file to enable
 hidden or disabled functionalities.
+
+Python dependencies can be installed using
+
+    pip3 install -r requirements.txt
 
 ## confedit
 
