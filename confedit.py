@@ -123,6 +123,8 @@ def write_inifile():
 #------------------------------------------------------------------------------
 def get_restricted(xml_str):
     global rtr_ip
+    global sweb     # restricted web commands
+    global scli     # restricted cli commands
     mystr   = re.sub(b'<!-- DATA.*', b'', xml_str, 0, re.DOTALL)
     xmltree = ET.parse(io.BytesIO(mystr))
     xmlroot = xmltree.getroot()
@@ -162,11 +164,14 @@ def enable_restricted_web():
     global cpedata_out
     cpedata_out = re.sub(b'(<PagePath>dboa\S+</PagePath>.\s+<Origin>\S+.\s+<Permissions>)0000',b'\g<1>2221',cpedata_out, 0, re.DOTALL)
     logger.log(lerr,"Enabled restricted web pages")
+    get_info(cpedata_out)    # update router status info
     
 def enable_restricted_cli():
     global cpedata_out
     cpedata_out = re.sub(b'(<PagePath>clis\S+</PagePath>.\s+<Origin>\S+.\s+<Permissions>)0000',b'\g<1>2221',cpedata_out, 0, re.DOTALL)
+    cpedata_out = re.sub(b'(<PagePath>clis\S+ EnableButtonbackToFactory</PagePath>.\s+<Origin>\S+.\s+<Permissions>)0000',b'\g<1>2221',cpedata_out, 0, re.DOTALL)
     logger.log(lerr,"Enabled restricted commands in CLI")
+    get_info(cpedata_out)   # update router status info
 
 #<Name>dlinkddns.com</Name>
 #<Name>dlinkdns.com</Name>
@@ -175,6 +180,7 @@ def fix_dlinkddns():
     global cpedata_out
     cpedata_out = re.sub(b'<Name>dlinkdns.com</Name>',b'<Name>dlinkddns.com</Name>',cpedata_out, 0, re.DOTALL)
     logger.log(lerr,"Fixed dlinkdns -> dlinkddns")
+    get_info(cpedata_out)   # update router status info    
     
 #------------------------------------------------------------------------------
 # get_info     setup router info textvariables
@@ -182,6 +188,8 @@ def fix_dlinkddns():
 #------------------------------------------------------------------------------
 def get_info (xml_str):
     global  rtr_hwversion
+    global  sweb
+    global  scli
     mystr   = re.sub(b'<!-- DATA.*', b'', xml_str, 0, re.DOTALL)
     xmltree = ET.parse(io.BytesIO(mystr))
     xmlroot = xmltree.getroot()
@@ -226,7 +234,22 @@ def get_info (xml_str):
             if (child.tag == 'Alias') and (child.text == 'Bridge'):
                 rtr_mask.set(i.text)
 
+    sout = get_restricted(cpedata_out)
+    if (sweb == ''):
+        rtr_rwebgui.set('Enabled')
+    else:
+        rtr_rwebgui.set('Disabled')
 
+    if (scli == ''):
+        rtr_rcli.set('Enabled')
+    else:
+        rtr_rcli.set('Disabled')
+
+    if (re.search(b'<Name>dlinkddns.com</Name>',cpedata_out,0)):
+        rtr_fixddns.set('Fixed')
+    else:
+        rtr_fixddns.set('Not Fixed')
+        
 #------------------------------------------------------------------------------
 # get_passwords return a string text file with passwords xml string
 #     input    xml_str   binary string, xml or cpe xml conf file
@@ -276,6 +299,9 @@ def check_enable_menu ():
     global rtr_fwdowngrade
     global rtr_ip
     global rtr_mask
+    global rtr_rwebgui
+    global rtr_rcli
+    global rtr_fixddns
 
     print("check_enable_menu - loaded_bin, loaded_xml, loaded_cpe",loaded_bin,loaded_xml,loaded_cpe)
     
@@ -318,6 +344,9 @@ def check_enable_menu ():
         rtr_fwdowngrade.set('                   ')
         rtr_ip.set('                   ')
         rtr_mask.set('                   ')
+        rtr_rwebgui.set('                   ')
+        rtr_rcli.set('                   ')
+        rtr_fixddns.set('                   ')
         
     logger.log(level,"check_enable_menu - done")
 
@@ -909,6 +938,9 @@ class RouterInfo:
         global rtr_fwdowngrade
         global rtr_ip
         global rtr_mask
+        global rtr_rwebgui
+        global rtr_rcli
+        global rtr_fixddns
         
         self.frame = frame
         ttk.Label(self.frame, text='Hardware Version: ').grid(column=0, row=1, sticky=W)
@@ -920,26 +952,35 @@ class RouterInfo:
         ttk.Label(self.frame, text='Model Name: ').grid(column=0, row=3, sticky=W)
         ttk.Label(self.frame, textvariable=rtr_modelname).grid(column=1, row=3, sticky=W)
 
-        ttk.Label(self.frame, text='Serial Number: ').grid(column=0, row=4, sticky=W)
-        ttk.Label(self.frame, textvariable=rtr_serial).grid(column=1, row=4, sticky=W)
+        ttk.Label(self.frame, text='Router customer ID: ').grid(column=0, row=4, sticky=W)
+        ttk.Label(self.frame, textvariable=rtr_customerid).grid(column=1, row=4, sticky=W)
+        
+        ttk.Label(self.frame, text='Serial Number: ').grid(column=0, row=5, sticky=W)
+        ttk.Label(self.frame, textvariable=rtr_serial).grid(column=1, row=5, sticky=W)
 
-        ttk.Label(self.frame, text='Fw upgrade permitted: ').grid(column=0, row=5, sticky=W)
-        ttk.Label(self.frame, textvariable=rtr_fwupgrade).grid(column=1, row=5, sticky=W)
+        ttk.Label(self.frame, text='Router IP (bridge interface): ').grid(column=0, row=6, sticky=W)
+        ttk.Label(self.frame, textvariable=rtr_ip).grid(column=1, row=6, sticky=W)
         
-        ttk.Label(self.frame, text='Router customer ID: ').grid(column=0, row=6, sticky=W)
-        ttk.Label(self.frame, textvariable=rtr_customerid).grid(column=1, row=6, sticky=W)
+        ttk.Label(self.frame, text='Router Net Mask (bridge interface): ').grid(column=0, row=7, sticky=W)
+        ttk.Label(self.frame, textvariable=rtr_mask).grid(column=1, row=7, sticky=W)
+
+        ttk.Label(self.frame, text='BSD GUI visible: ').grid(column=0, row=8, sticky=W)
+        ttk.Label(self.frame, textvariable=rtr_bsdgui).grid(column=1, row=8, sticky=W)
         
-        ttk.Label(self.frame, text='BSD GUI visible: ').grid(column=0, row=7, sticky=W)
-        ttk.Label(self.frame, textvariable=rtr_bsdgui).grid(column=1, row=7, sticky=W)
+        ttk.Label(self.frame, text='Restricted Web GUI: ').grid(column=0, row=9, sticky=W)
+        ttk.Label(self.frame, textvariable=rtr_rwebgui).grid(column=1, row=9, sticky=W)
+
+        ttk.Label(self.frame, text='Restricted CLI commands: ').grid(column=0, row=10, sticky=W)
+        ttk.Label(self.frame, textvariable=rtr_rcli).grid(column=1, row=10, sticky=W)
         
-        ttk.Label(self.frame, text='Fw downgrade permitted: ').grid(column=0, row=8, sticky=W)
-        ttk.Label(self.frame, textvariable=rtr_fwdowngrade).grid(column=1, row=8, sticky=W)
+        ttk.Label(self.frame, text='Fw upgrade allowed: ').grid(column=0, row=11, sticky=W)
+        ttk.Label(self.frame, textvariable=rtr_fwupgrade).grid(column=1, row=11, sticky=W)
         
-        ttk.Label(self.frame, text='Router IP (bridge interface): ').grid(column=0, row=9, sticky=W)
-        ttk.Label(self.frame, textvariable=rtr_ip).grid(column=1, row=9, sticky=W)
+        ttk.Label(self.frame, text='Fw downgrade allowed: ').grid(column=0, row=12, sticky=W)
+        ttk.Label(self.frame, textvariable=rtr_fwdowngrade).grid(column=1, row=12, sticky=W)
         
-        ttk.Label(self.frame, text='Router Net Mask (bridge interface): ').grid(column=0, row=10, sticky=W)
-        ttk.Label(self.frame, textvariable=rtr_mask).grid(column=1, row=10, sticky=W)
+        ttk.Label(self.frame, text='Fix dlinkdns -> dlinkddns: ').grid(column=0, row=13, sticky=W)
+        ttk.Label(self.frame, textvariable=rtr_fixddns).grid(column=1, row=13, sticky=W)
         
 class ThirdUi:
 
@@ -1267,6 +1308,7 @@ else:
     logging.basicConfig(level=logging.INFO)
     
 root = tk.Tk()
+
 xml_src          = tk.StringVar()     # file loaded with main xml configuration
 cpexml_src       = tk.StringVar()     # file loaded with cpe xml configuration
 rtr_hwversion    = tk.StringVar()
@@ -1279,6 +1321,9 @@ rtr_bsdgui       = tk.StringVar()
 rtr_fwdowngrade  = tk.StringVar()
 rtr_ip           = tk.StringVar()
 rtr_mask         = tk.StringVar()
+rtr_rwebgui      = tk.StringVar()
+rtr_rcli         = tk.StringVar()
+rtr_fixddns      = tk.StringVar()
 
 rtr_hwversion.set('                   ')
 rtr_manufacturer.set('                   ')
@@ -1290,6 +1335,9 @@ rtr_bsdgui.set('                   ')
 rtr_fwdowngrade.set('                   ')
 rtr_ip.set('                   ')
 rtr_mask.set('                   ')
+rtr_rwebgui.set('                   ')
+rtr_rcli.set('                   ')
+rtr_fixddns.set('                   ')
 
 xml_src.set('Not loaded')
 cpexml_src.set('Not loaded')

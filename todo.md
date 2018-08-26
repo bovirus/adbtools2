@@ -10,13 +10,11 @@ In implementing new features I will probably follow the following list in no par
 
 - [X] [confedit] allows where to store the preference settings: in user's home directory (as it is now) or in the `confedit` program directory - implemented in version v0.81
 
-- [ ] [confedit] replace string "BSD GUI visible" with "Restricted WEB GUI Visible"
+- [X] [confedit] in the router info section add "Restricted CLI enabled" and its status - implemented in version v0.82
 
-- [ ] [confedit] in the router info section add "Restricted CLI enabled" and its status
+- [X] [confedit] in the router info section add "Fix dlinkdns -> dlinkddns" and its status - implemented in version v0.82
 
-- [ ] [confedit] in the router info section add "Fix dlinkdns -> dlinkddns" and its status
-
-- [ ] [confedit] rearrange the router info section:
+- [X] [confedit] rearrange the router info section: - implemented in version v0.82
 
    * move "Router Customer ID" after "Model Name"
    * move "Router IP" after "Serial Number"

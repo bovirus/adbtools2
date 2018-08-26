@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [v0.82] - 2018-08-26
+
+### Added
+
+* [confedit] in the router info section added "Restricted CLI enabled" and its status
+
+* [confedit] in the router info section added "Fix dlinkdns -> dlinkddns" and its status
+
+* [confedit] rearranged the router info section:
+
+   * moved "Router Customer ID" after "Model Name"
+   * moved "Router IP" after "Serial Number"
+   * moved "Router Netmask" after "Router IP"
+   * moved "Firmware Upgrade Allowed" after "Restricted CLI commands enabled"
+   * moved "Firmware Downgrade Allowed" after "Firmware Upgrade Allowed"
+
+
 ## [v0.81] - 2018-08-21
 
 ### Added
