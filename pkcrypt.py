@@ -4,12 +4,12 @@ import sys
 from Cryptodome.Cipher import AES # requires pycrypto
 
 if len(sys.argv) < 5:
-    print("Usage: pkcrypt.py sym_encrypt|sym_decrypt <key> <in> <out>")
+    print(_("Usage: pkcrypt.py sym_encrypt|sym_decrypt <key> <in> <out>"))
     sys.exit(1)
 
 task = sys.argv[1]
 if task not in ("sym_encrypt", "sym_decrypt"):
-    print("Error: First argument must be sym_encrypt or sym_decrypt.")
+    print(_("Error: First argument must be sym_encrypt or sym_decrypt."))
     sys.exit(1)
 
 key_filename = sys.argv[2]
@@ -46,7 +46,7 @@ elif task == "sym_decrypt":
         else:
             data_out = data_out[:-padding_length]
 else:
-    raise NotImplementedError("Operation not supported")
+    raise NotImplementedError(_("Operation not supported"))
 
 with open(out_filename, "wb") as f:
     f.write(data_out)

@@ -75,8 +75,8 @@ def save_restricted():
     global defaultdir
     sout = get_restricted(cpedata_out)
     name = asksaveasfilename(initialdir=defaultdir,
-                             filetypes =(("Text file", "*.txt"),("All Files","*.*")),
-                             title = "Restricted text file"
+                             filetypes =((_("Text file"), "*.txt"),(_("All Files"),"*.*")),
+                             title = _("Restricted text file")
                              )
     print (name)
     #Using try in case user types in unknown file or closes without choosing a file.
@@ -84,7 +84,7 @@ def save_restricted():
         with open(name,'w') as f:
             f.write(sout)
     except:
-        print("Error writing: ",name)
+        print(_("Error writing: "),name)
         sys.exit(1)
 
     defaultdir=os.path.dirname(name)
@@ -360,7 +360,7 @@ def load_pems():
             pemconf_data = f.read()
     except:
         logger.log(lerr,"load_pems: error opening: ", down_pem)
-        popupmsg('Severe Error', "A severe error in load_pems occurred\nfile " +
+        popupmsg(_('Severe Error'), _("A severe error in load_pems occurred\nfile ") +
                   down_pem + "is missing\n")
         conferror_quit(1)
 
@@ -369,8 +369,8 @@ def load_pems():
             pemcpe_data = f.read()
     except:
         logger.log(lerr,"load_pems: error opening: ", up_pem)
-        popupmsg('Severe Error', "A severe error in load_pems occurred\nfile " +
-                  up_pem + "is missing\n")
+        popupmsg(_('Severe Error'), _("A severe error in load_pems occurred\nfile ") +
+                  up_pem + _("is missing\n"))
         conferror_quit(1)
         
     load_pems_done = 1
@@ -386,7 +386,7 @@ def about():
     global versionstr
     global fversion
     aboutstr=''
-    aboutstr=aboutstr.join(["ADB Configuration Editor (confedit)\n",
+    aboutstr=aboutstr.join([_("ADB Configuration Editor (confedit)\n",
                             "Copyright (c) 2018 Valerio Di Giampietro (main program)\n",
                             "Copyright (c) 2017 Gabriel Huber (decrypting algorithm)\n",
                             "Copyright (c) 2017 Benjamin Bertrand (windows interface)\n\n",
@@ -397,13 +397,13 @@ def about():
                             "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n",
                             "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n",
                             "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n",
-                            "SOFTWARE.\n\n"])
+                            "SOFTWARE.\n\n")])
 
     if (versionstr == ''):
         with open(fversion,"r") as f:
             versionstr = f.read()
             logger.log(ldebug,"about: reading " + fversion)
-    popupmsg('About', aboutstr + "Program version: " + versionstr + "\n")
+    popupmsg(_('About'), aboutstr + _("Program version: ") + versionstr + "\n")
 
 #------------------------------------------------------------------------------
 # enable_fw_upgrade   unable fw upgrade/downgrade 
@@ -439,8 +439,8 @@ def load_config(*args):
     global cpexml_src
 
     name = askopenfilename(initialdir=defaultdir,
-                           filetypes =(("Configuration file", "*.bin"),("All Files","*.*")),
-                           title = "Binary Configuration File"
+                           filetypes =((_("Configuration file"), "*.bin"),(_("All Files"),"*.*")),
+                           title = _("Binary Configuration File")
                            )
 
 
@@ -492,8 +492,8 @@ def load_config(*args):
     except:
         logger.log(ldebug, 'load_config: Error in decrypting data.\n' +
                            'Wrong input file?')
-        popupmsg('Error in input file',' Error in decrypting data.\n' +
-                 'Wrong input file?')
+        popupmsg(_('Error in input file'),_(' Error in decrypting data.\n') +
+                 _('Wrong input file?'))
         return()
 
     # Padding is a badly implemented PKCS#7 where 16 bytes padding is ignored,
@@ -520,8 +520,8 @@ def load_config(*args):
         cpedata_hex = match.group(1)
     else:
         logger.log(lerr, "load_config: Error in finding hex data\n")
-        popupmsg('Severe Error', "A severe error in load_config occurred.\n" +
-                 "Unable to extract CPE xml configuration")
+        popupmsg(_('Severe Error'), _("A severe error in load_config occurred.\n") +
+                 _("Unable to extract CPE xml configuration"))
         conferror_quit(2)
     
     cpedata_bin = base64.b64decode(cpedata_hex)
@@ -559,8 +559,8 @@ def load_xmlconfig(*args):
     global data_out
     global defaultdir
     name = askopenfilename(initialdir=defaultdir,
-                           filetypes =(("XML Configuration file", "*.xml"),("All Files","*.*")),
-                           title = "XML Configuration file."
+                           filetypes =((_("XML Configuration file"), "*.xml"),(_("All Files"),"*.*")),
+                           title = _("XML Configuration file.")
                            )
     print (name)
     try:
@@ -710,8 +710,8 @@ def save_config(*args):
     # -------------------------------------------------------------------------
     
     name = asksaveasfilename(initialdir=defaultdir,
-                             filetypes =(("Binary configuration file", "*.bin"),("All Files","*.*")),
-                             title = "Binary Conf File."
+                             filetypes =((_("Binary configuration file"), "*.bin"),(_("All Files"),"*.*")),
+                             title =_("Binary Conf File.")
                              )
     print (name)
     try:
@@ -743,7 +743,7 @@ def save_config(*args):
 def save_xmlconfig(*args):
     global defaultdir
     name = asksaveasfilename(initialdir=defaultdir,
-                             filetypes =(("XML configuration file", "*.xml"),("All Files","*.*")),
+                             filetypes =((_("XML configuration file"), "*.xml"),(_("All Files"),"*.*")),
                              title = "Save XML Conf File"
                              )
     try:
@@ -775,8 +775,8 @@ def save_cpexmlconfig(*args):
     global defaultdir
     global cpedata_out
     name = asksaveasfilename(initialdir=defaultdir,
-                             filetypes =(("XML config file", "*.xml"),("All Files","*.*")),
-                             title = "Save CPE XML conf file"
+                             filetypes =((_("XML config file"), "*.xml"),(_("All Files"),"*.*")),
+                             title = _("Save CPE XML conf file")
                              )
 
     
@@ -819,7 +819,7 @@ def conferror_quit(err):
 #------------------------------------------------------------------------------
 def not_yet(mstr=''):
     logger.log(lerr, mstr + "not implemented yet\n")
-    popupmsg('Info','Not implemented yet')
+    popupmsg(_('Info'),_('Not implemented yet'))
 
 #------------------------------------------------------------------------------
 # Main program start - set TK GUI based on
@@ -902,7 +902,7 @@ class FormUi:
         # Create a combobbox to select the logging level
         values = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
         self.level = tk.StringVar()
-        ttk.Label(self.frame, text='Level:').grid(column=0, row=0, sticky=W, padx=3, pady=3)
+        ttk.Label(self.frame, text=_('Level:')).grid(column=0, row=0, sticky=W, padx=3, pady=3)
         self.combobox = ttk.Combobox(
             self.frame,
             textvariable=self.level,
@@ -914,10 +914,10 @@ class FormUi:
         self.combobox.grid(column=1, row=0, sticky=(W, E), padx=3, pady=3)
         # Create a text field to enter a message
         self.message = tk.StringVar()
-        ttk.Label(self.frame, text='Message:').grid(column=0, row=1, sticky=W, padx=3, pady=3)
+        ttk.Label(self.frame, text=_('Message:')).grid(column=0, row=1, sticky=W, padx=3, pady=3)
         ttk.Entry(self.frame, textvariable=self.message, width=25).grid(column=1, row=1, sticky=(W, E), padx=3, pady=3)
         # Add a button to log the message
-        self.button = ttk.Button(self.frame, text='Submit', command=self.submit_message)
+        self.button = ttk.Button(self.frame, text=_('Submit'), command=self.submit_message)
         self.button.grid(column=1, row=2, sticky=W, padx=3, pady=3)
 
     def submit_message(self):
@@ -943,43 +943,43 @@ class RouterInfo:
         global rtr_fixddns
         
         self.frame = frame
-        ttk.Label(self.frame, text='Hardware Version: ').grid(column=0, row=1, sticky=W)
+        ttk.Label(self.frame, text=_('Hardware Version: ')).grid(column=0, row=1, sticky=W)
         ttk.Label(self.frame, textvariable=rtr_hwversion).grid(column=1, row=1, sticky=W)
 
-        ttk.Label(self.frame, text='Manufacturer: ').grid(column=0, row=2, sticky=W)
+        ttk.Label(self.frame, text=_('Manufacturer: ')).grid(column=0, row=2, sticky=W)
         ttk.Label(self.frame, textvariable=rtr_manufacturer).grid(column=1, row=2, sticky=W)
         
-        ttk.Label(self.frame, text='Model Name: ').grid(column=0, row=3, sticky=W)
+        ttk.Label(self.frame, text=_('Model Name: ')).grid(column=0, row=3, sticky=W)
         ttk.Label(self.frame, textvariable=rtr_modelname).grid(column=1, row=3, sticky=W)
 
-        ttk.Label(self.frame, text='Router customer ID: ').grid(column=0, row=4, sticky=W)
+        ttk.Label(self.frame, text=_('Router customer ID: ')).grid(column=0, row=4, sticky=W)
         ttk.Label(self.frame, textvariable=rtr_customerid).grid(column=1, row=4, sticky=W)
         
-        ttk.Label(self.frame, text='Serial Number: ').grid(column=0, row=5, sticky=W)
+        ttk.Label(self.frame, text=_('Serial Number: ')).grid(column=0, row=5, sticky=W)
         ttk.Label(self.frame, textvariable=rtr_serial).grid(column=1, row=5, sticky=W)
 
-        ttk.Label(self.frame, text='Router IP (bridge interface): ').grid(column=0, row=6, sticky=W)
+        ttk.Label(self.frame, text=_('Router IP (bridge interface): ')).grid(column=0, row=6, sticky=W)
         ttk.Label(self.frame, textvariable=rtr_ip).grid(column=1, row=6, sticky=W)
         
-        ttk.Label(self.frame, text='Router Net Mask (bridge interface): ').grid(column=0, row=7, sticky=W)
+        ttk.Label(self.frame, text=_('Router Net Mask (bridge interface): ')).grid(column=0, row=7, sticky=W)
         ttk.Label(self.frame, textvariable=rtr_mask).grid(column=1, row=7, sticky=W)
 
-        ttk.Label(self.frame, text='BSD GUI visible: ').grid(column=0, row=8, sticky=W)
+        ttk.Label(self.frame, text=_('BSD GUI visible: ')).grid(column=0, row=8, sticky=W)
         ttk.Label(self.frame, textvariable=rtr_bsdgui).grid(column=1, row=8, sticky=W)
         
-        ttk.Label(self.frame, text='Restricted Web GUI: ').grid(column=0, row=9, sticky=W)
+        ttk.Label(self.frame, text=_('Restricted Web GUI: ')).grid(column=0, row=9, sticky=W)
         ttk.Label(self.frame, textvariable=rtr_rwebgui).grid(column=1, row=9, sticky=W)
 
-        ttk.Label(self.frame, text='Restricted CLI commands: ').grid(column=0, row=10, sticky=W)
+        ttk.Label(self.frame, text=_('Restricted CLI commands: ')).grid(column=0, row=10, sticky=W)
         ttk.Label(self.frame, textvariable=rtr_rcli).grid(column=1, row=10, sticky=W)
         
-        ttk.Label(self.frame, text='Fw upgrade allowed: ').grid(column=0, row=11, sticky=W)
+        ttk.Label(self.frame, text=_('Firmware upgrade enabled: ')).grid(column=0, row=11, sticky=W)
         ttk.Label(self.frame, textvariable=rtr_fwupgrade).grid(column=1, row=11, sticky=W)
         
-        ttk.Label(self.frame, text='Fw downgrade allowed: ').grid(column=0, row=12, sticky=W)
+        ttk.Label(self.frame, text=_('Firmware downgrade enabled: ')).grid(column=0, row=12, sticky=W)
         ttk.Label(self.frame, textvariable=rtr_fwdowngrade).grid(column=1, row=12, sticky=W)
         
-        ttk.Label(self.frame, text='Fix dlinkdns -> dlinkddns: ').grid(column=0, row=13, sticky=W)
+        ttk.Label(self.frame, text=_('Fix dlinkdns -> dlinkddns: ')).grid(column=0, row=13, sticky=W)
         ttk.Label(self.frame, textvariable=rtr_fixddns).grid(column=1, row=13, sticky=W)
         
 class ThirdUi:
@@ -988,10 +988,10 @@ class ThirdUi:
         global xml_src_lbl
         global cpexml_src_lbl
         self.frame = frame
-        ttk.Label(self.frame, text='Main XML config file source: ').grid(column=0, row=1, sticky=W)
+        ttk.Label(self.frame, text=_('Main XML config file source: ')).grid(column=0, row=1, sticky=W)
         ttk.Label(self.frame, textvariable=xml_src).grid(column=1, row=1, sticky=W)
 
-        ttk.Label(self.frame, text='CPE XML config file source: ').grid(column=0, row=2, sticky=W)
+        ttk.Label(self.frame, text=_('CPE XML config file source: ')).grid(column=0, row=2, sticky=W)
         ttk.Label(self.frame, textvariable=cpexml_src).grid(column=1, row=2, sticky=W)
 
 
@@ -1002,7 +1002,7 @@ class App:
         global infom
         global editm
         self.root = root
-        root.title('ADB Config Editor')
+        root.title(_('ADB Config Editor'))
         root.columnconfigure(0, weight=1)
         root.rowconfigure(0, weight=1)
         # Create the panes and frames
@@ -1010,14 +1010,14 @@ class App:
         vertical_pane.grid(row=0, column=0, sticky="nsew", padx=3, pady=3)
         horizontal_pane = ttk.PanedWindow(vertical_pane, orient=HORIZONTAL)
         vertical_pane.add(horizontal_pane)
-        form_frame = ttk.Labelframe(horizontal_pane, text="Router Info")
+        form_frame = ttk.Labelframe(horizontal_pane, text=_("Router Info"))
         form_frame.columnconfigure(1, weight=1, minsize=120)
         horizontal_pane.add(form_frame, weight=1)
-        console_frame = ttk.Labelframe(horizontal_pane, text="Console")
+        console_frame = ttk.Labelframe(horizontal_pane, text=_("Console"))
         console_frame.columnconfigure(0, weight=1)
         console_frame.rowconfigure(0, weight=1)
         horizontal_pane.add(console_frame, weight=1)
-        third_frame = ttk.Labelframe(vertical_pane, text="Configuration loading status")
+        third_frame = ttk.Labelframe(vertical_pane, text=_("Configuration loading status"))
         vertical_pane.add(third_frame, weight=1)
         # Initialize all frames
         self.form = RouterInfo(form_frame)
@@ -1033,30 +1033,30 @@ class App:
         root.config(menu=menubar)
 
         filem = Menu(menubar)
-        filem.add_command(label = 'Open bin config',        command = load_config)
-        filem.add_command(label = 'Open xml config',        command = load_xmlconfig)
-        filem.add_command(label = 'Open CPE xml config',    command = load_cpexmlconfig)
-        filem.add_command(label = 'Save as bin config',     command = save_config, state = DISABLED)
-        filem.add_command(label = 'Save as xml config',     command = save_xmlconfig, state = DISABLED)
-        filem.add_command(label = 'Save as CPE xml config', command = save_cpexmlconfig, state = DISABLED)
-        filem.add_command(label = 'Exit',                   command = confquit)        
-        menubar.add_cascade(label = 'File', menu = filem)
+        filem.add_command(label = _('Open bin config'),        command = load_config)
+        filem.add_command(label = _('Open xml config'),        command = load_xmlconfig)
+        filem.add_command(label = _('Open CPE xml config'),    command = load_cpexmlconfig)
+        filem.add_command(label = _('Save as bin config'),     command = save_config, state = DISABLED)
+        filem.add_command(label = _('Save as xml config'),     command = save_xmlconfig, state = DISABLED)
+        filem.add_command(label = _('Save as CPE xml config'), command = save_cpexmlconfig, state = DISABLED)
+        filem.add_command(label = _('Exit'),                   command = confquit)        
+        menubar.add_cascade(label = _('File'), menu = filem)
 
         infom = Menu(menubar)
-        infom.add_command(label = 'Show passwords',           command = print_passwords, state = DISABLED)
-        infom.add_command(label = 'Show restricted commands', command = show_restricted, state = DISABLED)
-        infom.add_command(label = 'Save passwords',           command = save_passwords, state = DISABLED)
-        infom.add_command(label = 'Save restriced commands',  command = save_restricted, state = DISABLED)
-        infom.add_command(label = 'About',                    command = about)
-        menubar.add_cascade(label = 'Info', menu = infom)
+        infom.add_command(label = _('Show passwords'),           command = print_passwords, state = DISABLED)
+        infom.add_command(label = _('Show restricted commands'), command = show_restricted, state = DISABLED)
+        infom.add_command(label = _('Save passwords'),           command = save_passwords, state = DISABLED)
+        infom.add_command(label = _('Save restriced commands'),  command = save_restricted, state = DISABLED)
+        infom.add_command(label = _('About'),                    command = about)
+        menubar.add_cascade(label = _('Info'), menu = infom)
 
         editm = Menu(menubar)
-        editm.add_command(label = 'Enable restricted web gui',         command = enable_restricted_web, state = DISABLED)
-        editm.add_command(label = 'Enable restricted CLI commands',    command = enable_restricted_cli, state = DISABLED)
-        editm.add_command(label = 'Enable firmware upgrade/downgrade', command = enable_fw_upgrade, state = DISABLED)
-        editm.add_command(label = 'Fix dlinkdns -> dlinkddns',         command = fix_dlinkddns, state = DISABLED)        
-        editm.add_command(label = 'Preferences',                       command = edit_preference)        
-        menubar.add_cascade(label = 'Edit', menu = editm)
+        editm.add_command(label = _('Enable restricted web gui'),         command = enable_restricted_web, state = DISABLED)
+        editm.add_command(label = _('Enable restricted CLI commands'),    command = enable_restricted_cli, state = DISABLED)
+        editm.add_command(label = _('Enable firmware upgrade/downgrade'), command = enable_fw_upgrade, state = DISABLED)
+        editm.add_command(label = _('Fix dlinkdns -> dlinkddns'),         command = fix_dlinkddns, state = DISABLED)        
+        editm.add_command(label = _('Preferences'),                       command = edit_preference)        
+        menubar.add_cascade(label = _('Edit'), menu = editm)
 
         
     def quit(self, *args):
@@ -1069,7 +1069,7 @@ class App:
 #     l = tk.Label(win, text="Input")
 #     l.grid(row=0, column=0)
     
-#     b = ttk.Button(win, text="Okay", command=win.destroy)
+#     b = ttk.Button(win, text="OK", command=win.destroy)
 #     b.grid(row=1, column=0)
                             
         
@@ -1080,7 +1080,7 @@ def popupmsg(title,msg):
     popup.rowconfigure(0, weight=1, minsize=50)
     l = ttk.Label(popup, text=msg, font=NORM_FONT)
     l.grid(row=0, column=0, padx=3, pady=3)
-    b = ttk.Button(popup, text="Okay", command = popup.destroy)
+    b = ttk.Button(popup, text=_("OK"), command = popup.destroy)
     b.grid(row=1,column=0, padx=3, pady=3)
     # Gets the requested values of the height and widht.
     windowWidth = popup.winfo_reqwidth()
@@ -1127,30 +1127,30 @@ def edit_preference():
     if (lastloc.get() == 'yes'):
         dirloc.set(defaultdir)
     
-    c0 = ttk.Checkbutton(popup, text="Print debugging info",
+    c0 = ttk.Checkbutton(popup, text=_("Print debugging info"),
                          variable=dbginfo, onvalue='yes', offvalue='no')
     c0.grid(row=0, column=0, columnspan=2, padx=3, pady=0, sticky='W')
 
-    c1 = ttk.Checkbutton(popup,text="Use last used folder as load/save location",
+    c1 = ttk.Checkbutton(popup,text=_("Use last used folder as load/save location"),
                          variable=lastloc, onvalue='yes', offvalue='no', command=edit_pref_dirloc)
     c1.grid(row=1, column=0, columnspan=2, padx=3, pady=0, sticky='W')
 
-    l2 = ttk.Label(popup, text="Save/Load default folder")
+    l2 = ttk.Label(popup, text=_("Save/Load default folder"))
     l2.grid(row=2, column=0, padx=3, pady=0, sticky='W')
     
     e2 = ttk.Entry(popup, textvariable=dirloc, width=len(dirloc.get()) + 15, state=DISABLED)
     e2.grid(row=2, column=1, padx=3, pady=0, sticky='W')
 
-    c3 = ttk.Checkbutton(popup, text="Preference file in program folder instead of user's folder",
+    c3 = ttk.Checkbutton(popup, text=_("Preference file in program folder instead of user's folder"),
                          variable=prefinprog, onvalue='yes', offvalue='no')
     c3.grid(row=3, column=0, columnspan=2, padx=3, pady=0, sticky='W')
 
     
     
-    bend = ttk.Button(popup, text="Cancel", command = popup.destroy)
+    bend = ttk.Button(popup, text=_("Cancel"), command = popup.destroy)
     bend.grid(row=4,column=0, padx=30, pady=3, sticky='W')
 
-    bendb = ttk.Button(popup, text="Save", command = save_preference)
+    bendb = ttk.Button(popup, text=_("Save"), command = save_preference)
     bendb.grid(row=4,column=1, padx=30, pady=3, sticky='E')
 
 	
@@ -1222,7 +1222,7 @@ def save_preference():
         popup.destroy()
         write_inifile()
     else:
-        popupmsg('Folder name error','folder ' + dirloc.get() + ' does not exist')
+        popupmsg(_('Folder name error'),_('folder ') + dirloc.get() + _(' does not exist'))
 
                 
 def save_defaultdir():
@@ -1270,7 +1270,7 @@ def save_passwords():
         pass_str = pass_str + "\n---- CPE configuration file not loaded ----\n"
         
     name = asksaveasfilename(initialdir=defaultdir,
-                             filetypes =(("Text password file", "*.txt"),("All Files","*.*")),
+                             filetypes =((_("Text password file"), "*.txt"),(_("All Files"),"*.*")),
                              title = "Choose a file."
                              )
     print (name)
@@ -1279,7 +1279,7 @@ def save_passwords():
         with open(name,'w') as f:
             f.write(pass_str)
     except:
-        print("Error writing: ",name)
+        print(_("Error writing: "),name)
         sys.exit(1)
 
     defaultdir=os.path.dirname(name)
@@ -1296,7 +1296,7 @@ lerr   = logging.ERROR
 lcri   = logging.CRITICAL
 
 if os.path.isfile(mydir + '/.confedit.ini'):     # confed.ini can be stored in program folder based on user preferences
-    logger.log(linfo, "Preference file in program folder")
+    logger.log(linfo, _("Preference file in program folder"))
     inidir  = mydir
     inifile = mydir + '/.confedit.ini'
 
@@ -1339,8 +1339,8 @@ rtr_rwebgui.set('                   ')
 rtr_rcli.set('                   ')
 rtr_fixddns.set('                   ')
 
-xml_src.set('Not loaded')
-cpexml_src.set('Not loaded')
+xml_src.set(_('Not loaded'))
+cpexml_src.set(_('Not loaded'))
 
 
 app = App(root)
