@@ -6,7 +6,7 @@ import base64
 from Cryptodome.Cipher import AES # requires pycrypto
 
 if len(sys.argv) < 5:
-    print("Usage: confxml2bin.py  <key4conf> <key4cpe> <conf_xml> <confcpe_xml> <conf_bin>")
+    print(_("Usage: confxml2bin.py  <key4conf> <key4cpe> <conf_xml> <confcpe_xml> <conf_bin>"))
     sys.exit(1)
 
 key4conf     = sys.argv[1]
