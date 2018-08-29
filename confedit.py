@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # decrypt and modify the router configuration file to recover VOIP and
-# other passwords in plain text and to enable hidden or disabled
+# other passwords in plain text and to unlock hidden or disabled
 # functions.
 #
 # License informations are available in the LICENSE file
@@ -19,6 +19,8 @@ import logging
 import signal
 import tkinter as tk
 import configparser
+import gettext
+import locale
 
 from pathlib import Path
 from tkinter import *
@@ -65,6 +67,30 @@ inifile     = inidir + '/.confedit.ini'
 userinifile = inifile                             # ini file in user folder
 proginifile = mydir + '/.confedit.ini'            # ini file in program folder
 
+def language_set(lan):
+    global _
+    if (os.path.isdir(mydir + '/locale/' + lan)):
+        slan = gettext.translation('adbtools2', localedir='locale', languages=[lan])
+        slan.install()
+    else:
+        _ = lambda s: s
+
+def language_default():
+    global iniconfig
+    lan = 'EN'
+    try:
+        lan = iniconfig['global']['Language']
+    except:
+        (lancode, lanenc) = locale.getdefaultlocale()
+        lancode2=lancode[0:2]
+        if (os.path.isdir(mydir + '/locale/' + lancode)):
+            lan = lancode
+        if (os.path.isdir(mydir + '/locale/' + lancode2)):
+            lan = lancode2
+        else:
+            lan = 'en'
+    return lan
+        
 def show_restricted():
     global cpedata_out
     sout = get_restricted(cpedata_out)
@@ -104,7 +130,8 @@ def read_inifile():
         iniconfig['global'] = {'LogDebug':                  'yes',
                                'SaveLoadDirLastLocation':   'yes',
                                'SaveLoadDir':               defaultdir,
-                               'PreferenceInProgramFolder': 'no'}
+                               'PreferenceInProgramFolder': 'no',
+                               'Language':                   language_default()}
         write_inifile()
 
 #------------------------------------------------------------------------------
@@ -163,14 +190,14 @@ def get_restricted(xml_str):
 def enable_restricted_web():
     global cpedata_out
     cpedata_out = re.sub(b'(<PagePath>dboa\S+</PagePath>.\s+<Origin>\S+.\s+<Permissions>)0000',b'\g<1>2221',cpedata_out, 0, re.DOTALL)
-    logger.log(lerr,"Enabled restricted web pages")
+    logger.log(lerr,_("Unlocked restricted web pages"))
     get_info(cpedata_out)    # update router status info
     
 def enable_restricted_cli():
     global cpedata_out
     cpedata_out = re.sub(b'(<PagePath>clis\S+</PagePath>.\s+<Origin>\S+.\s+<Permissions>)0000',b'\g<1>2221',cpedata_out, 0, re.DOTALL)
     cpedata_out = re.sub(b'(<PagePath>clis\S+ EnableButtonbackToFactory</PagePath>.\s+<Origin>\S+.\s+<Permissions>)0000',b'\g<1>2221',cpedata_out, 0, re.DOTALL)
-    logger.log(lerr,"Enabled restricted commands in CLI")
+    logger.log(lerr,_("Unlocked restricted commands in CLI"))
     get_info(cpedata_out)   # update router status info
 
 #<Name>dlinkddns.com</Name>
@@ -236,19 +263,19 @@ def get_info (xml_str):
 
     sout = get_restricted(cpedata_out)
     if (sweb == ''):
-        rtr_rwebgui.set('Enabled')
+        rtr_rwebgui.set(_('Unlocked'))
     else:
-        rtr_rwebgui.set('Disabled')
+        rtr_rwebgui.set(_('Locked'))
 
     if (scli == ''):
-        rtr_rcli.set('Enabled')
+        rtr_rcli.set(_('Unlocked'))
     else:
-        rtr_rcli.set('Disabled')
+        rtr_rcli.set(_('Locked'))
 
     if (re.search(b'<Name>dlinkddns.com</Name>',cpedata_out,0)):
-        rtr_fixddns.set('Fixed')
+        rtr_fixddns.set(_('Fixed'))
     else:
-        rtr_fixddns.set('Not Fixed')
+        rtr_fixddns.set(_('Not Fixed'))
         
 #------------------------------------------------------------------------------
 # get_passwords return a string text file with passwords xml string
@@ -309,8 +336,8 @@ def check_enable_menu ():
         filem.entryconfig(4, state = NORMAL)     # save as bin config
         filem.entryconfig(5, state = NORMAL)     # save as xml config
         filem.entryconfig(6, state = NORMAL)     # save as cpe xml config
-        editm.entryconfig(1, state = NORMAL)     # enable restricted webgui
-        editm.entryconfig(2, state = NORMAL)     # enable restricted CLI commands
+        editm.entryconfig(1, state = NORMAL)     # enable/unlock restricted webgui
+        editm.entryconfig(2, state = NORMAL)     # enable/unlock restricted CLI commands
         editm.entryconfig(3, state = NORMAL)     # enable firmware downgrade        
         editm.entryconfig(4, state = NORMAL)     # enable fix dlinkdns -> dlinkddns        
     else:
@@ -386,18 +413,18 @@ def about():
     global versionstr
     global fversion
     aboutstr=''
-    aboutstr=aboutstr.join([_("ADB Configuration Editor (confedit)\n",
-                            "Copyright (c) 2018 Valerio Di Giampietro (main program)\n",
-                            "Copyright (c) 2017 Gabriel Huber (decrypting algorithm)\n",
-                            "Copyright (c) 2017 Benjamin Bertrand (windows interface)\n\n",
-                            "License informations available in the LICENSE file\n\n",
-                            "THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n",
-                            "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n",
-                            "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n",
-                            "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n",
-                            "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n",
-                            "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n",
-                            "SOFTWARE.\n\n")])
+    aboutstr=aboutstr.join([_("ADB Configuration Editor (confedit)\n"),
+                            _("Copyright (c) 2018 Valerio Di Giampietro (main program)\n"),
+                            _("Copyright (c) 2017 Gabriel Huber (decrypting algorithm)\n"),
+                            _("Copyright (c) 2017 Benjamin Bertrand (windows interface)\n\n"),
+                            _("License informations available in the LICENSE file\n\n"),
+                            _("THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n"),
+                            _("IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n"),
+                            _("FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n"),
+                            _("AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n"),
+                            _("LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n"),
+                            _("OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n"),
+                            _("SOFTWARE.\n\n")])
 
     if (versionstr == ''):
         with open(fversion,"r") as f:
@@ -421,7 +448,7 @@ def enable_fw_upgrade():
                          0,
                          re.DOTALL)
     get_info(cpedata_out)
-    logger.log(lerr,"enable_fw_upgrade: Enbabled firmware upgrade/downgrade")
+    logger.log(lerr,_("enable_fw_upgrade: Enbabled firmware upgrade/downgrade"))
     
 #------------------------------------------------------------------------------
 # load_config - load binary router configuration file - ok
@@ -1051,8 +1078,8 @@ class App:
         menubar.add_cascade(label = _('Info'), menu = infom)
 
         editm = Menu(menubar)
-        editm.add_command(label = _('Enable restricted web gui'),         command = enable_restricted_web, state = DISABLED)
-        editm.add_command(label = _('Enable restricted CLI commands'),    command = enable_restricted_cli, state = DISABLED)
+        editm.add_command(label = _('Unlock restricted web gui'),         command = enable_restricted_web, state = DISABLED)
+        editm.add_command(label = _('Unlock restricted CLI commands'),    command = enable_restricted_cli, state = DISABLED)
         editm.add_command(label = _('Enable firmware upgrade/downgrade'), command = enable_fw_upgrade, state = DISABLED)
         editm.add_command(label = _('Fix dlinkdns -> dlinkddns'),         command = fix_dlinkddns, state = DISABLED)        
         editm.add_command(label = _('Preferences'),                       command = edit_preference)        
@@ -1103,6 +1130,14 @@ def edit_preference():
     global dirloc
     global e2
     global prefinprog
+    global language
+
+    avail_languages = ['en']
+    locale_files = os.listdir(mydir + '/locale/')
+    for i in locale_files:
+        if os.path.isdir((mydir + '/locale/' + i)):
+            logger.log (ldebug, _("Available language: ") + i)
+            avail_languages.append(i)
     
     popup = tk.Toplevel()
     popup.wm_title('Edit Preference')
@@ -1126,6 +1161,13 @@ def edit_preference():
     
     if (lastloc.get() == 'yes'):
         dirloc.set(defaultdir)
+
+    language = StringVar(popup)
+    try:
+        language.set(iniconfig['global']['Language'])
+    except:
+        iniconfig['global'] = {'Language': language_default()}
+        language.set(iniconfig['global']['Language'])
     
     c0 = ttk.Checkbutton(popup, text=_("Print debugging info"),
                          variable=dbginfo, onvalue='yes', offvalue='no')
@@ -1146,12 +1188,17 @@ def edit_preference():
     c3.grid(row=3, column=0, columnspan=2, padx=3, pady=0, sticky='W')
 
     
+    l4 = ttk.Label(popup, text=_("Default Language (restart needed after change)"))
+    l4.grid(row=4, column=0, padx=3, pady=0, sticky='W')
+    
+    cb4 = ttk.Combobox(popup, textvariable=language, value=avail_languages, state='readonly', width=5)
+    cb4.grid(row=4, column=1, padx=3, pady=0, sticky='W')
     
     bend = ttk.Button(popup, text=_("Cancel"), command = popup.destroy)
-    bend.grid(row=4,column=0, padx=30, pady=3, sticky='W')
+    bend.grid(row=5,column=0, padx=30, pady=3, sticky='W')
 
     bendb = ttk.Button(popup, text=_("Save"), command = save_preference)
-    bendb.grid(row=4,column=1, padx=30, pady=3, sticky='E')
+    bendb.grid(row=5,column=1, padx=30, pady=3, sticky='E')
 
 	
     # Gets the requested values of the height and widht.
@@ -1188,10 +1235,13 @@ def save_preference():
     global lastloc
     global dirloc
     global inifile
+    global language
     
     iniconfig['global']['LogDebug']=dbginfo.get()
     iniconfig['global']['SaveLoadDirLastLocation']=lastloc.get()
     iniconfig['global']['PreferenceInProgramFolder']=prefinprog.get()
+    iniconfig['global']['Language']=language.get()
+    language_set(language.get())
 
     if iniconfig['global']['LogDebug'] == 'yes':
         #logging.basicConfig(level=logging.DEBUG)
@@ -1289,6 +1339,8 @@ def save_passwords():
 # Main Program
 #-----------------------------------------------------------------------------------------------
 
+
+
 ldebug = logging.DEBUG
 linfo  = logging.INFO
 lwarn  = logging.WARNING
@@ -1301,6 +1353,8 @@ if os.path.isfile(mydir + '/.confedit.ini'):     # confed.ini can be stored in p
     inifile = mydir + '/.confedit.ini'
 
 read_inifile()
+
+language_set(language_default())
 
 if iniconfig['global']['LogDebug'] == 'yes':
     logging.basicConfig(level=logging.DEBUG)
@@ -1355,6 +1409,7 @@ logger.log(ldebug,"tmpconf:    " + tmpconf)
 logger.log(ldebug,"tmpconfcpe: " + tmpconfcpe)
 logger.log(ldebug,"homedir:    " + homedir)
 logger.log(ldebug,"inifile:    " + inifile)
+logger.log(ldebug, _('Default language: ') + language_default())
 
 # ---- center the main window
 # Gets the requested values of the height and widht.

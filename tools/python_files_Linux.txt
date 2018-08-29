@@ -1,4 +1,4 @@
-..\confbin2xml.py
-..\confedit.py
-..\confxml2bin.py
-..\pkcrypt.py
+../confbin2xml.py
+../confedit.py
+../confxml2bin.py
+../pkcrypt.py

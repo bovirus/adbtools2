@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+
+* [confedit] added support to language translation and Italian language
+* [python scripts] added Italian language
+
 ## [v0.82] - 2018-08-26
 
 ### Added
