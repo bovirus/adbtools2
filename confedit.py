@@ -102,7 +102,7 @@ def save_restricted():
     sout = get_restricted(cpedata_out)
     name = asksaveasfilename(initialdir=defaultdir,
                              filetypes =((_("Text file"), "*.txt"),(_("All Files"),"*.*")),
-                             title = _("Restricted text file")
+                             title = _("Restricted Text File")
                              )
     print (name)
     #Using try in case user types in unknown file or closes without choosing a file.
@@ -387,8 +387,7 @@ def load_pems():
             pemconf_data = f.read()
     except:
         logger.log(lerr,"load_pems: error opening: ", down_pem)
-        popupmsg(_('Severe Error'), _("A severe error in load_pems occurred\nfile ") +
-                  down_pem + "is missing\n")
+        popupmsg(_('Severe Error'), _("A severe error occoured in 'load_pems'.\nFile missing: ") + down_pem +"\n")
         conferror_quit(1)
 
     try:
@@ -396,8 +395,7 @@ def load_pems():
             pemcpe_data = f.read()
     except:
         logger.log(lerr,"load_pems: error opening: ", up_pem)
-        popupmsg(_('Severe Error'), _("A severe error in load_pems occurred\nfile ") +
-                  up_pem + _("is missing\n"))
+        popupmsg(_('Severe Error'), _("A severe error occoured in 'load_pems'.\nFile missing: ") + up_pem + "\n")
         conferror_quit(1)
         
     load_pems_done = 1
@@ -413,18 +411,7 @@ def about():
     global versionstr
     global fversion
     aboutstr=''
-    aboutstr=aboutstr.join([_("ADB Configuration Editor (confedit)\n"),
-                            _("Copyright (c) 2018 Valerio Di Giampietro (main program)\n"),
-                            _("Copyright (c) 2017 Gabriel Huber (decrypting algorithm)\n"),
-                            _("Copyright (c) 2017 Benjamin Bertrand (windows interface)\n\n"),
-                            _("License informations available in the LICENSE file\n\n"),
-                            _("THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n"),
-                            _("IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n"),
-                            _("FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n"),
-                            _("AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n"),
-                            _("LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n"),
-                            _("OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n"),
-                            _("SOFTWARE.\n\n")])
+    aboutstr=aboutstr.join([_("ADB Configuration Editor (confedit)\nCopyright (c) 2018 Valerio Di Giampietro (main program)\nCopyright (c) 2017 Gabriel Huber (decrypting algorithm)\nCopyright (c) 2017 Benjamin Bertrand (windows interface)\n\nLicense informations available in the LICENSE file\n\nTHE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n")])
 
     if (versionstr == ''):
         with open(fversion,"r") as f:
@@ -448,7 +435,7 @@ def enable_fw_upgrade():
                          0,
                          re.DOTALL)
     get_info(cpedata_out)
-    logger.log(lerr,_("enable_fw_upgrade: Enbabled firmware upgrade/downgrade"))
+    logger.log(lerr,"enable_fw_upgrade: Enbabled firmware upgrade/downgrade")
     
 #------------------------------------------------------------------------------
 # load_config - load binary router configuration file - ok
@@ -466,7 +453,7 @@ def load_config(*args):
     global cpexml_src
 
     name = askopenfilename(initialdir=defaultdir,
-                           filetypes =((_("Configuration file"), "*.bin"),(_("All Files"),"*.*")),
+                           filetypes =((_("Configuration File"), "*.bin"),(_("All Files"),"*.*")),
                            title = _("Binary Configuration File")
                            )
 
@@ -519,7 +506,7 @@ def load_config(*args):
     except:
         logger.log(ldebug, 'load_config: Error in decrypting data.\n' +
                            'Wrong input file?')
-        popupmsg(_('Error in input file'),_(' Error in decrypting data.\n') +
+        popupmsg(_('Error in input file'),_('Error in decrypting data.\n') +
                  _('Wrong input file?'))
         return()
 
@@ -547,8 +534,7 @@ def load_config(*args):
         cpedata_hex = match.group(1)
     else:
         logger.log(lerr, "load_config: Error in finding hex data\n")
-        popupmsg(_('Severe Error'), _("A severe error in load_config occurred.\n") +
-                 _("Unable to extract CPE xml configuration"))
+        popupmsg(_('Severe Error'), _("A severe error occurred in 'load_config'.\nUnable to extract CPE XML configuration."))
         conferror_quit(2)
     
     cpedata_bin = base64.b64decode(cpedata_hex)
@@ -586,8 +572,8 @@ def load_xmlconfig(*args):
     global data_out
     global defaultdir
     name = askopenfilename(initialdir=defaultdir,
-                           filetypes =((_("XML Configuration file"), "*.xml"),(_("All Files"),"*.*")),
-                           title = _("XML Configuration file.")
+                           filetypes =((_("XML Configuration File"), "*.xml"),(_("All Files"),"*.*")),
+                           title = _("XML Configuration File")
                            )
     print (name)
     try:
@@ -637,7 +623,7 @@ def load_cpexmlconfig(*args):
     global loaded_bin
     name = askopenfilename(initialdir=defaultdir,
                            filetypes =(("CPE XML Configuration file", "*.xml"),("All Files","*.*")),
-                           title = "CPE XML Conf File."
+                           title = _("CPE XML Configuration File")
                            )
     print (name)
 
@@ -738,7 +724,7 @@ def save_config(*args):
     
     name = asksaveasfilename(initialdir=defaultdir,
                              filetypes =((_("Binary configuration file"), "*.bin"),(_("All Files"),"*.*")),
-                             title =_("Binary Conf File.")
+                             title =_("Binary Configuration File")
                              )
     print (name)
     try:
@@ -771,7 +757,7 @@ def save_xmlconfig(*args):
     global defaultdir
     name = asksaveasfilename(initialdir=defaultdir,
                              filetypes =((_("XML configuration file"), "*.xml"),(_("All Files"),"*.*")),
-                             title = "Save XML Conf File"
+                             title = _("Save XML Configuration File")
                              )
     try:
         logger.log(ldebug,"save_xmlconfig: saving " + name)
@@ -802,8 +788,8 @@ def save_cpexmlconfig(*args):
     global defaultdir
     global cpedata_out
     name = asksaveasfilename(initialdir=defaultdir,
-                             filetypes =((_("XML config file"), "*.xml"),(_("All Files"),"*.*")),
-                             title = _("Save CPE XML conf file")
+                             filetypes =((_("XML Configuration File"), "*.xml"),(_("All Files"),"*.*")),
+                             title = _("Save CPE XML Configuration File")
                              )
 
     
@@ -994,7 +980,7 @@ class RouterInfo:
         ttk.Label(self.frame, text=_('BSD GUI visible: ')).grid(column=0, row=8, sticky=W)
         ttk.Label(self.frame, textvariable=rtr_bsdgui).grid(column=1, row=8, sticky=W)
         
-        ttk.Label(self.frame, text=_('Restricted Web GUI: ')).grid(column=0, row=9, sticky=W)
+        ttk.Label(self.frame, text=_('Restricted web GUI: ')).grid(column=0, row=9, sticky=W)
         ttk.Label(self.frame, textvariable=rtr_rwebgui).grid(column=1, row=9, sticky=W)
 
         ttk.Label(self.frame, text=_('Restricted CLI commands: ')).grid(column=0, row=10, sticky=W)
@@ -1078,7 +1064,7 @@ class App:
         menubar.add_cascade(label = _('Info'), menu = infom)
 
         editm = Menu(menubar)
-        editm.add_command(label = _('Unlock restricted web gui'),         command = enable_restricted_web, state = DISABLED)
+        editm.add_command(label = _('Unlock restricted web GUI'),         command = enable_restricted_web, state = DISABLED)
         editm.add_command(label = _('Unlock restricted CLI commands'),    command = enable_restricted_cli, state = DISABLED)
         editm.add_command(label = _('Enable firmware upgrade/downgrade'), command = enable_fw_upgrade, state = DISABLED)
         editm.add_command(label = _('Fix dlinkdns -> dlinkddns'),         command = fix_dlinkddns, state = DISABLED)        
@@ -1272,7 +1258,7 @@ def save_preference():
         popup.destroy()
         write_inifile()
     else:
-        popupmsg(_('Folder name error'),_('folder ') + dirloc.get() + _(' does not exist'))
+        popupmsg(_('Folder name error'),_('Folder not available: ') + dirloc.get())
 
                 
 def save_defaultdir():
@@ -1321,7 +1307,7 @@ def save_passwords():
         
     name = asksaveasfilename(initialdir=defaultdir,
                              filetypes =((_("Text password file"), "*.txt"),(_("All Files"),"*.*")),
-                             title = "Choose a file."
+                             title = _("Choose a file")
                              )
     print (name)
     #Using try in case user types in unknown file or closes without choosing a file.
