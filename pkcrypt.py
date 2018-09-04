@@ -9,7 +9,7 @@ if len(sys.argv) < 5:
 
 task = sys.argv[1]
 if task not in ("sym_encrypt", "sym_decrypt"):
-    print(_("Error: First argument must be sym_encrypt or sym_decrypt."))
+    print(_("Error: First argument must be 'sym_encrypt' or 'sym_decrypt'."))
     sys.exit(1)
 
 key_filename = sys.argv[2]
