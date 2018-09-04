@@ -8,23 +8,24 @@ msgstr ""
 "Project-Id-Version: adbstool2 (v. 29.08.2018)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-08-30 08:56+0200\n"
-"PO-Revision-Date: 2018-08-30 08:58+0200\n"
+"PO-Revision-Date: 2018-09-04 23:53+0200\n"
 "Last-Translator: \n"
 "Language-Team: bovirus@gmail.com\n"
 "Language: it_IT\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.1.1\n"
+"X-Generator: Poedit 1.8.7.1\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: ..\confbin2xml.py:9
+#: ../confbin2xml.py:43
 msgid ""
-"Usage: confbin2xml.py  <key4conf> <key4cpe> <conf_bin> <conf_xml> "
-"<confcpe_xml>"
+"Usage: confbin2xml.py  [ -l it|en ] <key4conf> <key4cpe> <conf_bin> "
+"<conf_xml> <confcpe_xml>"
 msgstr ""
-"Uso: confbin2xml.py  <key4conf> <key4cpe> <conf_bin> <conf_xml> <confcpe_xml>"
+"Uso: confbin2xml.py  [ -l it|en ] <key4conf> <key4cpe> <conf_bin> <conf_xml> "
+"<confcpe_xml>"
 
 #: ..\confedit.py:104
 msgid "Text file"
@@ -411,16 +412,17 @@ msgstr "Non caricato"
 msgid "Default language: "
 msgstr "Lingua predefinità: "
 
-#: ..\confxml2bin.py:9
+#: ../confxml2bin.py:43
 msgid ""
-"Usage: confxml2bin.py  <key4conf> <key4cpe> <conf_xml> <confcpe_xml> "
-"<conf_bin>"
+"Usage: confxml2bin.py  [ -l it|en ] <key4conf> <key4cpe> <conf_xml> "
+"<confcpe_xml> <conf_bin>"
 msgstr ""
-"Uso: confxml2bin.py  <key4conf> <key4cpe> <conf_xml> <confcpe_xml> <conf_bin>"
+"Uso: confxml2bin.py  [ -l it|en ] <key4conf> <key4cpe> <conf_xml> "
+"<confcpe_xml> <conf_bin>"
 
-#: ..\pkcrypt.py:7
-msgid "Usage: pkcrypt.py sym_encrypt|sym_decrypt <key> <in> <out>"
-msgstr "Uso: pkcrypt.py sym_encrypt|sym_decrypt <key> <in> <out>"
+#: ../pkcrypt.py:42
+msgid "Usage: pkcrypt.py [ -l it|en ] sym_encrypt|sym_decrypt <key> <in> <out>"
+msgstr "Uso: pkcrypt.py [ -l it|en ] sym_encrypt|sym_decrypt <key> <in> <out>"
 
 #: ..\pkcrypt.py:12
 msgid "Error: First argument must be 'sym_encrypt' or 'sym_decrypt'."

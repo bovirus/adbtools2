@@ -3,10 +3,44 @@
 import re
 import sys
 import base64
+import os
+import gettext
+import locale
 from Cryptodome.Cipher import AES # requires pycrypto
 
+mydir    = sys.path[0]              # not correct on exe file from pyinstaller
+mydir    = os.path.dirname(os.path.realpath(__file__))
+
+def language_set(lan):
+    global _
+    if (os.path.isdir(mydir + '/locale/' + lan)):
+        slan = gettext.translation('adbtools2', localedir='locale', languages=[lan])
+        slan.install()
+    else:
+        _ = lambda s: s
+
+def language_default():
+    lan = 'EN'
+    try:
+        if sys.argv[1] == '-l':
+            lan = sys.argv[2]
+            del sys.argv[1:3]
+    except:
+        (lancode, lanenc) = locale.getdefaultlocale()
+        lancode2=lancode[0:2]
+        if (os.path.isdir(mydir + '/locale/' + lancode)):
+            lan = lancode
+        if (os.path.isdir(mydir + '/locale/' + lancode2)):
+            lan = lancode2
+        else:
+            lan = 'en'
+    return lan
+
+lan = language_default()
+language_set(lan)
+
 if len(sys.argv) < 5:
-    print(_("Usage: confxml2bin.py  <key4conf> <key4cpe> <conf_xml> <confcpe_xml> <conf_bin>"))
+    print(_("Usage: confxml2bin.py  [ -l it|en ] <key4conf> <key4cpe> <conf_xml> <confcpe_xml> <conf_bin>"))
     sys.exit(1)
 
 key4conf     = sys.argv[1]
