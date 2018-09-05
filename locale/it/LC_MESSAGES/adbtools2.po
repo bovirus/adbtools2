@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: adbstool2 (v. 05.09.2018)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-09-05 17:11+0200\n"
-"PO-Revision-Date: 2018-09-05 17:11+0200\n"
+"PO-Revision-Date: 2018-09-05 23:17+0200\n"
 "Last-Translator: \n"
 "Language-Team: bovirus@gmail.com\n"
 "Language: it_IT\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.1.1\n"
+"X-Generator: Poedit 2.0.6\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
@@ -51,6 +51,10 @@ msgstr "Pagine web con restrizioni sbloccate"
 #: ..\confedit.py:200
 msgid "Unlocked restricted commands in CLI"
 msgstr "Comandi CLI con restrizioni sbloccati"
+
+#: ../confedit.py:209
+msgid "Fixed dlinkdns -> dlinkddns"
+msgstr "Correggi dlinkdns -> dlinkddns: "
 
 #: ..\confedit.py:266 ..\confedit.py:271
 msgid "Unlocked"
@@ -184,25 +188,29 @@ msgstr "defaultdir: "
 msgid "len data_in: "
 msgstr "lungehzza dati ingresso: "
 
-#: ..\confedit.py:508
-msgid "load_config - error in decrypting data\n"
-msgstr "load_config - errore nella decriptazione dati\n"
-
-#: ..\confedit.py:509 ..\confedit.py:511
-msgid "Wrong input file?"
-msgstr "File sorgente errato?"
+#: ../confedit.py:508
+msgid ""
+"load_config - error in decrypting data\n"
+"Wrong input file?"
+msgstr ""
+"load_config - errore nella decifra dei dati\n"
+"File di input sbagliato?"
 
 #: ..\confedit.py:510
 msgid "Error in input file"
 msgstr "Errore nel file sorgente"
 
-#: ..\confedit.py:510
-msgid "Error in decrypting data\n"
-msgstr "Errore nella decriptazione dati\n"
+#: ../confedit.py:509
+msgid ""
+"Error in decrypting data\n"
+"Wrong input file?"
+msgstr ""
+"Errore nella decifra dei dati\n"
+"File di input sbagliato?"
 
-#: ..\confedit.py:537
-msgid "load_config - error in finding hex data\n"
-msgstr "load_config - errore nella ricerca dati esadecimali\n"
+#: ../confedit.py:535
+msgid "load_config - error in finding hex data"
+msgstr "load_config - errore nella ricerca dei dati in esadecimale"
 
 #: ..\confedit.py:538
 msgid ""
@@ -555,10 +563,6 @@ msgstr "Scegli un file"
 #: ..\confedit.py:1319
 msgid "Error writing "
 msgstr "Errore scrittura "
-
-#: ..\confedit.py:1338
-msgid "Preference file in program folder"
-msgstr "File impostazioni nella cartella programma"
 
 #: ..\confedit.py:1383 ..\confedit.py:1384
 msgid "not loaded"

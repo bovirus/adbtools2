@@ -103,14 +103,15 @@ have to be consistent.
 
 **Python Usage example:**
 
-    python3 confbin2xml.py download.pem upload.pem config_full_DVA-5592_2018-06-04T222624.bin conf.xml confcpe.xml
+    python3 confbin2xml.py [-l it|en] download.pem upload.pem config_full_DVA-5592_2018-06-04T222624.bin conf.xml confcpe.xml
 
 **Windows Usage example:**
 
-    d:\adbtools2> confbin2xml.exe download.pem upload.pem config_full_DVA-5592_2018-06-04T222624.bin conf.xml confcpe.xml
+    d:\adbtools2> confbin2xml.exe [-l it|en] download.pem upload.pem config_full_DVA-5592_2018-06-04T222624.bin conf.xml confcpe.xml
 
 where:
 
+    -l it|en       input, optional, select language it=Italian en=English
     download.pem   input, decrypting key for the main configuration file, from the firmware file system
     upload.pem     input, decrypting key for the CPE Data configuration file, form the firmware file system
     config_full... input, configuration file downloaded from the router web interface
@@ -144,14 +145,14 @@ Using confbin2xml and confxml2bin it is possible to extract the two XML files, m
 
 **Python usage example:**
 
-  python3 confxml2bin.py download.pem upload.pem conf.xml confcpe.xml conf.bin
+    python3 confxml2bin.py [-l it|en] download.pem upload.pem conf.xml confcpe.xml conf.bin
 
 **Windows usage example:**
 
-  d:\adbtools2> confxml2bin.exe download.pem upload.pem conf.xml confcpe.xml conf.bin
+    d:\adbtools2> confxml2bin.exe [-l it|en] download.pem upload.pem conf.xml confcpe.xml conf.bin
 
 **where:**
-
+    -l it|en       input, optional, select language it=Italian en=English
     download.pem   input, encrypting key for the main configuration file, from the firmware file system
     upload.pem     input, encrypting key for the CPE Data configuration file, form the firmware file system
     conf.xml       input, main configuration file
@@ -171,11 +172,11 @@ firmware image.
 
 **Python usage example:**
 
-    python3 pkcrypt.py sym_decrypt download.pem config.bin config.xml
+    python3 pkcrypt.py [-l it|en] sym_decrypt download.pem config.bin config.xml
 
 **Windows usage example:**
 
-    d:\adbtools2> pkcrypt.exe sym_decrypt download.pem config.bin config.xml
+    d:\adbtools2> pkcrypt.exe [-l it|en] sym_decrypt download.pem config.bin config.xml
 
 
 # How to become root on the D-Link DVA-5592 router
