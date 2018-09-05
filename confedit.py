@@ -206,7 +206,7 @@ def enable_restricted_cli():
 def fix_dlinkddns():
     global cpedata_out
     cpedata_out = re.sub(b'<Name>dlinkdns.com</Name>',b'<Name>dlinkddns.com</Name>',cpedata_out, 0, re.DOTALL)
-    logger.log(lerr,"Fixed dlinkdns -> dlinkddns")
+    logger.log(lerr,_("Fixed dlinkdns -> dlinkddns"))
     get_info(cpedata_out)   # update router status info    
     
 #------------------------------------------------------------------------------
@@ -375,7 +375,7 @@ def check_enable_menu ():
         rtr_rcli.set('                   ')
         rtr_fixddns.set('                   ')
         
-    logger.log(level,"check_enable_menu - done")
+    logger.log(level,_("check_enable_menu - done"))
 
 #------------------------------------------------------------------------------
 # load_pems - load pem files
@@ -386,7 +386,7 @@ def load_pems():
         with open(down_pem, "rb") as f:
             pemconf_data = f.read()
     except:
-        logger.log(lerr,"load_pems: error opening: ", down_pem)
+        logger.log(lerr,_("load_pems - error opening "), down_pem)
         popupmsg(_('Severe Error'), _("A severe error occoured in 'load_pems'.\nFile missing: ") + down_pem +"\n")
         conferror_quit(1)
 
@@ -394,14 +394,14 @@ def load_pems():
         with open(up_pem, "rb") as f:
             pemcpe_data = f.read()
     except:
-        logger.log(lerr,"load_pems: error opening: ", up_pem)
+        logger.log(lerr,_("load_pems - error opening "), up_pem)
         popupmsg(_('Severe Error'), _("A severe error occoured in 'load_pems'.\nFile missing: ") + up_pem + "\n")
         conferror_quit(1)
         
     load_pems_done = 1
-    logger.log(ldebug,"load pems done")
-    logger.log(ldebug,"len 1: " + str(len(pemconf_data)))
-    logger.log(ldebug,"len 2: " + str(len(pemcpe_data)))
+    logger.log(ldebug,_("load_pems - done"))
+    logger.log(ldebug,_("len 1: ") + str(len(pemconf_data)))
+    logger.log(ldebug,_("len 2: ") + str(len(pemcpe_data)))
     
 
 #------------------------------------------------------------------------------
@@ -416,7 +416,7 @@ def about():
     if (versionstr == ''):
         with open(fversion,"r") as f:
             versionstr = f.read()
-            logger.log(ldebug,"about: reading " + fversion)
+            logger.log(ldebug,_("about - reading ") + fversion)
     popupmsg(_('About'), aboutstr + _("Program version: ") + versionstr + "\n")
 
 #------------------------------------------------------------------------------
@@ -435,7 +435,7 @@ def enable_fw_upgrade():
                          0,
                          re.DOTALL)
     get_info(cpedata_out)
-    logger.log(lerr,"enable_fw_upgrade: Enbabled firmware upgrade/downgrade")
+    logger.log(lerr,_("enable_fw_upgrade - firmware upgrade/downgrade enabled"))
     
 #------------------------------------------------------------------------------
 # load_config - load binary router configuration file - ok
@@ -459,14 +459,14 @@ def load_config(*args):
 
 
     try:
-        logger.log(ldebug,"load_config: loading " + name)
+        logger.log(ldebug,_("load_config - loading ") + name)
 
     except:
-        logger.log(ldebug, 'load_config: no file selected')
+        logger.log(ldebug,_("load_config - no file selected"))
         return()
 
     if (name == ''):
-        logger.log(ldebug, 'load_config: no file selected')
+        logger.log(ldebug,-("load_config - no file selected"))
         return()
     
     
@@ -475,7 +475,8 @@ def load_config(*args):
         with open(name,'rb') as f:
             data_in = f.read()
     except:
-        logger.log(lerr,"load_config: error opening ",name)
+        logger.log(lerr,_("load_config - error opening "),name)
+        logger.log(lerr,_("load_config - error opening "),name)
         load_bin = 0
         load_xml = 0
         load_cpe = 0
@@ -486,11 +487,11 @@ def load_config(*args):
 
 
     defaultdir=os.path.dirname(name)
-    logger.log(ldebug,"defaultdir: " + defaultdir)
+    logger.log(ldebug,_("defaultdir: ") + defaultdir)
     if (not load_pems_done):
         load_pems()
 
-    logger.log(ldebug,"len data_in: " + str(len(data_in)))
+    logger.log(ldebug,_("len data_in: ") + str(len(data_in)))
     # decrypt config
 
     # Going for the popular choice...
@@ -504,10 +505,8 @@ def load_config(*args):
         data_out = cipher.decrypt(data_in)
 
     except:
-        logger.log(ldebug, 'load_config: Error in decrypting data.\n' +
-                           'Wrong input file?')
-        popupmsg(_('Error in input file'),_('Error in decrypting data.\n') +
-                 _('Wrong input file?'))
+        logger.log(ldebug,_("load_config - error in decrypting data\nWrong input file?"))
+        popupmsg(_('Error in input file'),_("Error in decrypting data\nWrong input file?"))
         return()
 
     # Padding is a badly implemented PKCS#7 where 16 bytes padding is ignored,
@@ -533,7 +532,7 @@ def load_config(*args):
     if match:
         cpedata_hex = match.group(1)
     else:
-        logger.log(lerr, "load_config: Error in finding hex data\n")
+        logger.log(lerr,_("load_config - error in finding hex data") + "\n")
         popupmsg(_('Severe Error'), _("A severe error occurred in 'load_config'.\nUnable to extract CPE XML configuration."))
         conferror_quit(2)
     
@@ -551,7 +550,7 @@ def load_config(*args):
                 break
             else:
                 cpedata_out = cpedata_out[:-padding_length]
-    logger.log(ldebug,"load_config legth cpedata_out" + str(len(cpedata_out)))
+    logger.log(ldebug,_("load_config - length cpedata_out ") + str(len(cpedata_out)))
     loaded_bin = 1
     loaded_xml = 0
     loaded_cpe = 0
@@ -577,14 +576,14 @@ def load_xmlconfig(*args):
                            )
     print (name)
     try:
-        logger.log(ldebug,"load_xmlconfig: loading " + name)
+        logger.log(ldebug,_("load_xmlconfig - loading ") + name)
 
     except:
-        logger.log(ldebug, 'load_xmlconfig: no file selected')
+        logger.log(ldebug,_("load_xmlconfig - no file selected"))
         return()
 
     if (name == ''):
-        logger.log(ldebug, 'load_xmlconfig: no file selected')
+        logger.log(ldebug,_("load_xmlconfig - no file selected"))
         return()
     
     #Using try in case user types in unknown file or closes without choosing a file.
@@ -592,7 +591,7 @@ def load_xmlconfig(*args):
         with open(name,'rb') as f:
             data_out = f.read()
     except:
-        logger.log(lerr,"load_xmlconfig: error opening ",name)
+        logger.log(lerr,_("load_xmlconfig - error opening "), name)
         load_bin = 0
         load_xml = 0
         load_cpe = 0
@@ -628,14 +627,14 @@ def load_cpexmlconfig(*args):
     print (name)
 
     try:
-        logger.log(ldebug,"load_cpexmlconfig: loading " + name)
+        logger.log(ldebug,_("load_cpexmlconfig - loading ") + name)
 
     except:
-        logger.log(ldebug, 'load_cpexmlconfig: no file selected')
+        logger.log(ldebug,_("load_cpexmlconfig - no file selected"))
         return()
 
     if (name == ''):
-        logger.log(ldebug, 'load_cpexmlconfig: no file selected')
+        logger.log(ldebug,-("load_cpexmlconfig - no file selected"))
         return()
     
     #Using try in case user types in unknown file or closes without choosing a file.
@@ -643,7 +642,7 @@ def load_cpexmlconfig(*args):
         with open(name,'rb') as f:
             cpedata_out = f.read()
     except:
-        logger.log(lerr,"load_cpexmlconfig: error opening ",name)
+        logger.log(lerr,_("load_cpexmlconfig - error opening "),name)
         load_bin = 0
         load_xml = 0
         load_cpe = 0
@@ -723,19 +722,19 @@ def save_config(*args):
     # -------------------------------------------------------------------------
     
     name = asksaveasfilename(initialdir=defaultdir,
-                             filetypes =((_("Binary configuration file"), "*.bin"),(_("All Files"),"*.*")),
+                             filetypes =((_("Binary Configuration File"), "*.bin"),(_("All Files"),"*.*")),
                              title =_("Binary Configuration File")
                              )
     print (name)
     try:
-        logger.log(ldebug,"save_config: saving " + name)
+        logger.log(ldebug,_("save_config - saving ") + name)
 
     except:
-        logger.log(ldebug, 'save_config: no file selected')
+        logger.log(ldebug,_("save_config - no file selected"))
         return()
 
     if (name == ''):
-        logger.log(ldebug, 'save_config: no file selected')
+        logger.log(ldebug,_("save_config - no file selected"))
         return()
 
     
@@ -744,7 +743,7 @@ def save_config(*args):
         with open(name,'wb') as f:
             f.write(data_in)
     except:
-        logger.log(lerr,"save_config: error opening ",name)
+        logger.log(lerr,_("save_config - error opening "),name)
         check_enable_menu()
         return()
 
@@ -760,14 +759,14 @@ def save_xmlconfig(*args):
                              title = _("Save XML Configuration File")
                              )
     try:
-        logger.log(ldebug,"save_xmlconfig: saving " + name)
+        logger.log(ldebug,_("save_xmlconfig - saving ") + name)
 
     except:
-        logger.log(ldebug, 'save_xmlconfig: no file selected')
+        logger.log(ldebug,_("save_xmlconfig - no file selected"))
         return()
 
     if (name == ''):
-        logger.log(ldebug, 'save_xmlconfig: no file selected')
+        logger.log(ldebug,_("save_xmlconfig - no file selected"))
         return()
     
     #Using try in case user types in unknown file or closes without choosing a file.
@@ -775,7 +774,7 @@ def save_xmlconfig(*args):
         with open(name,'wb') as f:
             f.write(data_out)
     except:
-        logger.log(lerr,"save_config: error opening ",name)
+        logger.log(lerr,_("save_config - error opening "),name)
         check_enable_menu()
         return()
 
@@ -794,14 +793,14 @@ def save_cpexmlconfig(*args):
 
     
     try:
-        logger.log(ldebug,"save_cpexmlconfig: saving " + name)
+        logger.log(ldebug,_("save_cpexmlconfig - saving ") + name)
 
     except:
-        logger.log(ldebug, 'save_cpexmlconfig: no file selected')
+        logger.log(ldebug,_("save_cpexmlconfig - no file selected"))
         return()
 
     if (name == ''):
-        logger.log(ldebug, 'save_cpexmlconfig: no file selected')
+        logger.log(ldebug,-("save_cpexmlconfig - no file selected"))
         return()
     
     #Using try in case user types in unknown file or closes without choosing a file.
@@ -809,7 +808,7 @@ def save_cpexmlconfig(*args):
         with open(name,'wb') as f:
             f.write(cpedata_out)
     except:
-        logger.log(lerr,"save_cpexmlconfig: error opening ",name)
+        logger.log(lerr,_("save_cpexmlconfig - error opening "),name)
         check_enable_menu()
         return()
 
@@ -824,15 +823,15 @@ def confquit(*args):
     sys.exit(0)
 
 def conferror_quit(err):
-    logger.log(lerr,"Exit with error: " + err)
+    logger.log(lerr,_("Exit with error ") + err)
     sys.exit(err)
     
 #------------------------------------------------------------------------------
 # not_yet - print in the console the not implemented yet message
 #------------------------------------------------------------------------------
 def not_yet(mstr=''):
-    logger.log(lerr, mstr + "not implemented yet\n")
-    popupmsg(_('Info'),_('Not implemented yet'))
+    logger.log(lerr, mstr + _("not implemented yet\n"))
+    popupmsg(_('Info'),_("Not implemented yet"))
 
 #------------------------------------------------------------------------------
 # Main program start - set TK GUI based on
@@ -1239,26 +1238,26 @@ def save_preference():
     if iniconfig['global']['PreferenceInProgramFolder'] == 'yes':
         inifile = proginifile
         if os.path.isfile(userinifile):
-            logger.log(linfo,"removing user's preference file: " + userinifile)
+            logger.log(linfo,_("Removing user's preference file ") + userinifile)
             try:
                 os.remove(userinifile)
             except:
-                logger.log(lerr,"Error removing " + userinifile)
+                logger.log(lerr,_("Error removing ") + userinifile)
     else:
         inifile = userinifile
         if os.path.isfile(proginifile):
-            logger.log(linfo,"removing preference file in program folder: " + proginifile)
+            logger.log(linfo,_("Removing preference file in program folder: ") + proginifile)
             try:
                 os.remove(proginifile)
             except:
-                logger.log(lerr,"Error removing " + proginifile)
+                logger.log(lerr,_("Error removing ") + proginifile)
                 
     if (os.path.isdir(dirloc.get())):
         iniconfig['global']['SaveLoadDir']=dirloc.get()
         popup.destroy()
         write_inifile()
     else:
-        popupmsg(_('Folder name error'),_('Folder not available: ') + dirloc.get())
+        popupmsg(_("Folder name error"),_("Folder not available: ") + dirloc.get())
 
                 
 def save_defaultdir():
@@ -1273,16 +1272,16 @@ def print_passwords():
     global data_out
     global cpedata_out
     if (('data_out' in globals()) and ((loaded_bin == 1) or (loaded_xml == 1))):
-        logger.log(lerr,"\n---- passwords from main configuration file ----")
+        logger.log(lerr,"\n" + _("---- Passwords from main configuration file ----"))
         logger.log(lwarn,get_passwords(data_out))
     else:
-        logger.log(lerr,"\n---- Main configuration file not loaded ----")
+        logger.log(lerr,"\n" + _("---- Main configuration file not loaded ----"))
 
     if (('cpedata_out' in globals()) and ((loaded_bin == 1) or (loaded_cpe == 1))):
-        logger.log(lerr,"---- passwords from CPE configuration file ----")
+        logger.log(lerr,_("---- Passwords from CPE configuration file ----"))
         logger.log(lwarn,get_passwords(cpedata_out))
     else:
-        logger.log(lerr,"\n---- CPE configuration file not loaded ----")
+        logger.log(lerr,"\n"+ _("---- CPE configuration file not loaded ----"))
         
 #-----------------------------------------------------------------------------------------------
 # save_passwords  - save passwords to a text file
@@ -1294,16 +1293,16 @@ def save_passwords():
     
     pass_str = ''
     if (('data_out' in globals()) and ((loaded_bin == 1) or (loaded_xml == 1))):
-        pass_str = pass_str + "---- passwords from main configuration file ----\n\n"
+        pass_str = pass_str + _("---- Passwords from main configuration file ----") + "\n\n"
         pass_str = pass_str + get_passwords(data_out)
     else:
-        pass_str = pass_str + "---- Main configuration file not loaded ----\n\n"
+        pass_str = pass_str + _("---- Main configuration file not loaded ----") + "\n\n"
 
     if (('cpedata_out' in globals()) and ((loaded_bin == 1) or (loaded_cpe == 1))):
-        pass_str = pass_str + "\n---- passwords from CPE configuration file ----\n\n"
+        pass_str = pass_str + "\n" + _("---- Passwords from CPE configuration file ----") + "\n\n"
         pass_str = pass_str + get_passwords(cpedata_out)
     else:
-        pass_str = pass_str + "\n---- CPE configuration file not loaded ----\n"
+        pass_str = pass_str + "\n" + _("---- CPE configuration file not loaded ----") + "\n"
         
     name = asksaveasfilename(initialdir=defaultdir,
                              filetypes =((_("Text password file"), "*.txt"),(_("All Files"),"*.*")),
@@ -1315,7 +1314,7 @@ def save_passwords():
         with open(name,'w') as f:
             f.write(pass_str)
     except:
-        print(_("Error writing: "),name)
+        print(_("Error writing "),name)
         sys.exit(1)
 
     defaultdir=os.path.dirname(name)
@@ -1334,7 +1333,7 @@ lerr   = logging.ERROR
 lcri   = logging.CRITICAL
 
 if os.path.isfile(mydir + '/.confedit.ini'):     # confed.ini can be stored in program folder based on user preferences
-    logger.log(linfo, _("Preference file in program folder"))
+    logger.log(linfo,"Preference file in program folder")
     inidir  = mydir
     inifile = mydir + '/.confedit.ini'
 
@@ -1387,14 +1386,13 @@ app = App(root)
 
 
 level=ldebug
-logger.log(ldebug,"mydir:      " + mydir)
-logger.log(ldebug,"down_pem:   " + down_pem)
-logger.log(ldebug,"up_pem:     " + up_pem)
-logger.log(ldebug,"tmpradix:   " + tmpradix)
-logger.log(ldebug,"tmpconf:    " + tmpconf)
-logger.log(ldebug,"tmpconfcpe: " + tmpconfcpe)
-logger.log(ldebug,"homedir:    " + homedir)
-logger.log(ldebug,"inifile:    " + inifile)
+logger.log(ldebug,_("mydir:      ") + mydir)
+logger.log(ldebug,_("down_pem:   ") + up_pem)
+logger.log(ldebug,_("tmpradix:   ") + tmpradix)
+logger.log(ldebug,_("tmpconf:    ") + tmpconf)
+logger.log(ldebug,_("tmpconfcpe: ") + tmpconfcpe)
+logger.log(ldebug,_("homedir:    ") + homedir)
+logger.log(ldebug,_("inifile:    ") + inifile)
 logger.log(ldebug, _('Default language: ') + language_default())
 
 # ---- center the main window

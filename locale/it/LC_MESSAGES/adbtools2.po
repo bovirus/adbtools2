@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: adbstool2 (v. 05.09.2018)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-05 11:34+0200\n"
-"PO-Revision-Date: 2018-09-05 11:37+0200\n"
+"POT-Creation-Date: 2018-09-05 17:11+0200\n"
+"PO-Revision-Date: 2018-09-05 17:11+0200\n"
 "Last-Translator: \n"
 "Language-Team: bovirus@gmail.com\n"
 "Language: it_IT\n"
@@ -31,8 +31,8 @@ msgstr ""
 msgid "Text file"
 msgstr "File di testo"
 
-#: ..\confedit.py:104 ..\confedit.py:456 ..\confedit.py:575 ..\confedit.py:726
-#: ..\confedit.py:759 ..\confedit.py:791 ..\confedit.py:1309
+#: ..\confedit.py:104 ..\confedit.py:456 ..\confedit.py:576 ..\confedit.py:727
+#: ..\confedit.py:760 ..\confedit.py:792 ..\confedit.py:1310
 msgid "All Files"
 msgstr "Tutti i file"
 
@@ -40,7 +40,7 @@ msgstr "Tutti i file"
 msgid "Restricted Text File"
 msgstr "File testo restrizioni"
 
-#: ..\confedit.py:113 ..\confedit.py:1318
+#: ..\confedit.py:113
 msgid "Error writing: "
 msgstr "Errore scrittura: "
 
@@ -68,7 +68,15 @@ msgstr "Corretto"
 msgid "Not Fixed"
 msgstr "Non corretto"
 
-#: ..\confedit.py:390 ..\confedit.py:398 ..\confedit.py:537
+#: ..\confedit.py:378
+msgid "check_enable_menu - done"
+msgstr "check_enable_menu - completato"
+
+#: ..\confedit.py:389 ..\confedit.py:397
+msgid "load_pems - error opening "
+msgstr "load_pems - errore apertura "
+
+#: ..\confedit.py:390 ..\confedit.py:398 ..\confedit.py:538
 msgid "Severe Error"
 msgstr "Errore grave"
 
@@ -79,6 +87,18 @@ msgid ""
 msgstr ""
 "Si è verificato un errore grave in 'load_pems'.\n"
 "File mancante: "
+
+#: ..\confedit.py:402
+msgid "load_pems - done"
+msgstr "load_pems - completato"
+
+#: ..\confedit.py:403
+msgid "len 1: "
+msgstr "lunghezza 1: "
+
+#: ..\confedit.py:404
+msgid "len 2: "
+msgstr "lunghezza 2: "
 
 #: ..\confedit.py:414
 msgid ""
@@ -120,6 +140,10 @@ msgstr ""
 "O ALTRE DISPOSIZIONI DEL SOFTWARE.\n"
 "\n"
 
+#: ..\confedit.py:419
+msgid "about - reading "
+msgstr "about - lettura "
+
 #: ..\confedit.py:420
 msgid "About"
 msgstr "Info sul programma"
@@ -128,27 +152,59 @@ msgstr "Info sul programma"
 msgid "Program version: "
 msgstr "Versione programma: "
 
+#: ..\confedit.py:438
+msgid "enable_fw_upgrade - firmware upgrade/downgrade enabled"
+msgstr "enable_fw_upgrade - upgrade/downgrade firmware abilitato"
+
 #: ..\confedit.py:456
 msgid "Configuration File"
 msgstr "File configurazione"
 
-#: ..\confedit.py:457 ..\confedit.py:727
+#: ..\confedit.py:457 ..\confedit.py:727 ..\confedit.py:728
 msgid "Binary Configuration File"
 msgstr "File binario configurazione"
 
-#: ..\confedit.py:509
-msgid "Error in input file"
-msgstr "Errore nel file sorgente"
+#: ..\confedit.py:462
+msgid "load_config - loading "
+msgstr "load_config - caricamento "
 
-#: ..\confedit.py:509
-msgid "Error in decrypting data.\n"
-msgstr "Errore nella decriptazione dati.\n"
+#: ..\confedit.py:465
+msgid "load_config - no file selected"
+msgstr "load_config - nessun file selezionato"
 
-#: ..\confedit.py:510
+#: ..\confedit.py:478 ..\confedit.py:479
+msgid "load_config - error opening "
+msgstr "load_config - errore apertura "
+
+#: ..\confedit.py:490
+msgid "defaultdir: "
+msgstr "defaultdir: "
+
+#: ..\confedit.py:494
+msgid "len data_in: "
+msgstr "lungehzza dati ingresso: "
+
+#: ..\confedit.py:508
+msgid "load_config - error in decrypting data\n"
+msgstr "load_config - errore nella decriptazione dati\n"
+
+#: ..\confedit.py:509 ..\confedit.py:511
 msgid "Wrong input file?"
 msgstr "File sorgente errato?"
 
+#: ..\confedit.py:510
+msgid "Error in input file"
+msgstr "Errore nel file sorgente"
+
+#: ..\confedit.py:510
+msgid "Error in decrypting data\n"
+msgstr "Errore nella decriptazione dati\n"
+
 #: ..\confedit.py:537
+msgid "load_config - error in finding hex data\n"
+msgstr "load_config - errore nella ricerca dati esadecimali\n"
+
+#: ..\confedit.py:538
 msgid ""
 "A severe error occurred in 'load_config'.\n"
 "Unable to extract CPE XML configuration."
@@ -156,261 +212,385 @@ msgstr ""
 "Si è verificato un errore grave in 'load_config'.\n"
 "Impossibile estrarre la configurazione XML CPE."
 
-#: ..\confedit.py:575 ..\confedit.py:576 ..\confedit.py:791
+#: ..\confedit.py:555
+msgid "load_config - length cpedata_out "
+msgstr "load_config - lunghezza cpedata_out "
+
+#: ..\confedit.py:576 ..\confedit.py:577 ..\confedit.py:792
 msgid "XML Configuration File"
 msgstr "File configurazione XML"
 
-#: ..\confedit.py:626
+#: ..\confedit.py:581
+msgid "load_xmlconfig - loading "
+msgstr "load_xmlconfig - caricamento "
+
+#: ..\confedit.py:584 ..\confedit.py:588
+msgid "load_xmlconfig - no file selected"
+msgstr "load_xmlconfig - nessun file selezionato"
+
+#: ..\confedit.py:596
+msgid "load_xmlconfig - error opening "
+msgstr "load_xmlconfig - errore apertura "
+
+#: ..\confedit.py:627
 msgid "CPE XML Configuration File"
 msgstr "File configurazione XML CPE"
 
-#: ..\confedit.py:726
-msgid "Binary configuration file"
-msgstr "File binario configurazione"
+#: ..\confedit.py:632
+msgid "load_cpexmlconfig - loading "
+msgstr "load_cpexmlconfig - caricamento "
 
-#: ..\confedit.py:759
+#: ..\confedit.py:635
+msgid "load_cpexmlconfig - no file selected"
+msgstr "load_cpexmlconfig - nessun file selezionato"
+
+#: ..\confedit.py:647
+msgid "load_cpexmlconfig - error opening "
+msgstr "load_cpexmlconfig - errore apertura "
+
+#: ..\confedit.py:732
+msgid "save_config - saving "
+msgstr "save_config - salvataggio "
+
+#: ..\confedit.py:735 ..\confedit.py:739
+msgid "save_config - no file selected"
+msgstr "save_config - nessun file selezionato"
+
+#: ..\confedit.py:748 ..\confedit.py:779
+msgid "save_config - error opening "
+msgstr "save_config - errore apertura "
+
+#: ..\confedit.py:760
 msgid "XML configuration file"
 msgstr "File XML configurazione"
 
-#: ..\confedit.py:760
+#: ..\confedit.py:761
 msgid "Save XML Configuration File"
 msgstr "Salva fiel configurazione XML"
 
-#: ..\confedit.py:792
+#: ..\confedit.py:764
+msgid "save_xmlconfig - saving "
+msgstr "save_xmlconfig - salvataggio "
+
+#: ..\confedit.py:767 ..\confedit.py:771
+msgid "save_xmlconfig - no file selected"
+msgstr "save_xmlconfig - nessun file selezionato"
+
+#: ..\confedit.py:793
 msgid "Save CPE XML Configuration File"
 msgstr "Salva file configurazione XML CPE"
 
-#: ..\confedit.py:835 ..\confedit.py:1064
+#: ..\confedit.py:798
+msgid "save_cpexmlconfig - saving "
+msgstr "save_cpexmlconfig - salvataggio "
+
+#: ..\confedit.py:801
+msgid "save_cpexmlconfig - no file selected"
+msgstr "save_cpexmlconfig - nessun file selezionato"
+
+#: ..\confedit.py:813
+msgid "save_cpexmlconfig - error opening "
+msgstr "save_cpexmlconfig - errore apertura "
+
+#: ..\confedit.py:828
+msgid "Exit with error "
+msgstr "Uscita con errore "
+
+#: ..\confedit.py:835
+msgid "not implemented yet\n"
+msgstr "non ancora implementato\n"
+
+#: ..\confedit.py:836 ..\confedit.py:1065
 msgid "Info"
 msgstr "Info"
 
-#: ..\confedit.py:835
+#: ..\confedit.py:836
 msgid "Not implemented yet"
 msgstr "Non ancora implementato"
 
-#: ..\confedit.py:918
+#: ..\confedit.py:919
 msgid "Level:"
 msgstr "Livello:"
 
-#: ..\confedit.py:930
+#: ..\confedit.py:931
 msgid "Message:"
 msgstr "Messaggio:"
 
-#: ..\confedit.py:933
+#: ..\confedit.py:934
 msgid "Submit"
 msgstr "Invia"
 
-#: ..\confedit.py:959
+#: ..\confedit.py:960
 msgid "Hardware Version: "
 msgstr "Versione hardware: "
 
-#: ..\confedit.py:962
+#: ..\confedit.py:963
 msgid "Manufacturer: "
 msgstr "Produttore: "
 
-#: ..\confedit.py:965
+#: ..\confedit.py:966
 msgid "Model Name: "
 msgstr "Nome modello: "
 
-#: ..\confedit.py:968
+#: ..\confedit.py:969
 msgid "Router customer ID: "
 msgstr "ID utente router: "
 
-#: ..\confedit.py:971
+#: ..\confedit.py:972
 msgid "Serial Number: "
 msgstr "Numero seriale: "
 
-#: ..\confedit.py:974
+#: ..\confedit.py:975
 msgid "Router IP (bridge interface): "
 msgstr "IP router (interfaccia bridge): "
 
-#: ..\confedit.py:977
+#: ..\confedit.py:978
 msgid "Router Net Mask (bridge interface): "
 msgstr "Net mask router (interfaccia bridge): "
 
-#: ..\confedit.py:980
+#: ..\confedit.py:981
 msgid "BSD GUI visible: "
 msgstr "GUI BSD visibile: "
 
-#: ..\confedit.py:983
+#: ..\confedit.py:984
 msgid "Restricted web GUI: "
 msgstr "GUI web con restrizioni: "
 
-#: ..\confedit.py:986
+#: ..\confedit.py:987
 msgid "Restricted CLI commands: "
 msgstr "Comandi CLI limitati: "
 
-#: ..\confedit.py:989
+#: ..\confedit.py:990
 msgid "Firmware upgrade enabled: "
 msgstr "Aggiornamento firmware abilitato: "
 
-#: ..\confedit.py:992
+#: ..\confedit.py:993
 msgid "Firmware downgrade enabled: "
 msgstr "Downgrade firmware abilitato: "
 
-#: ..\confedit.py:995
+#: ..\confedit.py:996
 msgid "Fix dlinkdns -> dlinkddns: "
 msgstr "Correggi dlinkdns -> dlinkddns: "
 
-#: ..\confedit.py:1004
+#: ..\confedit.py:1005
 msgid "Main configuration file (XML): "
 msgstr "File configurazione principale (XML): "
 
-#: ..\confedit.py:1007
+#: ..\confedit.py:1008
 msgid "CPE configuration file (XML) : "
 msgstr "File configurazione CPE (XML) :       "
 
-#: ..\confedit.py:1018
+#: ..\confedit.py:1019
 msgid "ADB Config Editor"
 msgstr "ADB Config Editor"
 
-#: ..\confedit.py:1026
+#: ..\confedit.py:1027
 msgid "Router Info"
 msgstr "Info router"
 
-#: ..\confedit.py:1029
+#: ..\confedit.py:1030
 msgid "Console"
 msgstr "Console"
 
-#: ..\confedit.py:1033
+#: ..\confedit.py:1034
 msgid "Configuration loading status"
 msgstr "Stato caricamento configurazione"
 
-#: ..\confedit.py:1049
+#: ..\confedit.py:1050
 msgid "Open configuration file (BIN format)"
 msgstr "Apri file configurazione (formato BIN)"
 
-#: ..\confedit.py:1050
+#: ..\confedit.py:1051
 msgid "Open configuration file (XML format)"
 msgstr "Apri file configurazione (formato XML)"
 
-#: ..\confedit.py:1051
+#: ..\confedit.py:1052
 msgid "Open CPE configuration file (XML format)"
 msgstr "Apri file configurazione CPE (formato XML)"
 
-#: ..\confedit.py:1052
+#: ..\confedit.py:1053
 msgid "Save configuration file (BIN format)"
 msgstr "Salva file configurazione (formato BIN)"
 
-#: ..\confedit.py:1053
+#: ..\confedit.py:1054
 msgid "Save configuration file (XML format)"
 msgstr "Salva file configurazione (formato XML)"
 
-#: ..\confedit.py:1054
+#: ..\confedit.py:1055
 msgid "Save CPE configuration file (XML format)"
 msgstr "Salva file configurazione CPE (formato XML)"
 
-#: ..\confedit.py:1055
+#: ..\confedit.py:1056
 msgid "Exit"
 msgstr "Esci"
 
-#: ..\confedit.py:1056
+#: ..\confedit.py:1057
 msgid "File"
 msgstr "File"
 
-#: ..\confedit.py:1059
+#: ..\confedit.py:1060
 msgid "Show passwords"
 msgstr "Visualizza password"
 
-#: ..\confedit.py:1060
+#: ..\confedit.py:1061
 msgid "Show restricted commands"
 msgstr "Visualizza comandi limitati"
 
-#: ..\confedit.py:1061
+#: ..\confedit.py:1062
 msgid "Save passwords"
 msgstr "Salva password"
 
-#: ..\confedit.py:1062
+#: ..\confedit.py:1063
 msgid "Save restriced commands"
 msgstr "Salva comandi limitati"
 
-#: ..\confedit.py:1063
+#: ..\confedit.py:1064
 msgid "Info about program"
 msgstr "Info sul programma"
 
-#: ..\confedit.py:1067
+#: ..\confedit.py:1068
 msgid "Unlock restricted web GUI"
 msgstr "Sblocca restrizioni interfaccia web"
 
-#: ..\confedit.py:1068
+#: ..\confedit.py:1069
 msgid "Unlock restricted CLI commands"
 msgstr "Sblocca restrizioni comandi CLI"
 
-#: ..\confedit.py:1069
+#: ..\confedit.py:1070
 msgid "Enable firmware upgrade/downgrade"
 msgstr "Abilita aggiornamento/downgrade firmware"
 
-#: ..\confedit.py:1070
+#: ..\confedit.py:1071
 msgid "Fix dlinkdns -> dlinkddns"
 msgstr "Correggi dlinkdns -> dlinkddns"
 
-#: ..\confedit.py:1071
+#: ..\confedit.py:1072
 msgid "Settings"
 msgstr "Impostazioni"
 
-#: ..\confedit.py:1072
+#: ..\confedit.py:1073
 msgid "Edit"
 msgstr "Modifica"
 
-#: ..\confedit.py:1096
+#: ..\confedit.py:1097
 msgid "OK"
 msgstr "OK"
 
-#: ..\confedit.py:1125
+#: ..\confedit.py:1126
 msgid "Available language: "
 msgstr "Lingue disponibili: "
 
-#: ..\confedit.py:1158
+#: ..\confedit.py:1159
 msgid "Print debugging info"
 msgstr "Stampa info debug"
 
-#: ..\confedit.py:1162
+#: ..\confedit.py:1163
 msgid "Use last used folder as load/save location"
 msgstr "Usa ultima cartella selezionata per percorso operazioni apri/salva"
 
-#: ..\confedit.py:1166
+#: ..\confedit.py:1167
 msgid "Save/Load default folder"
 msgstr "Cartella predefinita operazioni apri/salva"
 
-#: ..\confedit.py:1172
+#: ..\confedit.py:1173
 msgid "Preference file in program folder instead of user's folder"
 msgstr "File impostazioni nella cartella programma invece di cartella utente"
 
-#: ..\confedit.py:1177
+#: ..\confedit.py:1178
 msgid "Default Language (restart needed after change)"
 msgstr "Lingua predefinita (richiede riavvio programma dopo modifica)"
 
-#: ..\confedit.py:1183
+#: ..\confedit.py:1184
 msgid "Cancel"
 msgstr "Annulla"
 
-#: ..\confedit.py:1186
+#: ..\confedit.py:1187
 msgid "Save"
 msgstr "Salva"
 
-#: ..\confedit.py:1261
+#: ..\confedit.py:1243
+msgid "Removing user's preference file "
+msgstr "Rimozione file impostazioni utente "
+
+#: ..\confedit.py:1247 ..\confedit.py:1255
+msgid "Error removing "
+msgstr "Errore rimozione "
+
+#: ..\confedit.py:1251
+msgid "Removing preference file in program folder: "
+msgstr "Rimozione file impostazioni dalla cartella "
+
+#: ..\confedit.py:1262
 msgid "Folder name error"
 msgstr "Errore nome cartella"
 
-#: ..\confedit.py:1261
+#: ..\confedit.py:1262
 msgid "Folder not available: "
 msgstr "Cartella non disponibile: "
 
-#: ..\confedit.py:1309
+#: ..\confedit.py:1277 ..\confedit.py:1298
+msgid "---- Passwords from main configuration file ----"
+msgstr "---- Password nel file di configurazione principale ----"
+
+#: ..\confedit.py:1280 ..\confedit.py:1301
+msgid "---- Main configuration file not loaded ----"
+msgstr "---- File di configurazione principale non caricato ----"
+
+#: ..\confedit.py:1283 ..\confedit.py:1304
+msgid "---- Passwords from CPE configuration file ----"
+msgstr "---- Password nel file di configurazione CPE ----"
+
+#: ..\confedit.py:1286 ..\confedit.py:1307
+msgid "---- CPE configuration file not loaded ----"
+msgstr "---- File di configurazione CPE non caricato ----"
+
+#: ..\confedit.py:1310
 msgid "Text password file"
 msgstr "File password testo"
 
-#: ..\confedit.py:1310
+#: ..\confedit.py:1311
 msgid "Choose a file"
 msgstr "Scegli un file"
 
-#: ..\confedit.py:1337
+#: ..\confedit.py:1319
+msgid "Error writing "
+msgstr "Errore scrittura "
+
+#: ..\confedit.py:1338
 msgid "Preference file in program folder"
 msgstr "File impostazioni nella cartella programma"
 
-#: ..\confedit.py:1382 ..\confedit.py:1383
+#: ..\confedit.py:1383 ..\confedit.py:1384
 msgid "not loaded"
 msgstr "non caricato"
+
+#: ..\confedit.py:1391
+msgid "mydir:      "
+msgstr "mydir:      "
+
+#: ..\confedit.py:1392
+msgid "down_pem:   "
+msgstr "down_pem:   "
+
+#: ..\confedit.py:1393
+msgid "tmpradix:   "
+msgstr "tmpradix:   "
+
+#: ..\confedit.py:1394
+msgid "tmpconf:    "
+msgstr "tmpconf:    "
+
+#: ..\confedit.py:1395
+msgid "tmpconfcpe: "
+msgstr "tmpconfcpe: "
+
+#: ..\confedit.py:1396
+msgid "homedir:    "
+msgstr "homedir:    "
+
+#: ..\confedit.py:1397
+msgid "inifile:    "
+msgstr "inifile:    "
 
 #: ..\confedit.py:1398
 msgid "Default language: "
@@ -429,8 +609,8 @@ msgid "Usage: pkcrypt.py [ -l it|en ] sym_encrypt|sym_decrypt <key> <in> <out>"
 msgstr "Uso: pkcrypt.py [ -l it|en ] sym_encrypt|sym_decrypt <key> <in> <out>"
 
 #: ..\pkcrypt.py:47
-msgid "Error: First argument must be 'sym_encrypt' or 'sym_decrypt'."
-msgstr "Erre: il primo argomento deve essere 'sym_encrypt' or 'sym_decrypt'."
+msgid "Error: first argument must be 'sym_encrypt' or 'sym_decrypt'."
+msgstr "Errore: il primo argomento deve essere 'sym_encrypt' or 'sym_decrypt'."
 
 #: ..\pkcrypt.py:84
 msgid "Operation not supported"
