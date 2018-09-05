@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-30 08:58+0200\n"
+"POT-Creation-Date: 2018-09-05 11:34+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,10 +17,10 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ..\confbin2xml.py:9
+#: ..\confbin2xml.py:43
 msgid ""
-"Usage: confbin2xml.py  <key4conf> <key4cpe> <conf_bin> <conf_xml> "
-"<confcpe_xml>"
+"Usage: confbin2xml.py  [ -l it|en ] <key4conf> <key4cpe> <conf_bin> "
+"<conf_xml> <confcpe_xml>"
 msgstr ""
 
 #: ..\confedit.py:104
@@ -94,7 +94,7 @@ msgid ""
 "\n"
 msgstr ""
 
-#: ..\confedit.py:420 ..\confedit.py:1063
+#: ..\confedit.py:420
 msgid "About"
 msgstr ""
 
@@ -225,11 +225,11 @@ msgid "Fix dlinkdns -> dlinkddns: "
 msgstr ""
 
 #: ..\confedit.py:1004
-msgid "Main XML config file source: "
+msgid "Main configuration file (XML): "
 msgstr ""
 
 #: ..\confedit.py:1007
-msgid "CPE XML config file source: "
+msgid "CPE configuration file (XML) : "
 msgstr ""
 
 #: ..\confedit.py:1018
@@ -249,27 +249,27 @@ msgid "Configuration loading status"
 msgstr ""
 
 #: ..\confedit.py:1049
-msgid "Open bin config"
+msgid "Open configuration file (BIN format)"
 msgstr ""
 
 #: ..\confedit.py:1050
-msgid "Open xml config"
+msgid "Open configuration file (XML format)"
 msgstr ""
 
 #: ..\confedit.py:1051
-msgid "Open CPE xml config"
+msgid "Open CPE configuration file (XML format)"
 msgstr ""
 
 #: ..\confedit.py:1052
-msgid "Save as bin config"
+msgid "Save configuration file (BIN format)"
 msgstr ""
 
 #: ..\confedit.py:1053
-msgid "Save as xml config"
+msgid "Save configuration file (XML format)"
 msgstr ""
 
 #: ..\confedit.py:1054
-msgid "Save as CPE xml config"
+msgid "Save CPE configuration file (XML format)"
 msgstr ""
 
 #: ..\confedit.py:1055
@@ -296,6 +296,10 @@ msgstr ""
 msgid "Save restriced commands"
 msgstr ""
 
+#: ..\confedit.py:1063
+msgid "Info about program"
+msgstr ""
+
 #: ..\confedit.py:1067
 msgid "Unlock restricted web GUI"
 msgstr ""
@@ -313,7 +317,7 @@ msgid "Fix dlinkdns -> dlinkddns"
 msgstr ""
 
 #: ..\confedit.py:1071
-msgid "Preferences"
+msgid "Settings"
 msgstr ""
 
 #: ..\confedit.py:1072
@@ -377,27 +381,27 @@ msgid "Preference file in program folder"
 msgstr ""
 
 #: ..\confedit.py:1382 ..\confedit.py:1383
-msgid "Not loaded"
+msgid "not loaded"
 msgstr ""
 
 #: ..\confedit.py:1398
 msgid "Default language: "
 msgstr ""
 
-#: ..\confxml2bin.py:9
+#: ..\confxml2bin.py:43
 msgid ""
-"Usage: confxml2bin.py  <key4conf> <key4cpe> <conf_xml> <confcpe_xml> "
-"<conf_bin>"
+"Usage: confxml2bin.py  [ -l it|en ] <key4conf> <key4cpe> <conf_xml> "
+"<confcpe_xml> <conf_bin>"
 msgstr ""
 
-#: ..\pkcrypt.py:7
-msgid "Usage: pkcrypt.py sym_encrypt|sym_decrypt <key> <in> <out>"
+#: ..\pkcrypt.py:42
+msgid "Usage: pkcrypt.py [ -l it|en ] sym_encrypt|sym_decrypt <key> <in> <out>"
 msgstr ""
 
-#: ..\pkcrypt.py:12
+#: ..\pkcrypt.py:47
 msgid "Error: First argument must be 'sym_encrypt' or 'sym_decrypt'."
 msgstr ""
 
-#: ..\pkcrypt.py:49
+#: ..\pkcrypt.py:84
 msgid "Operation not supported"
 msgstr ""

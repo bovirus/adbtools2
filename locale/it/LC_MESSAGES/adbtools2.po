@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: adbstool2 (v. 29.08.2018)\n"
+"Project-Id-Version: adbstool2 (v. 05.09.2018)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-30 08:56+0200\n"
-"PO-Revision-Date: 2018-08-30 08:58+0200\n"
+"POT-Creation-Date: 2018-09-05 11:34+0200\n"
+"PO-Revision-Date: 2018-09-05 11:37+0200\n"
 "Last-Translator: \n"
 "Language-Team: bovirus@gmail.com\n"
 "Language: it_IT\n"
@@ -19,12 +19,13 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: ..\confbin2xml.py:9
+#: ..\confbin2xml.py:43
 msgid ""
-"Usage: confbin2xml.py  <key4conf> <key4cpe> <conf_bin> <conf_xml> "
-"<confcpe_xml>"
+"Usage: confbin2xml.py  [ -l it|en ] <key4conf> <key4cpe> <conf_bin> "
+"<conf_xml> <confcpe_xml>"
 msgstr ""
-"Uso: confbin2xml.py  <key4conf> <key4cpe> <conf_bin> <conf_xml> <confcpe_xml>"
+"Uso: confbin2xml.py  [ -l it|en ] <key4conf> <key4cpe> <conf_bin> <conf_xml> "
+"<confcpe_xml>"
 
 #: ..\confedit.py:104
 msgid "Text file"
@@ -99,7 +100,7 @@ msgid ""
 "\n"
 msgstr ""
 "ADB Configuration Editor (confedit)\n"
-"Copyright (c) 2018 Valerio Di Giampietro (programma pricnipale)\n"
+"Copyright (c) 2018 Valerio Di Giampietro (programma principale)\n"
 "Copyright (c) 2017 Gabriel Huber (algoritmo decriptazione)\n"
 "Copyright (c) 2017 Benjamin Bertrand (interfaccia Windows)\n"
 "\n"
@@ -119,7 +120,7 @@ msgstr ""
 "O ALTRE DISPOSIZIONI DEL SOFTWARE.\n"
 "\n"
 
-#: ..\confedit.py:420 ..\confedit.py:1063
+#: ..\confedit.py:420
 msgid "About"
 msgstr "Info sul programma"
 
@@ -252,12 +253,12 @@ msgid "Fix dlinkdns -> dlinkddns: "
 msgstr "Correggi dlinkdns -> dlinkddns: "
 
 #: ..\confedit.py:1004
-msgid "Main XML config file source: "
-msgstr "File sorgente configurazione XML principale: "
+msgid "Main configuration file (XML): "
+msgstr "File configurazione principale (XML): "
 
 #: ..\confedit.py:1007
-msgid "CPE XML config file source: "
-msgstr "File sorgente configurazione XML CPE: "
+msgid "CPE configuration file (XML) : "
+msgstr "File configurazione CPE (XML) :       "
 
 #: ..\confedit.py:1018
 msgid "ADB Config Editor"
@@ -276,28 +277,28 @@ msgid "Configuration loading status"
 msgstr "Stato caricamento configurazione"
 
 #: ..\confedit.py:1049
-msgid "Open bin config"
-msgstr "Apri file binario configurazione"
+msgid "Open configuration file (BIN format)"
+msgstr "Apri file configurazione (formato BIN)"
 
 #: ..\confedit.py:1050
-msgid "Open xml config"
-msgstr "Apri file XML configurazione"
+msgid "Open configuration file (XML format)"
+msgstr "Apri file configurazione (formato XML)"
 
 #: ..\confedit.py:1051
-msgid "Open CPE xml config"
-msgstr "Apri file XML configurazione CPE"
+msgid "Open CPE configuration file (XML format)"
+msgstr "Apri file configurazione CPE (formato XML)"
 
 #: ..\confedit.py:1052
-msgid "Save as bin config"
-msgstr "Salva file binario configurazione"
+msgid "Save configuration file (BIN format)"
+msgstr "Salva file configurazione (formato BIN)"
 
 #: ..\confedit.py:1053
-msgid "Save as xml config"
-msgstr "Salva file XML configurazione"
+msgid "Save configuration file (XML format)"
+msgstr "Salva file configurazione (formato XML)"
 
 #: ..\confedit.py:1054
-msgid "Save as CPE xml config"
-msgstr "Salva file XML configurazione CPE"
+msgid "Save CPE configuration file (XML format)"
+msgstr "Salva file configurazione CPE (formato XML)"
 
 #: ..\confedit.py:1055
 msgid "Exit"
@@ -323,6 +324,10 @@ msgstr "Salva password"
 msgid "Save restriced commands"
 msgstr "Salva comandi limitati"
 
+#: ..\confedit.py:1063
+msgid "Info about program"
+msgstr "Info sul programma"
+
 #: ..\confedit.py:1067
 msgid "Unlock restricted web GUI"
 msgstr "Sblocca restrizioni interfaccia web"
@@ -340,7 +345,7 @@ msgid "Fix dlinkdns -> dlinkddns"
 msgstr "Correggi dlinkdns -> dlinkddns"
 
 #: ..\confedit.py:1071
-msgid "Preferences"
+msgid "Settings"
 msgstr "Impostazioni"
 
 #: ..\confedit.py:1072
@@ -361,11 +366,11 @@ msgstr "Stampa info debug"
 
 #: ..\confedit.py:1162
 msgid "Use last used folder as load/save location"
-msgstr "Usa ultima cartella selezionata per percorso caricamento/salvataggio"
+msgstr "Usa ultima cartella selezionata per percorso operazioni apri/salva"
 
 #: ..\confedit.py:1166
 msgid "Save/Load default folder"
-msgstr "Cartella predefinita caricament/salvataggio"
+msgstr "Cartella predefinita operazioni apri/salva"
 
 #: ..\confedit.py:1172
 msgid "Preference file in program folder instead of user's folder"
@@ -373,7 +378,7 @@ msgstr "File impostazioni nella cartella programma invece di cartella utente"
 
 #: ..\confedit.py:1177
 msgid "Default Language (restart needed after change)"
-msgstr "Lingau rpedefinita (richiede riavvio programma dopo modifica)"
+msgstr "Lingua predefinita (richiede riavvio programma dopo modifica)"
 
 #: ..\confedit.py:1183
 msgid "Cancel"
@@ -404,28 +409,29 @@ msgid "Preference file in program folder"
 msgstr "File impostazioni nella cartella programma"
 
 #: ..\confedit.py:1382 ..\confedit.py:1383
-msgid "Not loaded"
-msgstr "Non caricato"
+msgid "not loaded"
+msgstr "non caricato"
 
 #: ..\confedit.py:1398
 msgid "Default language: "
 msgstr "Lingua predefinità: "
 
-#: ..\confxml2bin.py:9
+#: ..\confxml2bin.py:43
 msgid ""
-"Usage: confxml2bin.py  <key4conf> <key4cpe> <conf_xml> <confcpe_xml> "
-"<conf_bin>"
+"Usage: confxml2bin.py  [ -l it|en ] <key4conf> <key4cpe> <conf_xml> "
+"<confcpe_xml> <conf_bin>"
 msgstr ""
-"Uso: confxml2bin.py  <key4conf> <key4cpe> <conf_xml> <confcpe_xml> <conf_bin>"
+"Uso: confxml2bin.py  [ -l it|en ] <key4conf> <key4cpe> <conf_xml> "
+"<confcpe_xml> <conf_bin>"
 
-#: ..\pkcrypt.py:7
-msgid "Usage: pkcrypt.py sym_encrypt|sym_decrypt <key> <in> <out>"
-msgstr "Uso: pkcrypt.py sym_encrypt|sym_decrypt <key> <in> <out>"
+#: ..\pkcrypt.py:42
+msgid "Usage: pkcrypt.py [ -l it|en ] sym_encrypt|sym_decrypt <key> <in> <out>"
+msgstr "Uso: pkcrypt.py [ -l it|en ] sym_encrypt|sym_decrypt <key> <in> <out>"
 
-#: ..\pkcrypt.py:12
+#: ..\pkcrypt.py:47
 msgid "Error: First argument must be 'sym_encrypt' or 'sym_decrypt'."
 msgstr "Erre: il primo argomento deve essere 'sym_encrypt' or 'sym_decrypt'."
 
-#: ..\pkcrypt.py:49
+#: ..\pkcrypt.py:84
 msgid "Operation not supported"
 msgstr "Operazione non supportata"

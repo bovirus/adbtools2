@@ -1001,10 +1001,10 @@ class ThirdUi:
         global xml_src_lbl
         global cpexml_src_lbl
         self.frame = frame
-        ttk.Label(self.frame, text=_('Main XML config file source: ')).grid(column=0, row=1, sticky=W)
+        ttk.Label(self.frame, text=_('Main configuration file (XML): ')).grid(column=0, row=1, sticky=W)
         ttk.Label(self.frame, textvariable=xml_src).grid(column=1, row=1, sticky=W)
 
-        ttk.Label(self.frame, text=_('CPE XML config file source: ')).grid(column=0, row=2, sticky=W)
+        ttk.Label(self.frame, text=_('CPE configuration file (XML) : ')).grid(column=0, row=2, sticky=W)
         ttk.Label(self.frame, textvariable=cpexml_src).grid(column=1, row=2, sticky=W)
 
 
@@ -1046,13 +1046,13 @@ class App:
         root.config(menu=menubar)
 
         filem = Menu(menubar)
-        filem.add_command(label = _('Open bin config'),        command = load_config)
-        filem.add_command(label = _('Open xml config'),        command = load_xmlconfig)
-        filem.add_command(label = _('Open CPE xml config'),    command = load_cpexmlconfig)
-        filem.add_command(label = _('Save as bin config'),     command = save_config, state = DISABLED)
-        filem.add_command(label = _('Save as xml config'),     command = save_xmlconfig, state = DISABLED)
-        filem.add_command(label = _('Save as CPE xml config'), command = save_cpexmlconfig, state = DISABLED)
-        filem.add_command(label = _('Exit'),                   command = confquit)        
+        filem.add_command(label = _('Open configuration file (BIN format)'),        command = load_config)
+        filem.add_command(label = _('Open configuration file (XML format)'),        command = load_xmlconfig)
+        filem.add_command(label = _('Open CPE configuration file (XML format)'),    command = load_cpexmlconfig)
+        filem.add_command(label = _('Save configuration file (BIN format)'),        command = save_config, state = DISABLED)
+        filem.add_command(label = _('Save configuration file (XML format)'),        command = save_xmlconfig, state = DISABLED)
+        filem.add_command(label = _('Save CPE configuration file (XML format)'),    command = save_cpexmlconfig, state = DISABLED)
+        filem.add_command(label = _('Exit'),                                        command = confquit)        
         menubar.add_cascade(label = _('File'), menu = filem)
 
         infom = Menu(menubar)
@@ -1060,7 +1060,7 @@ class App:
         infom.add_command(label = _('Show restricted commands'), command = show_restricted, state = DISABLED)
         infom.add_command(label = _('Save passwords'),           command = save_passwords, state = DISABLED)
         infom.add_command(label = _('Save restriced commands'),  command = save_restricted, state = DISABLED)
-        infom.add_command(label = _('About'),                    command = about)
+        infom.add_command(label = _('Info about program'),                    command = about)
         menubar.add_cascade(label = _('Info'), menu = infom)
 
         editm = Menu(menubar)
@@ -1068,7 +1068,7 @@ class App:
         editm.add_command(label = _('Unlock restricted CLI commands'),    command = enable_restricted_cli, state = DISABLED)
         editm.add_command(label = _('Enable firmware upgrade/downgrade'), command = enable_fw_upgrade, state = DISABLED)
         editm.add_command(label = _('Fix dlinkdns -> dlinkddns'),         command = fix_dlinkddns, state = DISABLED)        
-        editm.add_command(label = _('Preferences'),                       command = edit_preference)        
+        editm.add_command(label = _('Settings'),                          command = edit_preference)        
         menubar.add_cascade(label = _('Edit'), menu = editm)
 
         
@@ -1379,8 +1379,8 @@ rtr_rwebgui.set('                   ')
 rtr_rcli.set('                   ')
 rtr_fixddns.set('                   ')
 
-xml_src.set(_('Not loaded'))
-cpexml_src.set(_('Not loaded'))
+xml_src.set(_('not loaded'))
+cpexml_src.set(_('not loaded'))
 
 
 app = App(root)
