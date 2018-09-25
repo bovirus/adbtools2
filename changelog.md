@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [v0.86] - 2018-09-25
+
+### Changed
+
+* [hack-script] fixed the bug that prevented loading of unsigned
+  firmware if it was based on an older firmware version than the
+  current one
+
 ## [v0.85] - 2018-09-25
 
 ### Changed

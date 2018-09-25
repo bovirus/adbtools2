@@ -124,3 +124,7 @@ echo "enable, until reboot, upgrade with an unsigned firmware"
 cp -p /usr/sbin/upgrade.sh /tmp/upgrade.sh
 cat /usr/sbin/upgrade.sh | sed  -r 's/ret_code\=\$\?/ret_code\=0/' > /tmp/upgrade.sh
 su -c "mount --bind /tmp/upgrade.sh /usr/sbin/upgrade.sh" -
+
+cp -p /usr/sbin/custom-upgrade-check.sh /tmp/custom-upgrade-check.sh
+cat /usr/sbin/custom-upgrade-check.sh | sed 's/^exit 12/\$\(printError "ignoring previous error"\)/' > /tmp/custom-upgrade-check.sh
+su -c "mount --bind /tmp/custom-upgrade-check.sh /usr/sbin/custom-upgrade-check.sh" -
