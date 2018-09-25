@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [v0.85] - 2018-09-25
+
+### Changed
+
+* [confedit] fixed the upgrade/downgrade bug appeared with the
+  firmware DVA-5592_A1_WI_20180823.sig: now it is possible to enable
+  upgrade/downgrade also in this release
+
 ## [v0.84]
 
 ### Added

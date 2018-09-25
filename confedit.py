@@ -66,6 +66,7 @@ inidir      = os.environ.get('APPDATA',homedir)   # default location for .confed
 inifile     = inidir + '/.confedit.ini'
 userinifile = inifile                             # ini file in user folder
 proginifile = mydir + '/.confedit.ini'            # ini file in program folder
+blank20     = '                   '
 
 def language_set(lan):
     global _
@@ -237,7 +238,10 @@ def get_info (xml_str):
 
     for i in xmlroot.findall(".//DeviceInfo/X_DLINK_fw_upgr_permitted"):
         rtr_fwupgrade.set(i.text)
-
+    print("rtr_fwupgrade.get():" + rtr_fwupgrade.get()  + ":")
+    if rtr_fwupgrade.get() == blank20 :
+        rtr_fwupgrade.set('undef')
+        
     for i in xmlroot.findall(".//DeviceInfo/X_DLINK_customer_ID"):
         rtr_customerid.set(i.text)
 
@@ -246,7 +250,10 @@ def get_info (xml_str):
 
     for i in xmlroot.findall(".//DeviceInfo/X_DLINK_AllowFirmwareDowngrade"):
         rtr_fwdowngrade.set(i.text)
-
+    print("rtr_fwupgrade.get():" + rtr_fwupgrade.get()  + ":")
+    if rtr_fwdowngrade.get() == blank20 :
+        rtr_fwdowngrade.set('undef')
+        
     for i in xmlroot.findall(".//IP/Interface/IPv4Address/IPAddress"):
         parent = i.getparent()
         granpa = parent.getparent()
@@ -361,19 +368,19 @@ def check_enable_menu ():
         
         
     if ((loaded_bin == 0) and (loaded_cpe == 0)):
-        rtr_hwversion.set('                   ')
-        rtr_manufacturer.set('                   ')
-        rtr_modelname.set('                   ')
-        rtr_serial.set('                   ')
-        rtr_fwupgrade.set('                   ')
-        rtr_customerid.set('                   ')
-        rtr_bsdgui.set('                   ')
-        rtr_fwdowngrade.set('                   ')
-        rtr_ip.set('                   ')
-        rtr_mask.set('                   ')
-        rtr_rwebgui.set('                   ')
-        rtr_rcli.set('                   ')
-        rtr_fixddns.set('                   ')
+        rtr_hwversion.set(blank20)
+        rtr_manufacturer.set(blank20)
+        rtr_modelname.set(blank20)
+        rtr_serial.set(blank20)
+        rtr_fwupgrade.set(blank20)
+        rtr_customerid.set(blank20)
+        rtr_bsdgui.set(blank20)
+        rtr_fwdowngrade.set(blank20)
+        rtr_ip.set(blank20)
+        rtr_mask.set(blank20)
+        rtr_rwebgui.set(blank20)
+        rtr_rcli.set(blank20)
+        rtr_fixddns.set(blank20)
         
     logger.log(level,_("check_enable_menu - done"))
 
@@ -420,20 +427,42 @@ def about():
     popupmsg(_('About'), aboutstr + _("Program version: ") + versionstr + "\n")
 
 #------------------------------------------------------------------------------
-# enable_fw_upgrade   unable fw upgrade/downgrade 
+# enable_fw_upgrade   enable fw upgrade/downgrade 
 #------------------------------------------------------------------------------
 def enable_fw_upgrade():
     global cpedata_out
+    global rtr_fwupgrade
+    global rtr_fwdowngrade
     cpedata_out = re.sub(b'<X_DLINK_fw_upgr_permitted>false</X_DLINK_fw_upgr_permitted>',
                          b'<X_DLINK_fw_upgr_permitted>true</X_DLINK_fw_upgr_permitted>',
                          cpedata_out,
                          0,
                          re.DOTALL)
+
     cpedata_out = re.sub(b'<X_DLINK_AllowFirmwareDowngrade>false</X_DLINK_AllowFirmwareDowngrade>',
                          b'<X_DLINK_AllowFirmwareDowngrade>true</X_DLINK_AllowFirmwareDowngrade>',
                          cpedata_out,
                          0,
                          re.DOTALL)
+
+    if (rtr_fwupgrade.get() == 'undef'):
+        print ("rtr_fwupgrade is undef")
+        cpedata_out = re.sub(b'(</X_ADB_TR098Ready>.)(\s+<X_DLINK_customer_ID>\S+.)',
+                             b'\g<1><X_DLINK_fw_upgr_permitted>true</X_DLINK_fw_upgr_permitted>\g<2>',
+                             cpedata_out,
+                             0,
+                             re.DOTALL)
+
+
+    if (rtr_fwdowngrade.get() == 'undef'):
+        print ("rtr_fwdowngrade is undef")
+        cpedata_out = re.sub(b'(</X_DLINK_BsdGuiVisible>.)(\s+<X_ADB_PowerManagement\S+.)',
+                             b'\g<1><X_DLINK_AllowFirmwareDowngrade>true</X_DLINK_AllowFirmwareDowngrade>\g<2>',
+                             cpedata_out,
+                             0,
+                             re.DOTALL)
+        
+        
     get_info(cpedata_out)
     logger.log(lerr,_("enable_fw_upgrade - firmware upgrade/downgrade enabled"))
     
@@ -1364,19 +1393,19 @@ rtr_rwebgui      = tk.StringVar()
 rtr_rcli         = tk.StringVar()
 rtr_fixddns      = tk.StringVar()
 
-rtr_hwversion.set('                   ')
-rtr_manufacturer.set('                   ')
-rtr_modelname.set('                   ')
-rtr_serial.set('                   ')
-rtr_fwupgrade.set('                   ')
-rtr_customerid.set('                   ')
-rtr_bsdgui.set('                   ')
-rtr_fwdowngrade.set('                   ')
-rtr_ip.set('                   ')
-rtr_mask.set('                   ')
-rtr_rwebgui.set('                   ')
-rtr_rcli.set('                   ')
-rtr_fixddns.set('                   ')
+rtr_hwversion.set(blank20)
+rtr_manufacturer.set(blank20)
+rtr_modelname.set(blank20)
+rtr_serial.set(blank20)
+rtr_fwupgrade.set(blank20)
+rtr_customerid.set(blank20)
+rtr_bsdgui.set(blank20)
+rtr_fwdowngrade.set(blank20)
+rtr_ip.set(blank20)
+rtr_mask.set(blank20)
+rtr_rwebgui.set(blank20)
+rtr_rcli.set(blank20)
+rtr_fixddns.set(blank20)
 
 xml_src.set(_('not loaded'))
 cpexml_src.set(_('not loaded'))
