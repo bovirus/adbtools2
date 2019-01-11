@@ -1,8 +1,14 @@
 @ECHO OFF
+
+SET PROGRAM.NAME=adbtools2
+SET FILE.NAME=adbtools2
+SET MSGFMT.OPTIONS=
+
 CLS
-ECHO ********************************************
-ECHO * adbtools2 - Convert PO files in MO files *
-ECHO ********************************************
+ECHO ******************************************
+ECHO * %PROGRAM.NAME%
+ECHO * Convert PO files in MO files
+ECHO ******************************************
 ECHO.
 ECHO.
 ECHO      #### Press any key to continue ####
@@ -10,22 +16,25 @@ ECHO      ####   Press CTRL+C to break   ####
 PAUSE >NUL
 
 CLS
-ECHO ********************************************
-ECHO * adbtools2 - Convert PO files in MO files *
-ECHO ********************************************
+ECHO ******************************************
+ECHO * %PROGRAM.NAME%
+ECHO * Convert PO files in MO files
+ECHO ******************************************
 ECHO.
-ECHO.
-
 
 for %%x in (it) do (
-ECHO **** Country = %%x - Decompiling 'adbtools2.po' in 'adbtools2.mo'....
-msgfmt ..\locale\%%x\lc_messages\adbtools2.po -o ..\locale\%%x\lc_messages\adbtools2.mo
 
-ECHO *****************************************************************
+ECHO **** Country = %%x - Compiling '%FILE.NAME%.po' in '%FILE.NAME%.mo'....
+msgfmt %MSGFMT.OPTIONS% ..\locale\%%x\lc_messages\%FILE.NAME%.po -o ..\locale\%%x\lc_messages\%FILE.NAME%.mo > NUL
+ECHO.
 )
 
 ECHO.
 ECHO.
-ECHO      **** Press any key to exit ****
+ECHO      #### Press any key to exit ####
 
-pause >NUl
+PAUSE > NUL
+
+SET PROGRAM.NAME=
+SET FILE.NAME=
+SET MSGFMT.OPTIONS=
